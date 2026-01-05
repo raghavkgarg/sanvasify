@@ -16,3 +16,10 @@ New file: .gitignore
 # Local development and debug files
 Debug.txt
 scratch.txt
+
+# Go build artifacts
+sanvasify-server
+sanvasify
+
+# macOS system files
+.DS_Store

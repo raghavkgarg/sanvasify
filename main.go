@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -35,7 +40,30 @@ func main() {
 	// ListenAndServe starts an HTTP server with a given address and handler.
 	// It always returns a non-nil error. We use log.Fatal to print the error
 	// and exit the program if the server fails to start.
-	if err := http.ListenAndServe(addr, mux); err != nil {
-		log.Fatalf("could not start server: %v\n", err)
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 3 * time.Second,
 	}
+
+	// Run our server in a goroutine so that it doesn't block.
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("could not start server: %v\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 5 seconds.
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+
+	log.Println("Server exiting")
 }

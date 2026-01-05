@@ -2,9 +2,16 @@
 
 A simple, robust, and production-ready static file server written in Go. This project serves a standard HTML, CSS, and JavaScript website and is designed for cross-compilation and deployment on ARM64 Linux servers, such as AWS EC2 t4g instances.
 
+## Features
+
+-   **Configurable:** Set the server port and static file directory via command-line flags.
+-   **Request Logging:** All incoming requests are logged to standard output with their method, path, and duration, providing visibility into server traffic.
+-   **Graceful Shutdown:** The server shuts down gracefully on a `SIGINT` or `SIGTERM` signal, ensuring in-flight requests are completed before the process exits.
+-   **Production Hardened:** Includes sensible timeouts for reading requests and writing responses to prevent resource exhaustion from slow clients.
+
 ## Project Structure
 
-The project is organized to keep backend and frontend code separate and clean.
+The project is organized to keep backend, frontend, and documentation separate and clean.
 
 ```
 sanvasify/

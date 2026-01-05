@@ -12,6 +12,21 @@ import (
 	"time"
 )
 
+// loggingMiddleware logs the incoming HTTP request.
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		log.Printf(
+			"%s %s %s %v",
+			r.Method,
+			r.RequestURI,
+			r.Proto,
+			time.Since(start),
+		)
+	})
+}
+
 func main() {
 	// 1. Configuration
 	// Define command-line flags for port and static file directory.
@@ -41,9 +56,12 @@ func main() {
 	// It always returns a non-nil error. We use log.Fatal to print the error
 	// and exit the program if the server fails to start.
 	srv := &http.Server{
-		Addr:              addr,
-		Handler:           mux,
-		ReadHeaderTimeout: 3 * time.Second,
+		Addr:    addr,
+		Handler: loggingMiddleware(mux),
+		// Good practice to set timeouts to avoid resource exhaustion.
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	// Run our server in a goroutine so that it doesn't block.

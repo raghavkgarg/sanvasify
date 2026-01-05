@@ -18,8 +18,14 @@ Debug.txt
 scratch.txt
 
 # Go build artifacts
-sanvasify-server
-sanvasify
+# Use a leading slash to only match binaries in the project root
+/sanvasify-server
+/sanvasify
 
 # macOS system files
 .DS_Store
+
+# Environment variables - never commit these
+.env
+.env.*
+!/.env.example

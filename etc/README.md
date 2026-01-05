@@ -17,7 +17,7 @@ The project is organized to keep backend, frontend, and documentation separate a
 sanvasify/
 ├── go.mod
 ├── main.go
-└── ui/
+└── web/
     └── static/
         ├── css/
         │   └── style.css

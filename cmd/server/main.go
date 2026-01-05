@@ -32,7 +32,7 @@ func main() {
 	// Define command-line flags for port and static file directory.
 	// This makes the server flexible for different environments.
 	port := flag.Int("port", 8080, "Port for the server to listen on")
-	staticDir := flag.String("dir", "ui/static", "The directory to serve static files from")
+	staticDir := flag.String("dir", "web/static", "The directory to serve static files from")
 	flag.Parse()
 
 	// 2. Handler Setup

@@ -6,11 +6,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
-	"sanvasify/data"
+	"github.com/raghavkgarg/sanvasify/pkg/conf"
+	"github.com/raghavkgarg/sanvasify/pkg/nav"
 )
 
-var report *data.NAVReport
+var report *nav.NAVReport
 
 type FilterOptions struct {
 	FundTypes           []string `json:"fund_types"`
@@ -21,18 +23,17 @@ type FilterOptions struct {
 }
 
 func main() {
-	port := flag.String("port", "8080", "port to serve on")
 	dir := flag.String("dir", "web/static", "directory of static files")
 	flag.Parse()
 
 	// Load and parse the data file
-	f, err := os.Open("data/SIF_DownloadNAVHistoryReport.aspx.txt")
+	f, err := os.Open(conf.Cfg.InputFile)
 	if err != nil {
 		log.Fatalf("Failed to open data file: %v", err)
 	}
 	defer f.Close()
 
-	report, err = data.ParseNAVReport(f)
+	report, err = nav.ParseNAVReport(f)
 	if err != nil {
 		log.Fatalf("Failed to parse report: %v", err)
 	}
@@ -48,13 +49,14 @@ func main() {
 	http.HandleFunc("/api/filters", handleFilters)
 	http.HandleFunc("/api/search", handleSearch)
 
-	log.Printf("Serving %s on HTTP port: %s\n", *dir, *port)
-	log.Fatal(http.ListenAndServe(":"+*port, nil))
+	port := strconv.Itoa(conf.Cfg.Server.Port)
+	log.Printf("Serving %s on HTTP port: %s\n", *dir, port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 // handleSchemes returns a list of all schemes for the dropdown
 func handleSchemes(w http.ResponseWriter, r *http.Request) {
-	schemes := make([]data.Scheme, 0)
+	schemes := make([]nav.Scheme, 0)
 	for _, s := range report.Strategies {
 		for _, fh := range s.FundHouses {
 			for _, sch := range fh.Schemes {
@@ -77,7 +79,7 @@ func handleNAV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var found *data.Scheme
+	var found *nav.Scheme
 	// Search for the scheme in the loaded report
 	for _, s := range report.Strategies {
 		for _, fh := range s.FundHouses {
@@ -174,7 +176,7 @@ func handleSearch(w http.ResponseWriter, r *http.Request) {
 	dist := r.URL.Query().Get("distribution_option")
 	mode := r.URL.Query().Get("purchase_mode")
 
-	var found *data.Scheme
+	var found *nav.Scheme
 
 	for _, s := range report.Strategies {
 		for _, fh := range s.FundHouses {

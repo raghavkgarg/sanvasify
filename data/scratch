@@ -1,0 +1,54 @@
+Scratch
+
+
+| Fund Type   | Fund Strategy |  Fund Company |   Distrubution Option | Purchase Mode | 
+
+
+Fund Type Can be : 
+
+					Open Ended Fund 
+					Close Ended Fund 
+					Interval Fund Schemes
+
+Fund Strategy can be : 
+					Equity Long-Short Fund 
+					Equity Ex-Top 100 Long-Short
+					Hybrid Long-Short Fund
+					..
+					 etc 
+
+
+Fund Company Can be  : 
+					Fund_house_name
+						Like ITI Mutual Fund
+
+Distrubution Option Can be : 
+				Income 
+				Growth 
+
+Purchanse Mode Can be : 
+				Direct Plan
+				Regular Plan 
+
+
+
+go mod tidy
+go build -o sanvasify-server cmd/server/main.go
+
+
+
+Here 
+Fund Type
+Distrubution Option 
+Purchanse Mode
+Are present in schme name , you have to parse it accordigly 
+updated the structure with new data fields 
+
+
+Now in Main.go and on front page of website
+
+Do not touch existing query for scheme names and showing NAV
+
+I want to add one additional query where Person will choose following 5 option with dropdown available and then 1 scheme selected will show it NAV 
+
+| Fund Type   | Fund Strategy |  Fund Company |   Distrubution Option | Purchase Mode | 

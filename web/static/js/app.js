@@ -50,4 +50,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Failed to fetch details for the selected scheme.');
             });
     });
+
+    // 3. Fetch filter options for Advanced Search
+    fetch('/api/filters')
+        .then(response => response.json())
+        .then(data => {
+            populateSelect('filter-type', data.fund_types);
+            populateSelect('filter-strategy', data.fund_strategies);
+            populateSelect('filter-company', data.fund_companies);
+            populateSelect('filter-dist', data.distribution_options);
+            populateSelect('filter-mode', data.purchase_modes);
+        })
+        .catch(error => console.error('Error fetching filters:', error));
+
+    function populateSelect(id, options) {
+        const select = document.getElementById(id);
+        options.sort().forEach(opt => {
+            if (opt) {
+                const el = document.createElement('option');
+                el.value = opt;
+                el.textContent = opt;
+                select.appendChild(el);
+            }
+        });
+    }
+
+    // 4. Handle Advanced Search
+    document.getElementById('btn-advanced-search').addEventListener('click', () => {
+        const filterType = document.getElementById('filter-type');
+        const filterStrategy = document.getElementById('filter-strategy');
+        const filterCompany = document.getElementById('filter-company');
+        const filterDist = document.getElementById('filter-dist');
+        const filterMode = document.getElementById('filter-mode');
+
+        const params = new URLSearchParams({
+            fund_type: filterType.value,
+            fund_strategy: filterStrategy.value,
+            fund_company: filterCompany.value,
+            distribution_option: filterDist.value,
+            purchase_mode: filterMode.value
+        });
+
+        fetch(`/api/search?${params}`)
+            .then(response => {
+                if (!response.ok) throw new Error('No scheme found matching these criteria');
+                return response.json();
+            })
+            .then(data => {
+                schemeNameEl.textContent = data.scheme_name;
+                navValueEl.textContent = `₹ ${data.net_asset_value}`;
+                navDateEl.textContent = data.date;
+                schemeCodeEl.textContent = data.scheme_code;
+                resultCard.style.display = 'block';
+            })
+            .catch(error => alert(error.message))
+            .finally(() => {
+                // Reset filters
+                filterType.value = "";
+                filterStrategy.value = "";
+                filterCompany.value = "";
+                filterDist.value = "";
+                filterMode.value = "";
+            });
+    });
 });

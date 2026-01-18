@@ -20,6 +20,11 @@ type Scheme struct {
 	// Context fields populated during parsing for easier flat searching/display
 	StrategyName  string `json:"strategy_name,omitempty"`
 	FundHouseName string `json:"fund_house_name,omitempty"`
+	FundType           string `json:"fund_type,omitempty"`
+	FundCompany        string `json:"fund_company,omitempty"`
+	FundStrategy       string `json:"fund_strategy,omitempty"`
+	DistributionOption string `json:"distribution_option,omitempty"`
+	PurchaseMode       string `json:"purchase_mode,omitempty"`
 }
 
 // FundHouse represents a mutual fund house (e.g., "ITI Mutual Fund") containing multiple schemes.
@@ -76,12 +81,18 @@ func ParseNAVReport(r io.Reader) (*NAVReport, error) {
 					Date:                parts[7],
 				}
 
+				scheme.DistributionOption = parseDistributionOption(scheme.Name)
+				scheme.PurchaseMode = parsePurchaseMode(scheme.Name)
+
 				// Populate context fields if context exists
 				if currentStrategy != nil {
 					scheme.StrategyName = currentStrategy.Name
+					scheme.FundType = parseFundType(currentStrategy.Name)
+					scheme.FundStrategy = parseFundStrategy(currentStrategy.Name)
 				}
 				if currentFundHouse != nil {
 					scheme.FundHouseName = currentFundHouse.Name
+					scheme.FundCompany = currentFundHouse.Name
 					currentFundHouse.Schemes = append(currentFundHouse.Schemes, scheme)
 				}
 			}
@@ -137,4 +148,55 @@ func (r *NAVReport) Search(strategyQuery, fundHouseQuery string) []Scheme {
 		}
 	}
 	return results
+}
+
+func parseFundType(strategyName string) string {
+	lower := strings.ToLower(strategyName)
+	if strings.Contains(lower, "open ended") {
+		return "Open Ended Fund"
+	}
+	if strings.Contains(lower, "close ended") {
+		return "Close Ended Fund"
+	}
+	if strings.Contains(lower, "interval fund") {
+		return "Interval Fund Schemes"
+	}
+	return ""
+}
+
+func parseFundStrategy(strategyName string) string {
+	start := strings.Index(strategyName, "(")
+	end := strings.LastIndex(strategyName, ")")
+	if start != -1 && end != -1 && end > start {
+		content := strategyName[start+1 : end]
+		parts := strings.Split(content, " - ")
+		if len(parts) > 1 {
+			return strings.TrimSpace(parts[len(parts)-1])
+		}
+		return strings.TrimSpace(content)
+	}
+	return ""
+}
+
+func parseDistributionOption(schemeName string) string {
+	lower := strings.ToLower(schemeName)
+	if strings.Contains(lower, "growth") {
+		return "Growth"
+	}
+	// IDCW Option is equal to Distribution Option : Income
+	if strings.Contains(lower, "idcw") || strings.Contains(lower, "income") || strings.Contains(lower, "dividend") {
+		return "Income"
+	}
+	return ""
+}
+
+func parsePurchaseMode(schemeName string) string {
+	lower := strings.ToLower(schemeName)
+	if strings.Contains(lower, "direct") {
+		return "Direct Plan"
+	}
+	if strings.Contains(lower, "regular") {
+		return "Regular Plan"
+	}
+	return ""
 }

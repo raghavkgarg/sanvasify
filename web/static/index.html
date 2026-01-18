@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanvasify - Mutual Fund NAV</title>
+    <title>Sanvasify - Specialised Investment Fund </title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -23,6 +23,18 @@
                 <select id="scheme-select">
                     <option value="" disabled selected>Loading schemes...</option>
                 </select>
+            </div>
+
+            <div class="search-section advanced-search">
+                <h2>Advanced Search</h2>
+                <div class="filters-container">
+                    <select id="filter-type"><option value="">Select Fund Type</option></select>
+                    <select id="filter-strategy"><option value="">Select Fund Strategy</option></select>
+                    <select id="filter-company"><option value="">Select Fund Company</option></select>
+                    <select id="filter-dist"><option value="">Select Distribution</option></select>
+                    <select id="filter-mode"><option value="">Select Mode</option></select>
+                </div>
+                <button id="btn-advanced-search" class="btn-primary">Get NAV</button>
             </div>
 
             <div id="result-card" class="card" style="display: none;">

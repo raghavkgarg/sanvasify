@@ -1,87 +1,99 @@
 package main
 
 import (
-	"context"
+	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
+
+	"sanvasify/data"
 )
 
-// loggingMiddleware logs the incoming HTTP request.
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		next.ServeHTTP(w, r)
-		log.Printf(
-			"%s %s %s %v",
-			r.Method,
-			r.RequestURI,
-			r.Proto,
-			time.Since(start),
-		)
-	})
-}
+var report *data.NAVReport
 
 func main() {
-	// 1. Configuration
-	// Define command-line flags for port and static file directory.
-	// This makes the server flexible for different environments.
-	port := flag.Int("port", 8080, "Port for the server to listen on")
-	staticDir := flag.String("dir", "web/static", "The directory to serve static files from")
+	port := flag.String("port", "8080", "port to serve on")
+	dir := flag.String("dir", "web/static", "directory of static files")
 	flag.Parse()
 
-	// 2. Handler Setup
-	// Create a file server handler. http.Dir is a type that implements http.FileSystem.
-	fs := http.FileServer(http.Dir(*staticDir))
-
-	// It's best practice to create your own ServeMux to have more control
-	// and avoid potential security issues with the default global mux.
-	mux := http.NewServeMux()
-
-	// Register the file server handler for all requests.
-	// The handler will look for files in the `staticDir` that match the request path.
-	mux.Handle("/", fs)
-
-	// 3. Server Initialization and Startup
-	addr := fmt.Sprintf(":%d", *port)
-	log.Printf("Starting web server on http://localhost%s", addr)
-	log.Printf("Serving files from directory: %s", *staticDir)
-
-	// ListenAndServe starts an HTTP server with a given address and handler.
-	// It always returns a non-nil error. We use log.Fatal to print the error
-	// and exit the program if the server fails to start.
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: loggingMiddleware(mux),
-		// Good practice to set timeouts to avoid resource exhaustion.
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  120 * time.Second,
+	// Load and parse the data file
+	f, err := os.Open("data/SIF_DownloadNAVHistoryReport.aspx.txt")
+	if err != nil {
+		log.Fatalf("Failed to open data file: %v", err)
 	}
+	defer f.Close()
 
-	// Run our server in a goroutine so that it doesn't block.
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("could not start server: %v\n", err)
+	report, err = data.ParseNAVReport(f)
+	if err != nil {
+		log.Fatalf("Failed to parse report: %v", err)
+	}
+	log.Printf("Successfully parsed %d strategies", len(report.Strategies))
+
+	// Serve static files (Frontend)
+	fs := http.FileServer(http.Dir(*dir))
+	http.Handle("/", fs)
+
+	// API Endpoints
+	http.HandleFunc("/api/schemes", handleSchemes)
+	http.HandleFunc("/api/nav", handleNAV)
+
+	log.Printf("Serving %s on HTTP port: %s\n", *dir, *port)
+	log.Fatal(http.ListenAndServe(":"+*port, nil))
+}
+
+// handleSchemes returns a list of all schemes for the dropdown
+func handleSchemes(w http.ResponseWriter, r *http.Request) {
+	schemes := make([]data.Scheme, 0)
+	for _, s := range report.Strategies {
+		for _, fh := range s.FundHouses {
+			for _, sch := range fh.Schemes {
+				schemes = append(schemes, *sch)
+			}
 		}
-	}()
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+	json.NewEncoder(w).Encode(schemes)
+}
 
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 5 seconds.
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+// handleNAV returns the details of a specific scheme by code
+func handleNAV(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		http.Error(w, "Missing scheme code", http.StatusBadRequest)
+		return
 	}
 
-	log.Println("Server exiting")
+	var found *data.Scheme
+	// Search for the scheme in the loaded report
+	for _, s := range report.Strategies {
+		for _, fh := range s.FundHouses {
+			for _, sch := range fh.Schemes {
+				if sch.Code == code {
+					found = sch
+					break
+				}
+			}
+			if found != nil {
+				break
+			}
+		}
+		if found != nil {
+			break
+		}
+	}
+
+	if found == nil {
+		http.Error(w, "Scheme not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "0")
+	json.NewEncoder(w).Encode(found)
 }

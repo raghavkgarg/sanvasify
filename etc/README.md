@@ -28,7 +28,7 @@ sanvasify/
 
 -   `main.go`: The Go web server application.
 -   `go.mod`: Defines the Go module.
--   `ui/static/`: Contains all frontend assets (HTML, CSS, JS, images, etc.).
+-   `web/static/`: Contains all frontend assets (HTML, CSS, JS, images, etc.).
 
 ## Prerequisites
 
@@ -49,7 +49,7 @@ To run the web server on your local machine for development:
 
 2.  Run the application:
     ```bash
-    go run .
+    go run ./cmd/server
     ```
 
 3.  The server will start, and you can access the website at `http://localhost:8080`.
@@ -59,7 +59,7 @@ To run the web server on your local machine for development:
 The server can be configured with command-line flags:
 
 -   `-port`: The port for the server to listen on. (Default: `8080`)
--   `-dir`: The directory to serve static files from. (Default: `ui/static`)
+-   `-dir`: The directory to serve static files from. (Default: `web/static`)
 
 **Example:** Run on port 3000 and serve files from a `dist` directory.
 ```bash
@@ -97,8 +97,8 @@ Use `scp` to securely copy the compiled binary and the static assets to your EC2
 # Copy the compiled binary
 scp -i /path/to/your-key.pem ./sanvasify-server ec2-user@your-ec2-ip:~/
 
-# Copy the entire 'ui' directory containing your static files
-scp -i /path/to/your-key.pem -r ./ui ec2-user@your-ec2-ip:~/
+# Copy the entire 'web' directory containing your static files
+scp -i /path/to/your-key.pem -r ./web ec2-user@your-ec2-ip:~/
 ```
 
 ### 3. Run the Server

@@ -1,0 +1,56 @@
+Scheme Code;Scheme Name;ISIN Div Payout/ISIN Growth;ISIN Div Reinvestment;Net Asset Value;Repurchase Price;Sale Price;Date
+
+Open Ended Schemes ( Equity Oriented Investment Strategies - Equity Long-Short Fund )
+
+
+ITI Mutual Fund
+SIF-19;Diviniti Equity Long Short Fund - Direct Plan Growth Option;INF00XX30043;;1002.6582;;;16-Jan-2026
+SIF-20;Diviniti Equity Long Short Fund - Direct Plan IDCW Option;INF00XX30050;INF00XX30068;1002.6582;;;16-Jan-2026
+SIF-21;Diviniti Equity Long Short Fund - Regular Plan Growth Option;INF00XX30019;;1000.6734;;;16-Jan-2026
+SIF-22;Diviniti Equity Long Short Fund - Regular Plan IDCW Option;INF00XX30027;INF00XX30035;1000.6734;;;16-Jan-2026
+
+quant Mutual Fund
+SIF-1;qsif Equity Long Short Fund - Growth Option - Direct Plan;INF966L30019;;9.8965;;;16-Jan-2026
+SIF-3;qsif Equity Long Short Fund - Growth Option - Regular Plan;INF966L30027;;9.8555;;;16-Jan-2026
+SIF-2;qsif Equity Long Short Fund - IDCW Option - Direct Plan;INF966L30035;INF966L30043;9.8965;;;16-Jan-2026
+SIF-4;qsif Equity Long Short Fund - IDCW Option - Regular Plan;INF966L30050;INF966L30068;9.8555;;;16-Jan-2026
+
+Open Ended Schemes ( Equity Oriented Investment Strategies - Equity Ex-Top 100 Long-Short Fund )
+
+
+quant Mutual Fund
+SIF-23;qsif Equity Ex-Top 100 Long-Short Fund - Growth Option - Direct Plan;INF966L30159;;9.5835;;;16-Jan-2026
+SIF-25;qsif Equity Ex-Top 100 Long-Short Fund - Growth Option - Regular Plan;INF966L30183;;9.5573;;;16-Jan-2026
+SIF-24;qsif Equity Ex-Top 100 Long-Short Fund - IDCW Option - Direct Plan;INF966L30167;INF966L30175;9.5835;;;16-Jan-2026
+SIF-26;qsif Equity Ex-Top 100 Long-Short Fund - IDCW Option - Regular Plan;INF966L30191;INF966L30209;9.5573;;;16-Jan-2026
+
+Open Ended Schemes ( Hybrid Investment Strategies - Hybrid Long-Short Fund )
+
+
+Edelweiss Mutual Fund
+SIF-9;Altiva Hybrid Long-Short Fund - Direct Plan - Growth;INF754K30011;;10.3096;;;16-Jan-2026
+SIF-10;Altiva Hybrid Long-Short Fund - Direct Plan - IDCW;INF754K30029;INF754K30037;10.3096;;;16-Jan-2026
+SIF-11;Altiva Hybrid Long-Short Fund - Regular Plan - Growth;INF754K30052;;10.2843;;;16-Jan-2026
+SIF-12;Altiva Hybrid Long-Short Fund - Regular Plan - IDCW;INF754K30060;INF754K30078;10.2843;;;16-Jan-2026
+
+Interval Fund Schemes ( Hybrid Investment Strategies - Hybrid Long-Short Fund )
+
+
+quant Mutual Fund
+SIF-5;qsif Hybrid Long-Short Fund - Growth Option - Direct Plan;INF966L30076;;9.9293;;;16-Jan-2026
+SIF-7;qsif Hybrid Long-Short Fund - Growth Option - Regular Plan;INF966L30084;;9.8889;;;16-Jan-2026
+SIF-6;qsif Hybrid Long-Short Fund - IDCW Option - Direct Plan;INF966L30092;INF966L30100;9.9293;;;16-Jan-2026
+
+SBI Mutual Fund
+SIF-14;Magnum Hybrid Long Short Fund - Direct  Plan - Growth;INF200K30049;;10.2052;;;16-Jan-2026
+SIF-15;Magnum Hybrid Long Short Fund - Direct Plan - Income Distribution Cum Capital Withdrawal;INF200K30056;INF200K30064;10.2052;;;16-Jan-2026
+SIF-13;Magnum Hybrid Long Short Fund - Regular Plan - Growth;INF200K30015;;10.1865;;;16-Jan-2026
+SIF-16;Magnum Hybrid Long Short Fund - Regular Plan - Income Distribution Cum Capital Withdrawal;INF200K30023;INF200K30031;10.1856;;;16-Jan-2026
+
+Tata Mutual Fund
+SIF-32;Titanium Hybrid Long-Short Fund Direct Plan Growth;INF277K30047;;10.0495;;;16-Jan-2026
+SIF-31;Titanium Hybrid Long-Short Fund Direct Plan IDCW Payout;INF277K30062;;10.0495;;;16-Jan-2026
+SIF-28;Titanium Hybrid Long-Short Fund Direct Plan IDCW Reinvestment;;INF277K30054;10.0495;;;16-Jan-2026
+SIF-29;Titanium Hybrid Long-Short Fund Regular Plan Growth;INF277K30013;;10.0315;;;16-Jan-2026
+SIF-30;Titanium Hybrid Long-Short Fund Regular Plan IDCW Payout;INF277K30039;;10.0315;;;16-Jan-2026
+SIF-27;Titanium Hybrid Long-Short Fund Regular Plan IDCW Reinvestment;;INF277K30021;10.0315;;;16-Jan-2026

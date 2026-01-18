@@ -15,18 +15,18 @@ body {
 .brand-container {
     position: absolute;
     top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 20px;
+    right: 20px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
 }
 
 .brand-logo {
-    width: 75px;
-    height: auto;
+    width: 100px;
+    height: 130px;
 }
-
+    
 .brand-name {
     font-weight: bold;
     font-size: 1.5rem;

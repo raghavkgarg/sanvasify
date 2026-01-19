@@ -52,7 +52,9 @@ To run the web server on your local machine:
 
 2.  **Run the application:**
     ```bash
-    go run ./cmd/server
+    go build -o dist/sanvasify ./cmd/server
+    cd dist
+    ./sanvasify
     ```
 
 3.  The server will start, and you can access the website at `http://localhost:8080` (or the port specified in your `config/Config.toml`).

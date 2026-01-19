@@ -14,9 +14,13 @@ sanvasify/
 ├── pkg/
 │   ├── conf/
 │   │   └── config.go
-│   └── report/
-│       ├── nav_report.go
-│       └── ...
+│   ├── nav/
+│   │   └── nav_report.go
+│   └── server/
+│       ├── handlers.go
+│       ├── routes.go
+│       ├── server.go
+│       └── store.go
 ├── config/
 │   └── Config.toml
 ├── web/
@@ -30,10 +34,11 @@ sanvasify/
 
 -   `cmd/server/main.go`: The main entry point for the web server application.
 -   `pkg/conf/`: Contains the configuration loading logic.
--   `pkg/report/`: Handles parsing and processing of the mutual fund data.
+-   `pkg/nav/`: Handles parsing and processing of the mutual fund data.
+-   `pkg/server/`: Contains the web server logic, including handlers, routing, and data storage.
 -   `config/Config.toml`: The main configuration file for the application.
 -   `web/static/`: Contains all the frontend assets (HTML, CSS, JavaScript).
--   `go.mod`: Defines the Go module and its dependencies.
+-g   `go.mod`: Defines the Go module and its dependencies.
 
 ## Getting Started
 

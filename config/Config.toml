@@ -1,0 +1,4 @@
+input_file = "config/nav_report_2026-01-18.txt"
+
+[server]
+port = 8080

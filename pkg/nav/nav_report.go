@@ -1,4 +1,4 @@
-package data
+package nav
 
 import (
 	"bufio"
@@ -18,8 +18,8 @@ type Scheme struct {
 	Date                string `json:"date"`
 
 	// Context fields populated during parsing for easier flat searching/display
-	StrategyName  string `json:"strategy_name,omitempty"`
-	FundHouseName string `json:"fund_house_name,omitempty"`
+	StrategyName       string `json:"strategy_name,omitempty"`
+	FundHouseName      string `json:"fund_house_name,omitempty"`
 	FundType           string `json:"fund_type,omitempty"`
 	FundCompany        string `json:"fund_company,omitempty"`
 	FundStrategy       string `json:"fund_strategy,omitempty"`

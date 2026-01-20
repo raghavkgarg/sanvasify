@@ -1,0 +1,20 @@
+# TODO
+
+This file lists tasks for future iterations of the sanvasify application.
+
+## High Priority
+
+-   **Improve `handleSearch` performance:** The current implementation of `handleSearch` iterates over all schemes every time it's called. This can be improved by pre-building an index or a more sophisticated data structure for faster searching.
+-   **Add unit tests:** There are no unit tests in the project. Adding unit tests for the `pkg/nav`, `pkg/server`, and `pkg/conf` packages would improve the code quality and prevent regressions.
+
+## Medium Priority
+
+-   **Implement logging middleware:** The server currently has basic logging. Adding a logging middleware would allow for more structured and detailed logging of requests and responses.
+-   **Add graceful shutdown:** The server does not currently handle graceful shutdown. Implementing graceful shutdown would ensure that all in-flight requests are completed before the server shuts down.
+-   **Embed static assets:** The static assets are currently served from the `web/static` directory. Embedding the static assets into the Go binary would create a single, self-contained executable, which is easier to deploy.
+
+## Low Priority
+
+-   **Add versioning to the API:** The API does not have any versioning. Adding versioning to the API (e.g., `/api/v1/...`) would make it easier to evolve the API in the future without breaking existing clients.
+-   **Add more comprehensive error handling:** The error handling in the application is basic. Adding more comprehensive error handling would improve the robustness of the application.
+-   **Explore advanced routing with `http.ServeMux`:** The version of Go used in this project (1.22+) includes enhanced routing capabilities in the standard library, such as support for HTTP methods and path wildcards. We should leverage these features for more flexible routing and middleware implementation instead of adding a third-party dependency.

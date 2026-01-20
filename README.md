@@ -1,119 +1,93 @@
-# Sanvasify Static Web Server
+# Sanvasify
 
-A simple, robust, and production-ready static file server written in Go. This project serves a standard HTML, CSS, and JavaScript website and is designed for cross-compilation and deployment on ARM64 Linux servers, such as AWS EC2 t4g instances.
-
-## Features
-
--   **Configurable:** Set the server port and static file directory via command-line flags.
--   **Request Logging:** All incoming requests are logged to standard output with their method, path, and duration, providing visibility into server traffic.
--   **Graceful Shutdown:** The server shuts down gracefully on a `SIGINT` or `SIGTERM` signal, ensuring in-flight requests are completed before the process exits.
--   **Production Hardened:** Includes sensible timeouts for reading requests and writing responses to prevent resource exhaustion from slow clients.
+Sanvasify is a web application that allows users to browse, search, and filter information about mutual funds. It provides a simple and intuitive interface for exploring a large dataset of fund schemes.
 
 ## Project Structure
 
-The project is organized to keep backend, frontend, and documentation separate and clean.
+The project follows a standard Go application layout to keep the codebase organized and maintainable.
 
 ```
 sanvasify/
+├── cmd/
+│   └── server/
+│       └── main.go
+├── pkg/
+│   ├── conf/
+│   │   └── config.go
+│   ├── nav/
+│   │   └── nav_report.go
+│   └── server/
+│       ├── handlers.go
+│       ├── routes.go
+│       ├── server.go
+│       └── store.go
+├── config/
+│   └── Config.toml
+├── web/
+│   └── static/
+│       ├── css/
+│       ├── js/
+│       └── index.html
 ├── go.mod
-├── main.go
-└── web/
-    └── static/
-        ├── css/
-        │   └── style.css
-        ├── js/
-        │   └── app.js
-        └── index.html
+└── README.md
 ```
 
--   `main.go`: The Go web server application.
--   `go.mod`: Defines the Go module.
--   `web/static/`: Contains all frontend assets (HTML, CSS, JS, images, etc.).
-
-## Prerequisites
-
--   Go (version 1.22 or newer recommended)
--   An AWS account with a configured EC2 instance (for deployment)
--   An SSH key pair for accessing the EC2 instance
+-   `cmd/server/main.go`: The main entry point for the web server application.
+-   `pkg/conf/`: Contains the configuration loading logic.
+-   `pkg/nav/`: Handles parsing and processing of the mutual fund data.
+-   `pkg/server/`: Contains the web server logic, including handlers, routing, and data storage.
+-   `config/Config.toml`: The main configuration file for the application.
+-   `web/static/`: Contains all the frontend assets (HTML, CSS, JavaScript).
+-g   `go.mod`: Defines the Go module and its dependencies.
 
 ## Getting Started
 
-### Local Development
+To run the web server on your local machine:
 
-To run the web server on your local machine for development:
-
-1.  Navigate to the project root directory:
+1.  **Clone the repository:**
     ```bash
-    cd /path/to/myGo/sanvasify
+    git clone https://github.com/raghavkgarg/sanvasify.git
+    cd sanvasify
     ```
 
-2.  Run the application:
+2.  **Run the application:**
     ```bash
-    go run ./cmd/server
+    go build -o dist/sanvasify ./cmd/server
+    cd dist
+    ./sanvasify
     ```
 
-3.  The server will start, and you can access the website at `http://localhost:8080`.
+3.  The server will start, and you can access the website at `http://localhost:8080` (or the port specified in your `config/Config.toml`).
 
-### Configuration
+## Configuration
 
-The server can be configured with command-line flags:
+The application is configured using the `config/Config.toml` file.
 
--   `-port`: The port for the server to listen on. (Default: `8080`)
--   `-dir`: The directory to serve static files from. (Default: `web/static`)
+```toml
+input_file = "pkg/report/SIF_DownloadNAVHistoryReport.aspx.txt"
 
-**Example:** Run on port 3000 and serve files from a `dist` directory.
-```bash
-go run . -port 3000 -dir dist
+[server]
+port = 8080
 ```
 
-## Build Process
+-   `input_file`: The path to the mutual fund data file.
+-   `server.port`: The port for the server to listen on.
 
-To prepare the application for production, you need to cross-compile it from your development machine (macOS ARM64) for the target production server (Linux ARM64).
+## API Endpoints
 
-Run the following command from the project root:
+The server exposes the following JSON API endpoints:
 
-```bash
-GOOS=linux GOARCH=arm64 go build -o sanvasify-server .
-```
+-   `GET /api/schemes`: Returns a list of all available mutual fund schemes.
+-   `GET /api/nav?code=<scheme_code>`: Returns the details of a specific scheme by its code.
+-   `GET /api/filters`: Returns a list of unique values for all filter categories (fund type, strategy, company, etc.).
+-   `GET /api/search?fund_type=<type>&...`: Searches for schemes based on the provided filter criteria.
 
-This command creates a single, self-contained binary named `sanvasify-server` that is ready for deployment.
+## Build and Deployment
 
-## Deployment to AWS EC2
-
-This workflow details how to deploy and run the application on a `t4g.micro` EC2 instance.
-
-### 1. EC2 Security Group Rules
-
-Ensure your EC2 instance's security group has the following **inbound rules**:
-
--   **SSH (Port 22):** To allow you to connect and copy files. Set the source to your IP for security.
--   **HTTP (Port 80):** To allow public web traffic to your site. Set the source to `Anywhere-IPv4` (`0.0.0.0/0`).
-
-### 2. Copy Files to EC2
-
-Use `scp` to securely copy the compiled binary and the static assets to your EC2 instance. Replace the placeholders with your key path and instance IP/DNS.
+To build a production-ready binary for Linux (ARM64):
 
 ```bash
-# Copy the compiled binary
-scp -i /path/to/your-key.pem ./sanvasify-server ec2-user@your-ec2-ip:~/
-
-# Copy the entire 'web' directory containing your static files
-scp -i /path/to/your-key.pem -r ./web ec2-user@your-ec2-ip:~/
+GOOS=linux GOARCH=arm64 go build -o sanvasify-server ./cmd/server
 ```
 
-### 3. Run the Server
-
-Connect to your instance via SSH and run the server.
-
-```bash
-# 1. SSH into the instance
-ssh -i /path/to/your-key.pem ec2-user@your-ec2-ip
-
-# 2. Make the binary executable
-chmod +x ./sanvasify-server
-
-# 3. Run the server on port 80 in the background
-sudo nohup ./sanvasify-server -port 80 -dir ./ui/static > server.log 2>&1 &
-```
-
-Your website is now live and accessible via your EC2 instance's public IP address. You can check `server.log` for any application logs.
+This will create a single `sanvasify-server` binary that can be deployed to a server. You will also need to copy the `config/` and `web/` directories to the server.

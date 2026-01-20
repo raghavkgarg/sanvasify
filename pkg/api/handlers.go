@@ -56,10 +56,15 @@ func (s *Server) handleSearch() http.HandlerFunc {
 
 		schemes := s.store.SearchSchemes(fType, fStrategy, fCompany, dist, mode)
 
+		if len(schemes) == 0 {
+			http.Error(w, "No scheme found", http.StatusNotFound)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
-		json.NewEncoder(w).Encode(schemes)
+		json.NewEncoder(w).Encode(schemes[0])
 	}
 }

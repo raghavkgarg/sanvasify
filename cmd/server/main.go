@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/raghavkgarg/sanvasify/pkg/api"
 	"github.com/raghavkgarg/sanvasify/pkg/conf"
@@ -10,6 +12,11 @@ import (
 )
 
 func main() {
+	log.Println("Starting server...")
+	if conf.Cfg.InputFile == "" {
+		log.Fatal("Input file not configured")
+	}
+
 	// Load and parse the data file
 	f, err := os.Open(conf.Cfg.InputFile)
 	if err != nil {
@@ -24,5 +31,11 @@ func main() {
 	log.Printf("Successfully parsed %d strategies", len(report.Strategies))
 
 	s := api.NewServer(report)
-	s.Start()
+	go s.Start()
+
+	log.Println("Server started, waiting for signals...")
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down...")
 }

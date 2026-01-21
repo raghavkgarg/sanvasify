@@ -16,29 +16,40 @@ sanvasify/
 │   │   └── config.go
 │   ├── nav/
 │   │   └── nav_report.go
-│   └── server/
+│   └── api/
 │       ├── handlers.go
 │       ├── routes.go
 │       ├── server.go
 │       └── store.go
 ├── config/
-│   └── Config.toml
+│   ├── Config.toml
+│   └── nav_report_2026-01-18.txt
 ├── web/
 │   └── static/
 │       ├── css/
+│       │   └── style.css
 │       ├── js/
+│       │   └── app.js
 │       └── index.html
+├── etc/
+│   ├── architecture.d2
+│   ├── architecture.svg
+│   ├── design.md
+│   ├── fund_struct.txt
+│   └── TODO.txt
 ├── go.mod
+├── go.sum
 └── README.md
 ```
 
 -   `cmd/server/main.go`: The main entry point for the web server application.
 -   `pkg/conf/`: Contains the configuration loading logic.
 -   `pkg/nav/`: Handles parsing and processing of the mutual fund data.
--   `pkg/server/`: Contains the web server logic, including handlers, routing, and data storage.
--   `config/Config.toml`: The main configuration file for the application.
+-   `pkg/api/`: Contains the web server logic, including handlers, routing, and data storage.
+-   `config/`: Configuration files and data sources.
 -   `web/static/`: Contains all the frontend assets (HTML, CSS, JavaScript).
--g   `go.mod`: Defines the Go module and its dependencies.
+-   `etc/`: Documentation, architecture diagrams, and design notes.
+-   `go.mod`: Defines the Go module and its dependencies.
 
 ## Getting Started
 
@@ -64,7 +75,7 @@ To run the web server on your local machine:
 The application is configured using the `config/Config.toml` file.
 
 ```toml
-input_file = "pkg/report/SIF_DownloadNAVHistoryReport.aspx.txt"
+input_file = "config/nav_report_2026-01-18.txt"
 
 [server]
 port = 8080

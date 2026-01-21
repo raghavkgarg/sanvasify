@@ -1,6 +1,10 @@
 package api
 
-import "github.com/raghavkgarg/sanvasify/pkg/nav"
+import (
+	"strings"
+
+	"github.com/raghavkgarg/sanvasify/pkg/nav"
+)
 
 type FilterOptions struct {
 	FundTypes           []string `json:"fund_types"`
@@ -34,6 +38,12 @@ func NewStore(report *nav.NAVReport) *Store {
 	for _, strategy := range report.Strategies {
 		for _, fh := range strategy.FundHouses {
 			for _, sch := range fh.Schemes {
+				sch.FundType = strings.TrimSpace(sch.FundType)
+				sch.FundStrategy = strings.TrimSpace(sch.FundStrategy)
+				sch.FundCompany = strings.TrimSpace(sch.FundCompany)
+				sch.DistributionOption = strings.TrimSpace(sch.DistributionOption)
+				sch.PurchaseMode = strings.TrimSpace(sch.PurchaseMode)
+
 				s.schemesByCode[sch.Code] = sch
 
 				if sch.FundType != "" {
@@ -99,6 +109,12 @@ func (s *Store) GetFilterOptions() *FilterOptions {
 }
 
 func (s *Store) SearchSchemes(fType, fStrategy, fCompany, dist, mode string) []*nav.Scheme {
+	fType = strings.TrimSpace(fType)
+	fStrategy = strings.TrimSpace(fStrategy)
+	fCompany = strings.TrimSpace(fCompany)
+	dist = strings.TrimSpace(dist)
+	mode = strings.TrimSpace(mode)
+
 	schemes := make([]*nav.Scheme, 0)
 	for _, sch := range s.schemesByCode {
 		if (fType == "" || sch.FundType == fType) &&

@@ -17,12 +17,13 @@ type Config struct {
 }
 
 type Fetcher struct {
-	Enabled  bool   `toml:"enabled"`
-	DataDir  string `toml:"data_dir"`
-	RawDir   string `toml:"raw_dir"`
-	BaseURL  string `toml:"base_url"`
-	FromDate string `toml:"from_date"`
-	ToDate   string `toml:"to_date"`
+	Enabled      bool   `toml:"enabled"`
+	DataDir      string `toml:"data_dir"`
+	RawDir       string `toml:"raw_dir"`
+	BaseURL      string `toml:"base_url"`
+	FromDate     string `toml:"from_date"`
+	ToDate       string `toml:"to_date"`
+	DelaySeconds int    `toml:"delay_seconds"`
 }
 
 type Server struct {

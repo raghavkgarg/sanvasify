@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/raghavkgarg/sanvasify/pkg/nav"
@@ -86,6 +87,10 @@ func (m *MemoryStore) GetUniqueValues(ctx context.Context, column string) ([]str
 		values = append(values, v)
 	}
 	return values, nil
+}
+
+func (m *MemoryStore) GetNAVHistory(ctx context.Context, schemeCode string) ([]Scheme, error) {
+	return nil, fmt.Errorf("NAV history not supported in memory store mode - use database mode")
 }
 
 func (m *MemoryStore) Close() error {

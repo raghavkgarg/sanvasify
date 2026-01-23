@@ -31,5 +31,6 @@ type Store interface {
 	GetSchemeByCode(ctx context.Context, code string) (*Scheme, error)
 	SearchSchemes(ctx context.Context, filters map[string]string) ([]Scheme, error)
 	GetUniqueValues(ctx context.Context, column string) ([]string, error)
+	GetNAVHistory(ctx context.Context, schemeCode string) ([]Scheme, error)
 	Close() error
 }

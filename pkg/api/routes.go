@@ -7,6 +7,7 @@ func (s *Server) routes() {
 	apiMux := http.NewServeMux()
 	apiMux.HandleFunc("/api/schemes", s.handleSchemes())
 	apiMux.HandleFunc("/api/nav", s.handleNAV())
+	apiMux.HandleFunc("/api/nav/history", s.handleNAVHistory())
 	apiMux.HandleFunc("/api/filters", s.handleFilters())
 	apiMux.HandleFunc("/api/search", s.handleSearch())
 	

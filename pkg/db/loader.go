@@ -21,22 +21,7 @@ func (d *DB) LoadFromNAVReport(ctx context.Context, r io.Reader) error {
 	defer tx.Rollback()
 
 	stmt, err := tx.PrepareContext(ctx, `
-		INSERT INTO schemes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		ON CONFLICT (scheme_code) DO UPDATE SET
-			scheme_name = excluded.scheme_name,
-			isin_div_payout_growth = excluded.isin_div_payout_growth,
-			isin_div_reinvestment = excluded.isin_div_reinvestment,
-			net_asset_value = excluded.net_asset_value,
-			repurchase_price = excluded.repurchase_price,
-			sale_price = excluded.sale_price,
-			date = excluded.date,
-			strategy_name = excluded.strategy_name,
-			fund_house_name = excluded.fund_house_name,
-			fund_type = excluded.fund_type,
-			fund_company = excluded.fund_company,
-			fund_strategy = excluded.fund_strategy,
-			distribution_option = excluded.distribution_option,
-			purchase_mode = excluded.purchase_mode
+		INSERT INTO sif_schemes VALUES (?, ?, ?, ?, ?, ?, ?, strptime(?, '%d-%b-%Y')::DATE, ?, ?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return fmt.Errorf("failed to prepare statement: %w", err)

@@ -10,6 +10,7 @@ raw_dir = "/tmp/sanvasify_raw"
 base_url = "https://portal.amfiindia.com/SIF_DownloadNAVHistoryReport.aspx"
 from_date = "2026-01-16"
 to_date = "2026-01-21"
+delay_seconds = 60
 
 [server]
 port = 8080

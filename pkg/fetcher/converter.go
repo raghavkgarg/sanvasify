@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/apache/arrow-go/v18/arrow"
 	"github.com/apache/arrow-go/v18/arrow/array"
@@ -55,7 +56,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 			{Name: "net_asset_value", Type: arrow.BinaryTypes.String},
 			{Name: "repurchase_price", Type: arrow.BinaryTypes.String},
 			{Name: "sale_price", Type: arrow.BinaryTypes.String},
-			{Name: "date", Type: arrow.BinaryTypes.String},
+			{Name: "date", Type: arrow.FixedWidthTypes.Date32},
 			{Name: "strategy_name", Type: arrow.BinaryTypes.String},
 			{Name: "fund_house_name", Type: arrow.BinaryTypes.String},
 			{Name: "fund_type", Type: arrow.BinaryTypes.String},
@@ -80,7 +81,15 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 		builder.Field(4).(*array.StringBuilder).Append(s.NetAssetValue)
 		builder.Field(5).(*array.StringBuilder).Append(s.RepurchasePrice)
 		builder.Field(6).(*array.StringBuilder).Append(s.SalePrice)
-		builder.Field(7).(*array.StringBuilder).Append(s.Date)
+		
+		// Parse date string to Date32
+		t, err := time.Parse("02-Jan-2006", s.Date)
+		if err != nil {
+			return fmt.Errorf("failed to parse date %s: %w", s.Date, err)
+		}
+		days := arrow.Date32FromTime(t)
+		builder.Field(7).(*array.Date32Builder).Append(days)
+		
 		builder.Field(8).(*array.StringBuilder).Append(s.StrategyName)
 		builder.Field(9).(*array.StringBuilder).Append(s.FundHouseName)
 		builder.Field(10).(*array.StringBuilder).Append(s.FundType)
@@ -146,7 +155,15 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 			builder.Field(4).(*array.StringBuilder).Append(s.NetAssetValue)
 			builder.Field(5).(*array.StringBuilder).Append(s.RepurchasePrice)
 			builder.Field(6).(*array.StringBuilder).Append(s.SalePrice)
-			builder.Field(7).(*array.StringBuilder).Append(s.Date)
+			
+			// Parse date string to Date32
+			t, err := time.Parse("02-Jan-2006", s.Date)
+			if err != nil {
+				return fmt.Errorf("failed to parse date %s: %w", s.Date, err)
+			}
+			days := arrow.Date32FromTime(t)
+			builder.Field(7).(*array.Date32Builder).Append(days)
+			
 			builder.Field(8).(*array.StringBuilder).Append(s.StrategyName)
 			builder.Field(9).(*array.StringBuilder).Append(s.FundHouseName)
 			builder.Field(10).(*array.StringBuilder).Append(s.FundType)

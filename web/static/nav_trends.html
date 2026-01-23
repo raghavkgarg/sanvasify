@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>NAV Trends - Sanvasify</title>
+        <link rel="stylesheet" href="css/style.css" />
+        <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+    </head>
+    <body>
+        <div class="brand-container">
+            <img src="Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
+            <span class="brand-name">Sanvasify</span>
+        </div>
+        <div class="container">
+            <header>
+                <h1>NAV Trends</h1>
+                <p>View historical Net Asset Value trends for schemes</p>
+            </header>
+            <main>
+                <div class="search-section">
+                    <label for="scheme-select">Select Scheme:</label>
+                    <select id="scheme-select">
+                        <option value="" disabled selected>
+                            Loading schemes...
+                        </option>
+                    </select>
+                </div>
+
+                <div id="chart-container" style="width: 100%; height: 500px; margin-top: 20px;"></div>
+                
+                <div id="stats-card" class="card" style="display: none; margin-top: 20px;">
+                    <h3>Statistics</h3>
+                    <div class="detail-row">
+                        <span class="label">Current NAV:</span>
+                        <span class="value" id="current-nav">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Highest NAV:</span>
+                        <span class="value" id="highest-nav">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Lowest NAV:</span>
+                        <span class="value" id="lowest-nav">--</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Change:</span>
+                        <span class="value" id="nav-change">--</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <script src="js/navigation.js"></script>
+        <script>initNavigation('nav_trends.html');</script>
+        <script src="js/trends.js"></script>
+    </body>
+</html>

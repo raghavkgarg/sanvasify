@@ -91,3 +91,28 @@ func (s *Server) handleSearch() http.HandlerFunc {
 		}
 	}
 }
+
+func (s *Server) handleNAVHistory() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		code := r.URL.Query().Get("code")
+		if code == "" {
+			http.Error(w, "Missing scheme code", http.StatusBadRequest)
+			return
+		}
+
+		history, err := s.store.GetNAVHistory(r.Context(), code)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if len(history) == 0 {
+			http.Error(w, "No history found", http.StatusNotFound)
+			return
+		}
+
+		if err := json.NewEncoder(w).Encode(history); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}

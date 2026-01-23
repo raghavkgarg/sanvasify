@@ -35,7 +35,7 @@ func New(baseURL, dataDir, rawDir string) (*Fetcher, error) {
 	}, nil
 }
 
-func (f *Fetcher) FetchAndConvert(ctx context.Context, date time.Time) (string, error) {
+func (f *Fetcher) FetchAndConvert(ctx context.Context, date time.Time, parquetPath string) (string, error) {
 	dateStr := date.Format("2006-01-02")
 
 	// Download raw TXT
@@ -44,8 +44,7 @@ func (f *Fetcher) FetchAndConvert(ctx context.Context, date time.Time) (string, 
 		return "", fmt.Errorf("failed to download: %w", err)
 	}
 
-	// Append to single Parquet file
-	parquetPath := filepath.Join(f.dataDir, "nav_data.parquet")
+	// Append to Parquet file
 	if err := f.appendToParquet(rawPath, parquetPath); err != nil {
 		return "", fmt.Errorf("failed to convert: %w", err)
 	}

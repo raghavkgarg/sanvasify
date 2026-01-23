@@ -1,6 +1,14 @@
 # Sanvasify
 
-Sanvasify is a web application that allows users to browse, search, and filter information about mutual funds. It provides a simple and intuitive interface for exploring a large dataset of fund schemes, with automated data fetching from AMFI (Association of Mutual Funds in India).
+Sanvasify is a web application that allows users to browse, search, and analyze mutual fund schemes. It provides an intuitive interface for exploring fund data with automated data fetching from AMFI (Association of Mutual Funds in India) and historical NAV trend visualization.
+
+## Features
+
+- **Check SIF NAV**: View current Net Asset Value for mutual fund schemes with advanced filtering
+- **NAV Trends**: Interactive charts showing historical NAV performance with statistics
+- **Database Backend**: DuckDB for efficient storage and querying of historical data
+- **Automated Data Fetching**: Scheduled fetching from AMFI with configurable intervals
+- **Parquet Storage**: Efficient columnar storage format for NAV data
 
 ## Project Structure
 
@@ -147,8 +155,9 @@ port = 8080
 
 The server exposes the following JSON API endpoints:
 
--   `GET /api/schemes`: Returns a list of all available mutual fund schemes.
--   `GET /api/nav?code=<scheme_code>`: Returns the details of a specific scheme by its code.
+-   `GET /api/schemes`: Returns a list of all available mutual fund schemes (latest NAV only).
+-   `GET /api/nav?code=<scheme_code>`: Returns the latest NAV details of a specific scheme by its code.
+-   `GET /api/nav/history?code=<scheme_code>`: Returns historical NAV data for a specific scheme.
 -   `GET /api/filters`: Returns a list of unique values for all filter categories (fund type, strategy, company, etc.).
 -   `GET /api/search?fund_type=<type>&...`: Searches for schemes based on the provided filter criteria.
 
@@ -163,7 +172,7 @@ NAV data is stored in Apache Parquet format with the following schema:
 - `net_asset_value`: Current NAV value
 - `repurchase_price`: Repurchase price (if applicable)
 - `sale_price`: Sale price (if applicable)
-- `date`: NAV date (DD-Mon-YYYY format)
+- `date`: NAV date (DATE type for proper sorting)
 - `strategy_name`: Investment strategy category
 - `fund_house_name`: Fund house/AMC name
 - `fund_type`: Type of fund (Open/Close ended)
@@ -171,6 +180,23 @@ NAV data is stored in Apache Parquet format with the following schema:
 - `fund_strategy`: Detailed strategy description
 - `distribution_option`: Distribution option type
 - `purchase_mode`: Purchase mode (Direct/Regular)
+
+### Loading Data into Database
+
+The recommended approach is to load from the corrected parquet file:
+
+```bash
+duckdb /tmp/sanvasify.db
+```
+
+```sql
+DROP TABLE IF EXISTS sif_schemes;
+CREATE TABLE sif_schemes AS SELECT * FROM 'data/nav_reports/nav_data_corrected.parquet';
+CREATE INDEX idx_scheme_code ON sif_schemes(scheme_code);
+CREATE INDEX idx_date ON sif_schemes(date);
+```
+
+This file contains historical data with proper DATE type for chronological sorting.
 
 ## Build and Deployment
 
@@ -208,13 +234,23 @@ Deploy the binaries along with the `config/` and `web/` directories to your serv
 
 ### Performance
 - **Parquet Storage**: Efficient columnar storage for NAV data
-- **Database Support**: Optional DuckDB backend for large datasets
+- **Database Support**: DuckDB backend for large datasets with proper indexing
 - **Middleware Pattern**: Efficient request processing with reusable middleware
+- **Historical Data**: Optimized queries return only latest NAV per scheme by default
+
+### User Interface
+- **Responsive Design**: Works on desktop and mobile devices
+- **Interactive Charts**: Apache ECharts 6.0 for NAV trend visualization
+- **Advanced Filtering**: Multi-criteria search for fund schemes
+- **Centralized Navigation**: Shared navigation component across all pages
 
 ## Notes
 
 - The AMFI endpoint does not provide data for weekends and holidays. The fetcher automatically detects and skips these dates.
-- A 60-second delay is enforced between consecutive HTTP requests to be respectful to the AMFI server.
-- All dates are appended to a single Parquet file for efficient storage and querying.
+- A configurable delay (default 60 seconds) is enforced between consecutive HTTP requests to be respectful to the AMFI server.
+- Historical data is stored with proper DATE type for accurate chronological sorting.
+- The database stores multiple NAV values per scheme (one per date), but API endpoints return only the latest by default.
+- Use `/api/nav/history` endpoint to retrieve full historical data for trend analysis.
 - Logs are written to both stdout and timestamped files (configured via `log_file` setting).
 - Structured logging with source location helps with debugging and monitoring.
+- The in-memory store mode is deprecated and will be removed in future versions. Use database mode for all deployments.

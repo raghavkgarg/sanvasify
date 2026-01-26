@@ -1,41 +1,135 @@
 package main
 
 import (
-	"log"
+	"context"
+	"fmt"
+	"io"
+	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
+	"time"
 
 	"github.com/raghavkgarg/sanvasify/pkg/api"
 	"github.com/raghavkgarg/sanvasify/pkg/conf"
+	"github.com/raghavkgarg/sanvasify/pkg/db"
 	"github.com/raghavkgarg/sanvasify/pkg/nav"
+	"github.com/raghavkgarg/sanvasify/pkg/store"
 )
 
+var logger *slog.Logger
+
 func main() {
-	log.Println("Starting server...")
-	if conf.Cfg.InputFile == "" {
-		log.Fatal("Input file not configured")
-	}
-
-	// Load and parse the data file
-	f, err := os.Open(conf.Cfg.InputFile)
+	// Setup logging to both file and stdout with source location
+	logFile, err := os.Create(fmt.Sprintf("%s.%v", conf.Cfg.LogFile, time.Now().Unix()))
 	if err != nil {
-		log.Fatalf("Failed to open data file: %v", err)
+		fmt.Printf("Couldn't create log file: %v\n", err)
+		os.Exit(1)
 	}
-	defer f.Close()
+	defer logFile.Close()
 
-	report, err := nav.ParseNAVReport(f)
-	if err != nil {
-		log.Fatalf("Failed to parse report: %v", err)
+	opts := &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelInfo,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.SourceKey {
+				if src, ok := a.Value.Any().(*slog.Source); ok {
+					// Trim path to show only relative to sanvasify/
+					if idx := strings.Index(src.File, "sanvasify/"); idx != -1 {
+						src.File = src.File[idx+len("sanvasify/"):]
+					}
+				}
+			}
+			return a
+		},
 	}
-	log.Printf("Successfully parsed %d strategies", len(report.Strategies))
+	logger = slog.New(slog.NewTextHandler(io.MultiWriter(os.Stdout, logFile), opts))
+	slog.SetDefault(logger)
 
-	s := api.NewServer(report)
-	go s.Start()
+	logger.Info("starting server")
+	ctx := context.Background()
 
-	log.Println("Server started, waiting for signals...")
+	var dataStore store.Store
+
+	if conf.Cfg.UseDB {
+		logger.Info("using database mode")
+		database, err := db.New(conf.Cfg.DBPath)
+		if err != nil {
+			logger.Error("failed to open database", "error", err)
+			os.Exit(1)
+		}
+		defer database.Close()
+
+		if err := database.InitSchema(ctx); err != nil {
+			logger.Error("failed to initialize schema", "error", err)
+			os.Exit(1)
+		}
+
+		if conf.Cfg.InputFile != "" {
+			f, err := os.Open(conf.Cfg.InputFile)
+			if err != nil {
+				logger.Error("failed to open data file", "error", err, "file", conf.Cfg.InputFile)
+				os.Exit(1)
+			}
+			defer f.Close()
+
+			if err := database.LoadFromNAVReport(ctx, f); err != nil {
+				logger.Error("failed to load data", "error", err)
+				os.Exit(1)
+			}
+		}
+
+		dataStore = database
+	} else {
+		logger.Info("using in-memory mode")
+		if conf.Cfg.InputFile == "" {
+			logger.Error("input file not configured")
+			os.Exit(1)
+		}
+
+		f, err := os.Open(conf.Cfg.InputFile)
+		if err != nil {
+			logger.Error("failed to open data file", "error", err, "file", conf.Cfg.InputFile)
+			os.Exit(1)
+		}
+		defer f.Close()
+
+		report, err := nav.ParseNAVReport(f)
+		if err != nil {
+			logger.Error("failed to parse report", "error", err)
+			os.Exit(1)
+		}
+		logger.Info("successfully parsed report", "strategies", len(report.Strategies))
+
+		dataStore = store.NewMemoryStore(report)
+	}
+
+	s := api.NewServer(dataStore)
+	
+	// Start server in goroutine
+	go func() {
+		if err := s.Start(); err != nil && err != http.ErrServerClosed {
+			logger.Error("server error", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	logger.Info("server started, waiting for signals")
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down...")
+	
+	// Graceful shutdown with timeout
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	
+	logger.Info("shutting down server")
+	if err := s.Shutdown(shutdownCtx); err != nil {
+		logger.Error("server shutdown error", "error", err)
+	}
+	
+	dataStore.Close()
+	logger.Info("server stopped")
 }

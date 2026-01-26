@@ -2,6 +2,11 @@
 .DS_Store
 dist/
 
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -28,4 +33,3 @@ scratch.txt
 .env
 .env.*
 !/.env.example
-.DS_Store

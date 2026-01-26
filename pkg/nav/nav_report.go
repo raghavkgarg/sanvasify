@@ -1,3 +1,5 @@
+// Package nav provides parsing functionality for AMFI NAV (Net Asset Value) reports.
+// It converts text-based NAV reports into structured Go data types.
 package nav
 
 import (
@@ -45,6 +47,10 @@ type NAVReport struct {
 }
 
 // ParseNAVReport parses the raw text data from the reader into a structured NAVReport.
+// ParseNAVReport parses an AMFI NAV report from a reader.
+// The report format is semicolon-delimited with sections grouped by strategy and fund house.
+// Empty lines and section headers are used to determine the structure.
+// Returns an error if the report format is invalid or cannot be parsed.
 func ParseNAVReport(r io.Reader) (*NAVReport, error) {
 	scanner := bufio.NewScanner(r)
 	report := &NAVReport{

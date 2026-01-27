@@ -55,11 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/filters')
         .then(response => response.json())
         .then(data => {
-            populateSelect('filter-type', data.fund_types);
-            populateSelect('filter-strategy', data.fund_strategies);
-            populateSelect('filter-company', data.fund_companies);
-            populateSelect('filter-dist', data.distribution_options);
-            populateSelect('filter-mode', data.purchase_modes);
+            populateSelect('filter-type', data.fund_type);
+            populateSelect('filter-strategy', data.fund_strategy);
+            populateSelect('filter-company', data.fund_company);
+            populateSelect('filter-dist', data.distribution_option);
+            populateSelect('filter-mode', data.purchase_mode);
         })
         .catch(error => console.error('Error fetching filters:', error));
 
@@ -83,13 +83,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterDist = document.getElementById('filter-dist');
         const filterMode = document.getElementById('filter-mode');
 
-        const params = new URLSearchParams({
-            fund_type: filterType.value,
-            fund_strategy: filterStrategy.value,
-            fund_company: filterCompany.value,
-            distribution_option: filterDist.value,
-            purchase_mode: filterMode.value
-        });
+        // Only include non-empty filter values
+        const params = new URLSearchParams();
+        if (filterType.value) params.append('fund_type', filterType.value);
+        if (filterStrategy.value) params.append('fund_strategy', filterStrategy.value);
+        if (filterCompany.value) params.append('fund_company', filterCompany.value);
+        if (filterDist.value) params.append('distribution_option', filterDist.value);
+        if (filterMode.value) params.append('purchase_mode', filterMode.value);
+
+        // Check if at least one filter is selected
+        if (params.toString() === '') {
+            alert('Please select at least one filter');
+            return;
+        }
 
         fetch(`/api/search?${params}`)
             .then(response => {

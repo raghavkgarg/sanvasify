@@ -28,6 +28,10 @@ func New(dbPath string) (*DB, error) {
 	return &DB{conn: conn}, nil
 }
 
+func (d *DB) DB() *sql.DB {
+	return d.conn
+}
+
 func (d *DB) Close() error {
 	return d.conn.Close()
 }

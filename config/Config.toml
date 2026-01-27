@@ -14,3 +14,18 @@ delay_seconds = 60
 
 [server]
 port = 8080
+
+[auth]
+enabled = false
+jwt_secret = "change-this-to-a-random-secret-key-in-production"
+jwt_expiry_hours = 24
+
+[auth.google]
+client_id = ""
+client_secret = ""
+redirect_url = "http://localhost:8080/api/auth/callback/google"
+
+[auth.github]
+client_id = ""
+client_secret = ""
+redirect_url = "http://localhost:8080/api/auth/callback/github"

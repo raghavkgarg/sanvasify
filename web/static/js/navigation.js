@@ -25,6 +25,12 @@ function createNavigation(currentPage) {
         navContainer.appendChild(link);
     });
 
+    // Add user menu
+    const userMenu = document.createElement('div');
+    userMenu.className = 'user-menu';
+    userMenu.id = 'user-menu';
+    navContainer.appendChild(userMenu);
+
     nav.appendChild(navContainer);
     return nav;
 }
@@ -35,5 +41,43 @@ function initNavigation(currentPage) {
     if (brandContainer) {
         const nav = createNavigation(currentPage);
         brandContainer.insertAdjacentElement('afterend', nav);
+        loadUserInfo();
     }
+}
+
+// Load and display user info
+function loadUserInfo() {
+    fetch('/api/auth/me')
+        .then(res => {
+            if (res.ok) {
+                return res.json();
+            }
+            return null;
+        })
+        .then(user => {
+            const userMenu = document.getElementById('user-menu');
+            if (user) {
+                userMenu.innerHTML = `
+                    <span class="user-name">${user.name}</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                `;
+            } else {
+                // Show login button if auth endpoint exists
+                userMenu.innerHTML = `
+                    <button class="login-btn" onclick="window.location.href='/login.html'">Login</button>
+                `;
+            }
+        })
+        .catch(() => {
+            // Auth not configured, hide menu
+            document.getElementById('user-menu').style.display = 'none';
+        });
+}
+
+// Logout function
+function logout() {
+    fetch('/api/auth/logout')
+        .then(() => {
+            window.location.href = '/login.html';
+        });
 }

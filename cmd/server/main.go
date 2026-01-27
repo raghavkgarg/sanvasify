@@ -52,10 +52,12 @@ func main() {
 	ctx := context.Background()
 
 	var dataStore store.Store
+	var database *db.DB
 
 	if conf.Cfg.UseDB {
 		logger.Info("using database mode")
-		database, err := db.New(conf.Cfg.DBPath)
+		var err error
+		database, err = db.New(conf.Cfg.DBPath)
 		if err != nil {
 			logger.Error("failed to open database", "error", err)
 			os.Exit(1)
@@ -106,7 +108,7 @@ func main() {
 		dataStore = store.NewMemoryStore(report)
 	}
 
-	s := api.NewServer(dataStore)
+	s := api.NewServer(dataStore, database.DB(), logger)
 	
 	// Start server in goroutine
 	go func() {

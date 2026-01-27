@@ -84,6 +84,7 @@ body {
     display: flex;
     gap: 15px;
     padding: 0 20px;
+    align-items: center;
 }
 
 .nav-link {
@@ -109,4 +110,46 @@ body {
 
 .nav-link.active:hover {
     background: #4CAF50;
+}
+
+.user-menu {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-name {
+    color: #333;
+    font-weight: 500;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background: #f44336;
+    color: white;
+    border-color: #f44336;
+}
+
+.login-btn {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.login-btn:hover {
+    background: #45a049;
+    border-color: #45a049;
 }

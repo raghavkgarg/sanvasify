@@ -33,3 +33,4 @@ scratch.txt
 .env
 .env.*
 !/.env.example
+.kiro/settings/lsp.json

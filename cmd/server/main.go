@@ -69,20 +69,20 @@ func main() {
 			os.Exit(1)
 		}
 
-		if conf.Cfg.InputFile != "" {
-			f, err := os.Open(conf.Cfg.InputFile)
-			if err != nil {
-				logger.Error("failed to open data file", "error", err, "file", conf.Cfg.InputFile)
-				os.Exit(1)
-			}
-			defer f.Close()
-
-			if err := database.LoadFromNAVReport(ctx, f); err != nil {
-				logger.Error("failed to load data", "error", err)
-				os.Exit(1)
-			}
+		// Check if database has data
+		var rowCount int
+		err = database.DB().QueryRowContext(ctx, "SELECT COUNT(*) FROM sif_schemes").Scan(&rowCount)
+		if err != nil {
+			logger.Error("failed to check database data", "error", err)
+			os.Exit(1)
 		}
 
+		if rowCount == 0 {
+			logger.Error("database is empty. Load data using: duckdb " + conf.Cfg.DBPath + " -c \"CREATE TABLE sif_schemes AS SELECT * FROM 'data/nav_reports/*.parquet'\"")
+			os.Exit(1)
+		}
+
+		logger.Info("database loaded", "schemes", rowCount)
 		dataStore = database
 	} else {
 		logger.Info("using in-memory mode")

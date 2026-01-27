@@ -20,11 +20,12 @@ func (s *Server) routes() {
 	apiMux.HandleFunc("/api/filters", s.handleFilters())
 	apiMux.HandleFunc("/api/search", s.handleSearch())
 	
-	// Apply auth middleware if configured, then JSON middleware
+	// Apply auth middleware only if configured
 	var handler http.Handler = apiMux
 	if s.authMW != nil {
 		handler = s.authMW.Authenticate(handler)
 	}
+	// Always apply JSON and no-cache middleware
 	s.router.Handle("/api/", jsonMiddleware(noCacheMiddleware(handler)))
 	
 	// Static files without middleware

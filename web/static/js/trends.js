@@ -119,6 +119,7 @@ function plotChart(data) {
         yAxis: {
             type: 'value',
             name: 'NAV (₹)',
+            scale: true,
             axisLabel: {
                 formatter: '₹{value}'
             }

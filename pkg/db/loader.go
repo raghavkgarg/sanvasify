@@ -4,9 +4,30 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/raghavkgarg/sanvasify/pkg/nav"
 )
+
+// parseDouble converts a string to float64, returning nil for empty strings or invalid values
+func parseDouble(s string) interface{} {
+	if s == "" {
+		return nil
+	}
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return nil
+	}
+	return val
+}
+
+// nullIfEmpty returns nil if the string is empty, otherwise returns the string
+func nullIfEmpty(s string) interface{} {
+	if s == "" {
+		return nil
+	}
+	return s
+}
 
 func (d *DB) LoadFromNAVReport(ctx context.Context, r io.Reader) error {
 	report, err := nav.ParseNAVReport(r)
@@ -33,10 +54,13 @@ func (d *DB) LoadFromNAVReport(ctx context.Context, r io.Reader) error {
 		for _, fundHouse := range strategy.FundHouses {
 			for _, scheme := range fundHouse.Schemes {
 				_, err := stmt.ExecContext(ctx,
-					scheme.Code, scheme.Name, scheme.ISINDivPayoutGrowth, scheme.ISINDivReinvestment,
-					scheme.NetAssetValue, scheme.RepurchasePrice, scheme.SalePrice, scheme.Date,
-					scheme.StrategyName, scheme.FundHouseName, scheme.FundType, scheme.FundCompany,
-					scheme.FundStrategy, scheme.DistributionOption, scheme.PurchaseMode,
+					scheme.Code, scheme.Name,
+					nullIfEmpty(scheme.ISINDivPayoutGrowth), nullIfEmpty(scheme.ISINDivReinvestment),
+					parseDouble(scheme.NetAssetValue), parseDouble(scheme.RepurchasePrice), parseDouble(scheme.SalePrice),
+					scheme.Date,
+					nullIfEmpty(scheme.StrategyName), nullIfEmpty(scheme.FundHouseName),
+					nullIfEmpty(scheme.FundType), nullIfEmpty(scheme.FundCompany),
+					nullIfEmpty(scheme.FundStrategy), nullIfEmpty(scheme.DistributionOption), nullIfEmpty(scheme.PurchaseMode),
 				)
 				if err != nil {
 					return fmt.Errorf("failed to insert scheme %s: %w", scheme.Code, err)

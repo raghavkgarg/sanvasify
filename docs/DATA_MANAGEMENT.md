@@ -19,6 +19,8 @@ This creates:
 - `sif_schemes` table with proper schema
 - Indexes on `scheme_code` and `date` columns
 
+**Note:** The server requires existing data in the database. If the database is empty, it will fail with instructions on how to load data.
+
 ### Manual Database Creation
 
 ```bash
@@ -109,28 +111,38 @@ purchase_mode: VARCHAR            # Direct/Regular
 
 ### Loading Parquet Data
 
-**From command line**:
+**Load data into database**:
 ```bash
-duckdb /tmp/sanvasify.db
+# Drop existing data (if any)
+duckdb /tmp/sanvasify.db -c "DELETE FROM sif_schemes"
+
+# Load from Parquet with type conversion
+duckdb /tmp/sanvasify.db -c "INSERT INTO sif_schemes SELECT 
+  scheme_code, scheme_name, isin_div_payout_growth, isin_div_reinvestment,
+  TRY_CAST(net_asset_value AS DOUBLE), 
+  TRY_CAST(repurchase_price AS DOUBLE), 
+  TRY_CAST(sale_price AS DOUBLE),
+  date, strategy_name, fund_house_name, fund_type, fund_company,
+  fund_strategy, distribution_option, purchase_mode
+FROM 'data/nav_reports/*.parquet'"
+
+# Create indexes
+duckdb /tmp/sanvasify.db -c "CREATE INDEX IF NOT EXISTS idx_scheme_code ON sif_schemes(scheme_code)"
+duckdb /tmp/sanvasify.db -c "CREATE INDEX IF NOT EXISTS idx_date ON sif_schemes(date)"
+
+# Verify data
+duckdb /tmp/sanvasify.db -c "SELECT COUNT(*) FROM sif_schemes"
+duckdb /tmp/sanvasify.db -c "SELECT MIN(date), MAX(date) FROM sif_schemes"
 ```
 
-```sql
--- Load from Parquet file
-DROP TABLE IF EXISTS sif_schemes;
-CREATE TABLE sif_schemes AS 
-SELECT * FROM 'data/nav_reports/nav_data.parquet';
+**Note:** `TRY_CAST` converts VARCHAR to DOUBLE, returning NULL for empty strings or invalid values. This handles missing price data gracefully.
 
--- Create indexes
-CREATE INDEX idx_scheme_code ON sif_schemes(scheme_code);
-CREATE INDEX idx_date ON sif_schemes(date);
-
--- Verify data
-SELECT COUNT(*) FROM sif_schemes;
-SELECT MIN(date), MAX(date) FROM sif_schemes;
+**Start the server**:
+```bash
+./dist/sanvasify
 ```
 
-**From application**:
-The server automatically loads data from the database on startup.
+The server will verify data exists and display the row count on startup.
 
 ## Data Queries
 
@@ -216,9 +228,20 @@ To add new data without replacing existing:
    ./dist/fetch
    ```
 
-3. **Data appends automatically** to existing Parquet file
+3. **Load new data into database**:
+   ```bash
+   duckdb /tmp/sanvasify.db -c "INSERT INTO sif_schemes SELECT 
+     scheme_code, scheme_name, isin_div_payout_growth, isin_div_reinvestment,
+     TRY_CAST(net_asset_value AS DOUBLE), 
+     TRY_CAST(repurchase_price AS DOUBLE), 
+     TRY_CAST(sale_price AS DOUBLE),
+     date, strategy_name, fund_house_name, fund_type, fund_company,
+     fund_strategy, distribution_option, purchase_mode
+   FROM 'data/nav_reports/nav_data_*.parquet'
+   WHERE date >= '2026-01-01'"
+   ```
 
-4. **Restart server** to load new data
+4. **Restart server** to use updated data
 
 ### Full Refresh
 
@@ -226,7 +249,7 @@ To replace all data:
 
 1. **Delete existing data**:
    ```bash
-   rm data/nav_reports/nav_data.parquet
+   duckdb /tmp/sanvasify.db -c "DELETE FROM sif_schemes"
    ```
 
 2. **Fetch full date range**:
@@ -239,6 +262,18 @@ To replace all data:
 3. **Run fetcher**:
    ```bash
    ./dist/fetch
+   ```
+
+4. **Load all data**:
+   ```bash
+   duckdb /tmp/sanvasify.db -c "INSERT INTO sif_schemes SELECT 
+     scheme_code, scheme_name, isin_div_payout_growth, isin_div_reinvestment,
+     TRY_CAST(net_asset_value AS DOUBLE), 
+     TRY_CAST(repurchase_price AS DOUBLE), 
+     TRY_CAST(sale_price AS DOUBLE),
+     date, strategy_name, fund_house_name, fund_type, fund_company,
+     fund_strategy, distribution_option, purchase_mode
+   FROM 'data/nav_reports/*.parquet'"
    ```
 
 ## Backup and Restore
@@ -270,15 +305,20 @@ duckdb /tmp/sanvasify.db -c "CREATE TABLE sif_schemes AS SELECT * FROM 'backup.p
 - Ensure directory exists and is writable
 - Run server once to create database
 
-### "No data returned"
-- Verify data loaded: `SELECT COUNT(*) FROM sif_schemes`
+### "Database is empty"
+- Load data using the commands in "Loading Parquet Data" section
+- Verify Parquet files exist in `data/nav_reports/`
 - Check date range: `SELECT MIN(date), MAX(date) FROM sif_schemes`
-- Run fetcher to download data
 
 ### "Fetcher fails with 404"
 - AMFI has no data for that date (weekend/holiday)
 - Fetcher automatically skips and continues
 - Check logs for actual errors
+
+### "Conversion Error: Could not convert string to DECIMAL"
+- Use `TRY_CAST` instead of direct casting when loading from Parquet
+- This handles empty strings and invalid values gracefully
+- See "Loading Parquet Data" section for correct syntax
 
 ### "Slow queries"
 - Ensure indexes exist: `SHOW INDEXES FROM sif_schemes`

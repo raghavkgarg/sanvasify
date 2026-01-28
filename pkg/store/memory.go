@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/raghavkgarg/sanvasify/pkg/nav"
@@ -103,9 +104,9 @@ func navSchemeToStoreScheme(s *nav.Scheme) Scheme {
 		Name:                s.Name,
 		ISINDivPayoutGrowth: s.ISINDivPayoutGrowth,
 		ISINDivReinvestment: s.ISINDivReinvestment,
-		NetAssetValue:       s.NetAssetValue,
-		RepurchasePrice:     s.RepurchasePrice,
-		SalePrice:           s.SalePrice,
+		NetAssetValue:       parseFloat(s.NetAssetValue),
+		RepurchasePrice:     parseFloat(s.RepurchasePrice),
+		SalePrice:           parseFloat(s.SalePrice),
 		Date:                s.Date,
 		StrategyName:        s.StrategyName,
 		FundHouseName:       s.FundHouseName,
@@ -115,6 +116,17 @@ func navSchemeToStoreScheme(s *nav.Scheme) Scheme {
 		DistributionOption:  s.DistributionOption,
 		PurchaseMode:        s.PurchaseMode,
 	}
+}
+
+// parseFloat converts string to *float64, returns nil for empty/invalid strings
+func parseFloat(s string) *float64 {
+	if s == "" {
+		return nil
+	}
+	if val, err := strconv.ParseFloat(s, 64); err == nil {
+		return &val
+	}
+	return nil
 }
 
 func matchesFilters(s *nav.Scheme, filters map[string]string) bool {

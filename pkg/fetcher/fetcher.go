@@ -52,6 +52,35 @@ func (f *Fetcher) FetchAndConvert(ctx context.Context, date time.Time, parquetPa
 	return parquetPath, nil
 }
 
+// FetchRange iterates through a range of dates and fetches/converts data for each business day.
+// It skips weekends and respects rate limits with a small delay between requests.
+func (f *Fetcher) FetchRange(ctx context.Context, start, end time.Time, delaySeconds int) error {
+	fileName := fmt.Sprintf("nav_data_%s_to_%s.parquet", start.Format("2006-01-02"), end.Format("2006-01-02"))
+	parquetPath := filepath.Join(f.dataDir, fileName)
+
+	for d := start; !d.After(end); d = d.AddDate(0, 0, 1) {
+		// Skip weekends (Saturday=6, Sunday=0)
+		if d.Weekday() == time.Saturday || d.Weekday() == time.Sunday {
+			continue
+		}
+
+		fmt.Printf("Fetching and converting: %s\n", d.Format("2006-01-02"))
+		if _, err := f.FetchAndConvert(ctx, d, parquetPath); err != nil {
+			// Log the error but continue with the next date in the range
+			fmt.Printf("Warning: Failed for %s: %v\n", d.Format("2006-01-02"), err)
+			continue
+		}
+
+		// Delay to respect AMFI rate limits
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Duration(delaySeconds) * time.Second):
+		}
+	}
+	return nil
+}
+
 func (f *Fetcher) downloadRaw(ctx context.Context, date time.Time, destPath string) error {
 	url := f.buildURL(date)
 

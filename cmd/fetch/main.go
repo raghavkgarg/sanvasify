@@ -51,21 +51,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Parse dates from config
-	fromDate, err := time.Parse("2006-01-02", conf.Cfg.Fetcher.FromDate)
+	// Calculate incremental date range based on existing DB data
+	fromDate, toDate, err := f.CalculateIncrementalRange(conf.Cfg.DBPath, conf.Cfg.Fetcher.FromDate)
 	if err != nil {
-		slog.Error("failed to parse from_date", "error", err, "value", conf.Cfg.Fetcher.FromDate)
-		os.Exit(1)
-	}
-
-	toDate, err := time.Parse("2006-01-02", conf.Cfg.Fetcher.ToDate)
-	if err != nil {
-		slog.Error("failed to parse to_date", "error", err, "value", conf.Cfg.Fetcher.ToDate)
+		if strings.Contains(err.Error(), "already up to date") {
+			slog.Info(err.Error())
+			return
+		}
+		slog.Error("failed to determine date range", "error", err)
 		os.Exit(1)
 	}
 
 	slog.Info("fetching date range", "from", fromDate.Format("2006-01-02"), "to", toDate.Format("2006-01-02"))
-	
+
 	if err := f.FetchRange(context.Background(), fromDate, toDate, conf.Cfg.Fetcher.DelaySeconds); err != nil {
 		slog.Error("fetch range failed", "error", err)
 		os.Exit(1)

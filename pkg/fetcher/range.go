@@ -1,45 +1,47 @@
 package fetcher
 
 import (
-	"context"
+	"database/sql"
 	"fmt"
-	"log/slog"
-	"path/filepath"
 	"time"
+
+	_ "github.com/duckdb/duckdb-go/v2"
 )
 
-// FetchRange downloads NAV reports for a date range from AMFI.
-// It automatically skips weekends and holidays where no data is available.
-// A configurable delay is enforced between requests to avoid overloading the server.
-// Errors for individual dates are logged but don't stop the entire process.
-func (f *Fetcher) FetchRange(ctx context.Context, fromDate, toDate time.Time, delaySeconds int) error {
-	parquetPath := f.buildParquetPath(fromDate, toDate)
-	current := fromDate
-	count := 0
+// CalculateIncrementalRange queries the database to find the lastest stored date
+// and returns the next day as the 'from' date and today as the 'to' date.
+func (f *Fetcher) CalculateIncrementalRange(dbPath string, defaultFrom string) (time.Time, time.Time, error) {
+	db, err := sql.Open("duckdb", dbPath)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("failed to open database: %w", err)
+	}
+	defer db.Close()
 
-	for !current.After(toDate) {
-		if count > 0 {
-			slog.Info("waiting before next fetch", "delay_seconds", delaySeconds)
-			time.Sleep(time.Duration(delaySeconds) * time.Second)
-		}
+	var latestDate sql.NullTime
+	// We use NullTime in case the table is empty
+	query := "SELECT MAX(date) FROM sif_schemes"
+	_ = db.QueryRow(query).Scan(&latestDate)
 
-		slog.Info("fetching NAV data", "date", current.Format("2006-01-02"))
-		_, err := f.FetchAndConvert(ctx, current, parquetPath)
-		if err != nil {
-			slog.Error("failed to fetch", "date", current.Format("2006-01-02"), "error", err)
-		}
+	now := time.Now()
+	toDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
 
-		current = current.AddDate(0, 0, 1)
-		count++
+	parsedDefault, err := time.Parse("2006-01-02", defaultFrom)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("invalid default from date: %w", err)
 	}
 
-	slog.Info("fetch range completed", "dates_processed", count, "parquet_file", parquetPath)
-	return nil
-}
+	// If the database has no records, fallback to the config's from_date
+	if !latestDate.Valid {
+		return parsedDefault, toDate, nil
+	}
 
-func (f *Fetcher) buildParquetPath(fromDate, toDate time.Time) string {
-	filename := fmt.Sprintf("nav_data_%s_to_%s.parquet",
-		fromDate.Format("2006-01-02"),
-		toDate.Format("2006-01-02"))
-	return filepath.Join(f.dataDir, filename)
+	// Calculate from_date as Latest Date + 1 day
+	fromDate := latestDate.Time.AddDate(0, 0, 1)
+
+	// Optional: Check if we are already up to date
+	if fromDate.After(toDate) {
+		return time.Time{}, time.Time{}, fmt.Errorf("data is already up to date (latest: %s)", latestDate.Time.Format("2006-01-02"))
+	}
+
+	return fromDate, toDate, nil
 }

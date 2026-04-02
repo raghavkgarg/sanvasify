@@ -31,6 +31,7 @@ sanvasify/
 ├── cmd/
 │   ├── server/       # Web server
 │   ├── fetch/        # Data fetcher
+│   ├── load/         # Data loader
 │   └── gensecret/    # JWT secret generator
 ├── pkg/
 │   ├── api/          # HTTP handlers & routing
@@ -38,6 +39,7 @@ sanvasify/
 │   ├── conf/         # Configuration
 │   ├── db/           # DuckDB integration
 │   ├── fetcher/      # AMFI data fetching
+│   ├── store/        # Data storage & models
 │   └── nav/          # NAV data parsing
 ├── web/static/       # Frontend (HTML/CSS/JS)
 ├── config/           # Configuration files

@@ -1,100 +1,59 @@
-# Deployment Guide
+# Local Development & Database Guide
 
 ## Overview
 
-This guide covers deploying Sanvasify to production environments with authentication enabled.
+This guide covers setting up Sanvasify for local development, managing the database, and configuring authentication.
+
+For cloud deployment instructions, please refer to **[CloudDeploymentPlan.MD](CloudDeploymentPlan.MD)**.
 
 ## Prerequisites
 
-- Linux server (Ubuntu 20.04+ recommended)
 - Go 1.25+ (for building)
-- Systemd (for process management)
-- Nginx (optional, for reverse proxy)
-- Domain name with SSL certificate
 
-## Build for Production
-
-### Linux AMD64
+## Build & Run Locally
 
 ```bash
-GOOS=linux GOARCH=amd64 go build -o sanvasify ./cmd/server
-GOOS=linux GOARCH=amd64 go build -o fetch ./cmd/fetch
-GOOS=linux GOARCH=amd64 go build -o gensecret ./cmd/gensecret
+
+
+# Build the fetcher tool
+go build -o dist/fetch ./cmd/fetch
+
+# Build the loader tool
+go build -o dist/load ./cmd/load
+./dist/load
+./dist/load -file data/nav_reports/nav_data_2025-10-01_to_2026-01-19.parquet
+
+# Build the server
+go build -o sanvasify ./cmd/server
+
+# Build the secret generator
+go build -o dist/gensecret ./cmd/gensecret
 ```
 
-### Linux ARM64
+## Configuration
 
-```bash
-GOOS=linux GOARCH=arm64 go build -o sanvasify ./cmd/server
-GOOS=linux GOARCH=arm64 go build -o fetch ./cmd/fetch
-GOOS=linux GOARCH=arm64 go build -o gensecret ./cmd/gensecret
-```
-
-## Server Setup
-
-### 1. Create Application User
-
-```bash
-sudo useradd -r -s /bin/false sanvasify
-```
-
-### 2. Create Directory Structure
-
-```bash
-sudo mkdir -p /opt/sanvasify/{bin,config,data,logs}
-sudo chown -R sanvasify:sanvasify /opt/sanvasify
-```
-
-### 3. Copy Files
-
-```bash
-# Binaries
-sudo cp sanvasify /opt/sanvasify/bin/
-sudo cp fetch /opt/sanvasify/bin/
-sudo cp gensecret /opt/sanvasify/bin/
-sudo chmod +x /opt/sanvasify/bin/*
-
-# Configuration
-sudo cp config/Config.toml /opt/sanvasify/config/
-
-# Web assets
-sudo cp -r web /opt/sanvasify/
-
-# Set permissions
-sudo chown -R sanvasify:sanvasify /opt/sanvasify
-```
-
-### 4. Generate Secrets
-
-```bash
-cd /opt/sanvasify/bin
-sudo -u sanvasify ./gensecret
-```
-
-Save the output for environment variables.
-
-### 5. Configure OAuth
+### 1. Configure OAuth
 
 Follow the [Authentication Setup](AUTHENTICATION.md) guide to:
 - Create Google OAuth client ID
 - Create GitHub OAuth app
 - Update redirect URLs to production domain
 
-### 6. Update Configuration
+### 2. Update Configuration
 
-Edit `/opt/sanvasify/config/Config.toml`:
+Edit `config/Config.toml` (ensure paths are relative for local dev):
 
 ```toml
 use_db = true
-db_path = "/opt/sanvasify/data/sanvasify.db"
-log_file = "/opt/sanvasify/logs/sanvasify.log"
+db_path = "./sanvasify.db"
+log_file = "./sanvasify.log"
 
 [server]
 port = 8080
 
 [fetcher]
 enabled = false
-data_dir = "/opt/sanvasify/data/nav_reports"
+data_dir = "./data/nav_reports"
 
 [auth]
 enabled = true
@@ -104,12 +63,12 @@ jwt_expiry_hours = 24
 [auth.google]
 client_id = "your-google-client-id"
 client_secret = ""  # Set via environment variable
-redirect_url = "https://yourdomain.com/api/auth/callback/google"
+redirect_url = "http://localhost:8080/api/auth/callback/google"
 
 [auth.github]
 client_id = "your-github-client-id"
 client_secret = ""  # Set via environment variable
-redirect_url = "https://yourdomain.com/api/auth/callback/github"
+redirect_url = "http://localhost:8080/api/auth/callback/github"
 ```
 
 ### 7. Set Environment Variables

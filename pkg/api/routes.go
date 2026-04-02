@@ -12,22 +12,33 @@ func (s *Server) routes() {
 		s.router.Handle("/api/auth/me", s.authMW.Authenticate(http.HandlerFunc(s.authHandlers.MeHandler)))
 	}
 
-	// API routes with middleware
-	apiMux := http.NewServeMux()
-	apiMux.HandleFunc("/api/schemes", s.handleSchemes())
-	apiMux.HandleFunc("/api/nav", s.handleNAV())
-	apiMux.HandleFunc("/api/nav/history", s.handleNAVHistory())
-	apiMux.HandleFunc("/api/filters", s.handleFilters())
-	apiMux.HandleFunc("/api/search", s.handleSearch())
-	
-	// Apply auth middleware only if configured
-	var handler http.Handler = apiMux
-	if s.authMW != nil {
-		handler = s.authMW.Authenticate(handler)
-	}
-	// Always apply JSON and no-cache middleware
-	s.router.Handle("/api/", jsonMiddleware(noCacheMiddleware(handler)))
-	
+	// Public API routes (no auth required)
+	s.router.HandleFunc("/api/schemes", jsonMW(s.handleSchemes()))
+	s.router.HandleFunc("/api/filters", jsonMW(s.handleFilters()))
+
+	// Protected API routes (auth required)
+	s.router.HandleFunc("/api/nav", authMW(s, jsonMW(s.handleNAV())))
+	s.router.HandleFunc("/api/nav/history", authMW(s, jsonMW(s.handleNAVHistory())))
+	s.router.HandleFunc("/api/search", authMW(s, jsonMW(s.handleSearch())))
+
 	// Static files without middleware
 	s.router.Handle("/", http.FileServer(http.Dir("web/static")))
+}
+
+// jsonMW wraps handlers with JSON and no-cache middleware
+func jsonMW(handler http.HandlerFunc) http.HandlerFunc {
+	// Reuse the logic from middleware.go to ensure headers are consistent across the app.
+	// This applies both jsonMiddleware (Content-Type) and noCacheMiddleware (Cache-Control/Expires).
+	return noCacheMiddleware(jsonMiddleware(handler)).ServeHTTP
+}
+
+// authMW wraps protected endpoints with authentication
+func authMW(s *Server, handler http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if s.authMW != nil {
+			s.authMW.Authenticate(handler).ServeHTTP(w, r)
+		} else {
+			handler(w, r)
+		}
+	})
 }

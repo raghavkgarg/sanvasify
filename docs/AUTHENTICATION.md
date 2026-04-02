@@ -225,6 +225,14 @@ CREATE TABLE users (
 5. **Configure log rotation** for audit trail
 6. **Monitor failed login attempts**
 
+### Using Caddy Server
+
+You can use Caddy as a reverse proxy to handle HTTPS automatically.
+
+1. Create a `Caddyfile` in the project root.
+2. Run `caddy run`.
+3. Update your OAuth callback URLs to use the Caddy address (e.g., `https://yourdomain.com` or `https://localhost`).
+
 ## Disabling Authentication
 
 Set `enabled = false` in config:

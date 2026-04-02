@@ -1,15 +1,17 @@
 input_file = "config/nav_report_2026-01-18.txt"
 use_db = true
-db_path = "/tmp/sanvasify.db"
+db_path = "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
+##db_path = "/opt/sanvasify/data/sanvasify.db"
 log_file = "/tmp/sanvasify.log"
 
 [fetcher]
 enabled = false
+##data_dir = "/opt/sanvasify/data/nav_reports"
 data_dir = "data/nav_reports"
 raw_dir = "/tmp/sanvasify_raw"
 base_url = "https://portal.amfiindia.com/SIF_DownloadNAVHistoryReport.aspx"
-from_date = "2026-01-16"
-to_date = "2026-01-21"
+from_date = "2025-10-01"
+to_date = "2026-01-19"
 delay_seconds = 60
 
 [server]
@@ -17,15 +19,17 @@ port = 8080
 
 [auth]
 enabled = false
-jwt_secret = "change-this-to-a-random-secret-key-in-production"
+jwt_secret = "change-this-to-a-random-secret-key-in-production" # Or use env var JWT_SECRET
 jwt_expiry_hours = 24
 
 [auth.google]
 client_id = ""
 client_secret = ""
-redirect_url = "http://localhost:8080/api/auth/callback/google"
+##redirect_url = "http://localhost:8080/api/auth/callback/google"
+redirect_url = "https://sanvasify.com/api/auth/callback/google"
 
 [auth.github]
 client_id = ""
 client_secret = ""
-redirect_url = "http://localhost:8080/api/auth/callback/github"
+##redirect_url = "http://localhost:8080/api/auth/callback/github"
+redirect_url = "https://sanvasify.com/api/auth/callback/github"

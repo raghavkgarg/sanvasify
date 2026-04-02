@@ -7,8 +7,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/raghavkgarg/sanvasify/pkg/store"
 	_ "github.com/duckdb/duckdb-go/v2"
+	"github.com/raghavkgarg/sanvasify/pkg/store"
 )
 
 type DB struct {
@@ -39,14 +39,14 @@ func (d *DB) Close() error {
 func (d *DB) InitSchema(ctx context.Context) error {
 	schema := `
 	CREATE TABLE IF NOT EXISTS sif_schemes (
-		scheme_code VARCHAR NOT NULL,
-		scheme_name VARCHAR NOT NULL,
+		scheme_code VARCHAR NOT NULL, -- Part of primary key
+		scheme_name VARCHAR NOT NULL, -- Should always be present
 		isin_div_payout_growth VARCHAR,
 		isin_div_reinvestment VARCHAR,
 		net_asset_value DOUBLE,
 		repurchase_price DOUBLE,
 		sale_price DOUBLE,
-		date DATE,
+		date DATE NOT NULL, -- Part of primary key
 		strategy_name VARCHAR,
 		fund_house_name VARCHAR,
 		fund_type VARCHAR,
@@ -54,9 +54,10 @@ func (d *DB) InitSchema(ctx context.Context) error {
 		fund_strategy VARCHAR,
 		distribution_option VARCHAR,
 		purchase_mode VARCHAR
+		, PRIMARY KEY (scheme_code, date)
 	);
-	CREATE INDEX IF NOT EXISTS idx_scheme_code ON sif_schemes(scheme_code);
-	CREATE INDEX IF NOT EXISTS idx_date ON sif_schemes(date);
+	-- Primary key (scheme_code, date) automatically creates an index.
+	-- No need for explicit index creation here.
 	`
 	_, err := d.conn.ExecContext(ctx, schema)
 	return err
@@ -176,17 +177,17 @@ func (d *DB) SearchSchemes(ctx context.Context, filters map[string]string) ([]st
 func (d *DB) GetUniqueValues(ctx context.Context, column string) ([]string, error) {
 	// Validate column name to prevent SQL injection
 	validColumns := map[string]bool{
-		store.ColumnFundType:          true,
-		store.ColumnFundStrategy:      true,
-		store.ColumnFundCompany:       true,
+		store.ColumnFundType:           true,
+		store.ColumnFundStrategy:       true,
+		store.ColumnFundCompany:        true,
 		store.ColumnDistributionOption: true,
-		store.ColumnPurchaseMode:      true,
+		store.ColumnPurchaseMode:       true,
 	}
-	
+
 	if !validColumns[column] {
 		return nil, fmt.Errorf("invalid column name: %s", column)
 	}
-	
+
 	query := fmt.Sprintf(`SELECT DISTINCT %s FROM sif_schemes WHERE %s IS NOT NULL AND %s != '' ORDER BY %s`, column, column, column, column)
 	rows, err := d.conn.QueryContext(ctx, query)
 	if err != nil {

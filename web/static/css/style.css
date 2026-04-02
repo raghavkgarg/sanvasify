@@ -17,6 +17,8 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    background: #ffffff;
+    border-bottom: 2px solid #ddd;
 }
 
 .brand-logo {
@@ -73,17 +75,13 @@ body {
 
 /* Navigation Bar */
 .main-nav {
-    background: #f5f5f5;
-    padding: 15px 0;
-    border-bottom: 2px solid #ddd;
+    flex: 1;
 }
 
 .nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
     display: flex;
     gap: 15px;
-    padding: 0 20px;
+    padding: 0;
     align-items: center;
 }
 

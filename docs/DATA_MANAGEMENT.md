@@ -9,9 +9,12 @@ Sanvasify uses DuckDB for efficient storage and querying of mutual fund NAV data
 ### Initial Setup
 
 The database is created automatically on first run:
+1. Ensure your `db_path` is configured in `config/Config.toml`.
+2. Run the loader or the server to initialize the schema.
 
+**Using the loader:**
 ```bash
-./dist/sanvasify
+./dist/load
 ```
 
 This creates:
@@ -29,25 +32,24 @@ duckdb /tmp/sanvasify.db
 
 ```sql
 CREATE TABLE sif_schemes (
-    scheme_code VARCHAR,
-    scheme_name VARCHAR,
+    scheme_code VARCHAR NOT NULL,
+    scheme_name VARCHAR NOT NULL,
     isin_div_payout_growth VARCHAR,
     isin_div_reinvestment VARCHAR,
     net_asset_value DOUBLE,
     repurchase_price DOUBLE,
     sale_price DOUBLE,
-    date DATE,
+    date DATE NOT NULL,
     strategy_name VARCHAR,
     fund_house_name VARCHAR,
     fund_type VARCHAR,
     fund_company VARCHAR,
     fund_strategy VARCHAR,
     distribution_option VARCHAR,
-    purchase_mode VARCHAR
+    purchase_mode VARCHAR,
+    PRIMARY KEY (scheme_code, date)
 );
 
-CREATE INDEX idx_scheme_code ON sif_schemes(scheme_code);
-CREATE INDEX idx_date ON sif_schemes(date);
 ```
 
 ## Data Fetching
@@ -116,7 +118,10 @@ purchase_mode: VARCHAR            # Direct/Regular
 # Drop existing data (if any)
 duckdb /tmp/sanvasify.db -c "DELETE FROM sif_schemes"
 
-# Load from Parquet with type conversion
+# Load only the latest Parquet file to avoid duplicates
+LATEST_FILE=$(ls -t data/nav_reports/*.parquet | head -1)
+echo "Loading: $LATEST_FILE"
+
 duckdb /tmp/sanvasify.db -c "INSERT INTO sif_schemes SELECT 
   scheme_code, scheme_name, isin_div_payout_growth, isin_div_reinvestment,
   TRY_CAST(net_asset_value AS DOUBLE), 
@@ -124,7 +129,7 @@ duckdb /tmp/sanvasify.db -c "INSERT INTO sif_schemes SELECT
   TRY_CAST(sale_price AS DOUBLE),
   date, strategy_name, fund_house_name, fund_type, fund_company,
   fund_strategy, distribution_option, purchase_mode
-FROM 'data/nav_reports/*.parquet'"
+FROM '$LATEST_FILE'"
 
 # Create indexes
 duckdb /tmp/sanvasify.db -c "CREATE INDEX IF NOT EXISTS idx_scheme_code ON sif_schemes(scheme_code)"

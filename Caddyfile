@@ -1,0 +1,9 @@
+sanvasify.com, www.sanvasify.com {
+	reverse_proxy localhost:8080
+}
+
+# Allow direct HTTPS access via IPv6 address using a self-signed cert
+[2406:da1a:5e:0:7c64:8ca5:e4a1:c0b9] {
+	tls internal
+	reverse_proxy localhost:8080
+}

@@ -40,7 +40,7 @@ function initNavigation(currentPage) {
     const brandContainer = document.querySelector('.brand-container');
     if (brandContainer) {
         const nav = createNavigation(currentPage);
-        brandContainer.insertAdjacentElement('afterend', nav);
+        brandContainer.appendChild(nav);
         loadUserInfo();
     }
 }

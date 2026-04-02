@@ -39,7 +39,7 @@ This file lists tasks for future iterations of the sanvasify application.
 ### High Priority - Go 1.25 Features
 
 -   **Migrate to structured logging with slog:** Replace all `log.Printf/Println/Fatalf` calls with `slog` for structured logging. This provides better log parsing, filtering, and integration with modern observability tools. Consider using `slog.GroupAttrs` (Go 1.25) for grouping related attributes.
-    - Files affected: cmd/server/main.go, cmd/fetch/main.go, pkg/fetcher/range.go, pkg/api/server.go, pkg/conf/config.go
+    - Files affected: cmd/server/main.go, cmd/fetch/main.go, cmd/gensecret/main.go, pkg/fetcher/range.go, pkg/api/server.go, pkg/conf/config.go
 
 -   **Add unit tests with Go 1.25 testing features:** Create comprehensive test suite using:
     - `testing/synctest` for testing time-dependent code (e.g., fetcher delays, timeouts)

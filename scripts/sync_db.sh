@@ -4,10 +4,15 @@
 set -e
 
 # Configuration - Update these if your environment changes
-KEY_FILE="sn1.pem"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+KEY_FILE="$PROJECT_ROOT/sn1.pem"
 REMOTE_USER_HOST="ec2-user@13.234.173.198"
 LOCAL_DB="/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
 REMOTE_DATA_DIR="/opt/sanvasify/data"
+
+cd "$PROJECT_ROOT"
 
 echo ">>> [LOCAL] 1. Running Fetcher..."
 go build -o dist/fetch ./cmd/fetch
@@ -22,6 +27,7 @@ scp -i "$KEY_FILE" "$LOCAL_DB" "$REMOTE_USER_HOST:~/"
 
 echo ">>> [REMOTE] Executing Deployment Steps (4-9)..."
 ssh -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF
+    set -e # Exit immediately if a command fails on the remote server
     # 8. Stop Services (Stopping first ensures the database file isn't in use)
     echo "Stopping Sanvasify and Caddy services..."
     sudo systemctl stop sanvasify
@@ -52,4 +58,4 @@ ssh -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF
     echo "Deployment complete. Sanvasify status: \$(sudo systemctl is-active sanvasify)"
 EOF
 
-echo ">>> Workflow Finished Successfully."
+echo ">>> Database Workflow Finished Successfully."

@@ -17,19 +17,7 @@ cd "$PROJECT_ROOT"
 eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null || true)"
 
 echo ">>> [LOCAL] 2. Building for Linux ARM64..."
-# Cross-compiling for AWS Graviton (ARM64) with CGO enabled for DuckDB
-if ! command -v aarch64-unknown-linux-gnu-gcc &> /dev/null; then
-    echo "Error: aarch64-unknown-linux-gnu-gcc not found in PATH."
-    echo "Please install it via Homebrew: brew install messense/macos-cross-toolchains/aarch64-unknown-linux-gnu"
-    exit 1
-fi
-
-CC=aarch64-unknown-linux-gnu-gcc \
-CXX=aarch64-unknown-linux-gnu-g++ \
-CGO_ENABLED=1 \
-GOOS=linux \
-GOARCH=arm64 \
-go build -ldflags "-s -w" -o sanvasify cmd/server/main.go
+make build-linux-arm64
 
 echo ">>> [LOCAL] 3. Uploading Binary to staging area..."
 scp -i "$KEY_FILE" "$PROJECT_ROOT/sanvasify" "$REMOTE_USER_HOST:~/"

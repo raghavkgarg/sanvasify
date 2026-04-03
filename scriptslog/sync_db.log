@@ -1,0 +1,96 @@
+>>> [LOCAL] 1. Running Fetcher...
+time=2026-04-03T16:10:34.383+05:30 level=INFO source=cmd/fetch/main.go:42 msg="starting NAV data fetch"
+time=2026-04-03T16:10:34.400+05:30 level=INFO source=cmd/fetch/main.go:58 msg="data is already up to date (latest: 2026-04-02)"
+>>> [LOCAL] 2. Running Loader...
+>>> [LOCAL] 3. Uploading Database to staging area on AWS...
+>>> [REMOTE] Executing Deployment Steps (4-9)...
+
+A newer release of "Amazon Linux" is available.
+  Version 2023.10.20260202:
+  Version 2023.10.20260216:
+  Version 2023.10.20260302:
+  Version 2023.10.20260325:
+  Version 2023.10.20260330:
+Run "/usr/bin/dnf check-release-update" for full release and version update info
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Stopping Sanvasify and Caddy services...
+Moving new database to /opt/sanvasify/data...
+Applying ownership and permissions...
+Reloading systemd and restarting services...
+Deployment complete. Sanvasify status: active
+>>> Database Workflow Finished Successfully.
+>>> [LOCAL] 1. Running Fetcher...
+time=2026-04-03T16:17:08.544+05:30 level=INFO source=cmd/fetch/main.go:42 msg="starting NAV data fetch"
+time=2026-04-03T16:17:08.571+05:30 level=INFO source=cmd/fetch/main.go:58 msg="data is already up to date (latest: 2026-04-02)"
+>>> [LOCAL] 2. Running Loader...
+>>> [LOCAL] 3. Uploading Database to staging area on AWS...
+>>> [REMOTE] Executing Deployment Steps (4-9)...
+
+A newer release of "Amazon Linux" is available.
+  Version 2023.10.20260202:
+  Version 2023.10.20260216:
+  Version 2023.10.20260302:
+  Version 2023.10.20260325:
+  Version 2023.10.20260330:
+Run "/usr/bin/dnf check-release-update" for full release and version update info
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Stopping Sanvasify and Caddy services...
+Moving new database to /opt/sanvasify/data...
+Applying ownership and permissions...
+Reloading systemd and restarting services...
+Deployment complete. Sanvasify status: active
+>>> Database Workflow Finished Successfully.
+>>> [LOCAL] 1. Running Fetcher...
+time=2026-04-03T16:44:38.787+05:30 level=INFO source=cmd/fetch/main.go:42 msg="starting NAV data fetch"
+time=2026-04-03T16:44:38.820+05:30 level=INFO source=cmd/fetch/main.go:58 msg="data is already up to date (latest: 2026-04-02)"
+>>> [LOCAL] Data is already up to date. Skipping remaining steps.
+>>> [LOCAL] 1. Running Fetcher...
+time=2026-04-03T16:50:22.624+05:30 level=INFO source=cmd/fetch/main.go:42 msg="starting NAV data fetch"
+time=2026-04-03T16:50:22.640+05:30 level=INFO source=cmd/fetch/main.go:65 msg="fetching date range" from=2026-04-02 to=2026-04-03
+Fetching and converting: 2026-04-02
+time=2026-04-03T16:51:22.784+05:30 level=INFO source=cmd/fetch/main.go:72 msg="fetch completed successfully"
+>>> [LOCAL] 2. Running Loader...
+>>> [LOCAL] 3. Uploading Database to staging area on AWS...
+>>> [REMOTE] Executing Deployment Steps (4-9)...
+
+A newer release of "Amazon Linux" is available.
+  Version 2023.10.20260202:
+  Version 2023.10.20260216:
+  Version 2023.10.20260302:
+  Version 2023.10.20260325:
+  Version 2023.10.20260330:
+Run "/usr/bin/dnf check-release-update" for full release and version update info
+   ,     #_
+   ~\_  ####_        Amazon Linux 2023
+  ~~  \_#####\
+  ~~     \###|
+  ~~       \#/ ___   https://aws.amazon.com/linux/amazon-linux-2023
+   ~~       V~' '->
+    ~~~         /
+      ~~._.   _/
+         _/ _/
+       _/m/'
+Stopping Sanvasify and Caddy services...
+Moving new database to /opt/sanvasify/data...
+Applying ownership and permissions...
+Reloading systemd and restarting services...
+Deployment complete. Sanvasify status: active
+>>> Database Workflow Finished Successfully.

@@ -16,7 +16,19 @@ cd "$PROJECT_ROOT"
 
 echo ">>> [LOCAL] 1. Running Fetcher..."
 go build -o dist/fetch ./cmd/fetch
+
+# Run fetcher and handle the "already up to date" signal (exit code 2)
+set +e
 ./dist/fetch
+FETCH_STATUS=$?
+set -e
+
+if [ $FETCH_STATUS -eq 2 ]; then
+    echo ">>> [LOCAL] Data is already up to date. Skipping remaining steps."
+    exit 0
+elif [ $FETCH_STATUS -ne 0 ]; then
+    exit $FETCH_STATUS
+fi
 
 echo ">>> [LOCAL] 2. Running Loader..."
 go build -o dist/load ./cmd/load

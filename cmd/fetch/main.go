@@ -56,7 +56,7 @@ func main() {
 	if err != nil {
 		if strings.Contains(err.Error(), "already up to date") {
 			slog.Info(err.Error())
-			return
+			os.Exit(2) // Exit with 2 to signal "nothing to do" to scripts
 		}
 		slog.Error("failed to determine date range", "error", err)
 		os.Exit(1)

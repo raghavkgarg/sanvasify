@@ -15,6 +15,9 @@ dist/
 *.dylib
 *.pem
 *.parquet
+*.log
+*.err
+
 
 # Test binary, built with `go test -c`
 *.test

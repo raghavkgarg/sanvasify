@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(schemes => {
             // Clear loading message
+            
+            // Sort schemes alphabetically by name
+            schemes.sort((a, b) => a.scheme_name.localeCompare(b.scheme_name));
+
             schemeSelect.innerHTML = '<option value="" disabled selected>Select a scheme</option>';
             
             schemes.forEach(scheme => {

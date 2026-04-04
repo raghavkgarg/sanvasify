@@ -33,6 +33,9 @@ async function loadSchemes() {
         
         schemes = await response.json();
         
+        // Sort schemes alphabetically by name
+        schemes.sort((a, b) => a.scheme_name.localeCompare(b.scheme_name));
+
         schemeSelect.innerHTML = '<option value="" disabled selected>Select a scheme</option>';
         schemes.forEach(scheme => {
             const option = document.createElement('option');

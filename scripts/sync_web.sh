@@ -11,15 +11,47 @@ KEY_FILE="$PROJECT_ROOT/sn1.pem"
 REMOTE_USER_HOST="ec2-user@13.234.173.198"
 LOCAL_WEB_DIR="$PROJECT_ROOT/web"
 REMOTE_WEB_DIR="/opt/sanvasify/web"
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+echo ">>> [LOCAL] Checking for JS changes requiring cache-busting..."
+JS_FILES=("static/js/app.js" "static/js/trends.js")
+NEEDS_CACHE_BUST=false
+
+for f in "${JS_FILES[@]}"; do
+    LOCAL_PATH="$LOCAL_WEB_DIR/$f"
+    REMOTE_PATH="$REMOTE_WEB_DIR/$f"
+    
+    if [ -f "$LOCAL_PATH" ]; then
+        # Compare local MD5 hash with remote hash
+        LOCAL_HASH=$(openssl dgst -md5 "$LOCAL_PATH" | awk '{print $NF}')
+        REMOTE_HASH=$(ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" "if [ -f $REMOTE_PATH ]; then openssl dgst -md5 $REMOTE_PATH | awk '{print \$NF}'; else echo 'none'; fi" 2>/dev/null || echo "none")
+        
+        if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
+            echo "(!) Change detected in $f"
+            NEEDS_CACHE_BUST=true
+        fi
+    fi
+done
+
+if [ "$NEEDS_CACHE_BUST" = true ]; then
+    echo -e "\n\033[1;33mWARNING: One or more JavaScript files have changed since the last deployment.\033[0m"
+    echo -e "\033[1;33mEnsure you have updated the version parameter (e.g., ?v=1.0.x) in index.html or trends.html.\033[0m\n"
+    read -p "Continue with deployment? (y/n): " confirm
+    [[ "$confirm" == [yY] ]] || exit 1
+fi
+
+if [ "$NEEDS_CACHE_BUST" = false ]; then
+    echo -e "\n\033[1;33mINFO: No changes detected in JavaScript files since the last deployment.\033[0m"
+fi   
 
 echo ">>> [LOCAL] 0. Cleaning up remote staging area..."
-ssh -i "$KEY_FILE" "$REMOTE_USER_HOST" "rm -rf ~/web"
+ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" "rm -rf ~/web"
 
 echo ">>> [LOCAL] 1. Uploading the entire 'web' directory..."
-scp -i "$KEY_FILE" -r "$LOCAL_WEB_DIR" "$REMOTE_USER_HOST:~/"
+scp $SSH_OPTS -i "$KEY_FILE" -r "$LOCAL_WEB_DIR" "$REMOTE_USER_HOST:~/"
 
 echo ">>> [REMOTE] 2-6. Executing Deployment Steps..."
-ssh -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF
+ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF
     set -e # Exit immediately if a command fails on the remote server
     # 3. Stop Services
     echo "Stopping services..."

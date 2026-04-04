@@ -9,6 +9,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 KEY_FILE="$PROJECT_ROOT/sn1.pem"
 REMOTE_USER_HOST="ec2-user@13.234.173.198"
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 echo ">>> [LOCAL] 1. Navigating to project root..."
 cd "$PROJECT_ROOT"
@@ -20,10 +21,10 @@ echo ">>> [LOCAL] 2. Building for Linux ARM64..."
 make build-linux-arm64
 
 echo ">>> [LOCAL] 3. Uploading Binary to staging area..."
-scp -i "$KEY_FILE" "$PROJECT_ROOT/sanvasify" "$REMOTE_USER_HOST:~/"
+scp $SSH_OPTS -i "$KEY_FILE" "$PROJECT_ROOT/sanvasify" "$REMOTE_USER_HOST:~/"
 
 echo ">>> [REMOTE] 4-10. Executing Remote Deployment..."
-ssh -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF
+ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF
     set -e # Exit immediately if a command fails on the remote server
     # 5. Set Ownership (Run before enabling services)
     echo "Setting initial ownership..."

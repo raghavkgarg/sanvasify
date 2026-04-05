@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sanvasify - Check SIF NAV</title>
+        <link rel="stylesheet" href="css/style.css?v=1.0.2" />
+    </head>
+    <body>
+        <div class="sif-card">
+            <div class="guide-container">
+                <div class="welcome-block">
+                    <div class="branding-group">
+                        <img src="Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
+                        <div class="welcome-text">
+                            <h1>Check SIF NAV</h1>
+                            <p class="subhead">Real-time Net Asset Value for your investment portfolio</p>
+                        </div>
+                    </div>
+                    <a href="index.html" class="home-btn">← Home</a>
+                </div>
+
+                <main>
+                    <div class="search-section">
+                        <span class="section-title">Quick Search</span>
+                        <label for="scheme-select">Select Scheme:</label>
+                        <select id="scheme-select">
+                            <option value="" disabled selected>
+                                Loading schemes...
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="search-section advanced-search">
+                        <span class="section-title">Advanced Framework Filter</span>
+                        <div class="filters-container">
+                            <div>
+                                <label>Fund Type</label>
+                                <select id="filter-type">
+                                    <option value="">All Types</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Fund Strategy</label>
+                                <select id="filter-strategy">
+                                    <option value="">All Strategies</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Fund Company</label>
+                                <select id="filter-company">
+                                    <option value="">All Companies</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Distribution</label>
+                                <select id="filter-dist">
+                                    <option value="">All Options</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Mode</label>
+                                <select id="filter-mode">
+                                    <option value="">All Modes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <button id="btn-advanced-search" class="btn-primary">
+                                Fetch Latest NAV
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="result-card" class="card" style="display: none">
+                        <h2 id="scheme-name">Scheme Name</h2>
+                        <div class="detail-row">
+                            <span class="label">Net Asset Value</span>
+                            <span class="value" id="nav-value">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Valuation Date</span>
+                            <span class="value" id="nav-date">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Scheme Code</span>
+                            <span class="value" id="scheme-code">--</span>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <script src="js/navigation.js"></script>
+        <script>initNavigation('nav.html');</script>
+        <script src="js/app.js?v=1.0.1"></script>
+    </body>
+</html>

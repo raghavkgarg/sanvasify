@@ -13,11 +13,11 @@ LOCAL_WEB_DIR="$PROJECT_ROOT/web"
 REMOTE_WEB_DIR="/opt/sanvasify/web"
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
-echo ">>> [LOCAL] Checking for JS changes requiring cache-busting..."
-JS_FILES=("static/js/app.js" "static/js/trends.js")
+echo ">>> [LOCAL] Checking for JS/CSS changes requiring cache-busting..."
+STATIC_ASSETS=("static/js/app.js" "static/js/trends.js" "static/css/style.css")
 NEEDS_CACHE_BUST=false
 
-for f in "${JS_FILES[@]}"; do
+for f in "${STATIC_ASSETS[@]}"; do
     LOCAL_PATH="$LOCAL_WEB_DIR/$f"
     REMOTE_PATH="$REMOTE_WEB_DIR/$f"
     
@@ -34,14 +34,14 @@ for f in "${JS_FILES[@]}"; do
 done
 
 if [ "$NEEDS_CACHE_BUST" = true ]; then
-    echo -e "\n\033[1;33mWARNING: One or more JavaScript files have changed since the last deployment.\033[0m"
-    echo -e "\033[1;33mEnsure you have updated the version parameter (e.g., ?v=1.0.x) in index.html or trends.html.\033[0m\n"
+    echo -e "\n\033[1;33mWARNING: One or more static assets (JS/CSS) have changed since the last deployment.\033[0m"
+    echo -e "\033[1;33mEnsure you have updated the version parameter (e.g., ?v=1.0.x) in your HTML files.\033[0m\n"
     read -p "Continue with deployment? (y/n): " confirm
     [[ "$confirm" == [yY] ]] || exit 1
 fi
 
 if [ "$NEEDS_CACHE_BUST" = false ]; then
-    echo -e "\n\033[1;33mINFO: No changes detected in JavaScript files since the last deployment.\033[0m"
+    echo -e "\n\033[1;33mINFO: No changes detected in static assets since the last deployment.\033[0m"
 fi   
 
 echo ">>> [LOCAL] 0. Cleaning up remote staging area..."

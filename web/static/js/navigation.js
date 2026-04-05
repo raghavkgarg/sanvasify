@@ -2,7 +2,7 @@
 function createNavigation(currentPage) {
     const pages = [
         { name: 'Home', url: 'index.html' },
-        { name: 'Check SIF NAV', url: 'check_sif_nav.html' },
+        { name: 'Check SIF NAV', url: 'nav.html' },
         { name: 'NAV Trends', url: 'nav_trends.html' }
     ];
 

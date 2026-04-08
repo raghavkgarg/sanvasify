@@ -7,6 +7,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Force IST for local date commands
+export TZ='Asia/Kolkata'
+
 KEY_FILE="$PROJECT_ROOT/sn1.pem"
 REMOTE_USER_HOST="ec2-user@13.234.173.198"
 LOCAL_DB="/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
@@ -68,7 +71,7 @@ echo -e "${GREEN}>>> [LOCAL] 3. Uploading Database to staging area on AWS... $(d
 scp $SSH_OPTS -i "$KEY_FILE" "$LOCAL_DB" "$REMOTE_USER_HOST:~/"
 
 echo -e "${GREEN}>>> [REMOTE] Executing Deployment Steps (4-9)... ${NC}\n"
-ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "REMOTE_DATA_DIR='$REMOTE_DATA_DIR' GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash -s" << 'EOF'
+ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' REMOTE_DATA_DIR='$REMOTE_DATA_DIR' GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash -s" << 'EOF'
     # Colors for remote output
     set -e # Exit immediately if a command fails on the remote server
     # 4. Stop Services (Stopping first ensures the database file isn't in use)
@@ -114,4 +117,4 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "REMOTE_DATA_DIR='$REM
     echo "Deployment complete. Sanvasify status: \$(sudo systemctl is-active sanvasify)"
 EOF
 
-echo ">>> Database Workflow Finished Successfully."
+echo ">>> Database Workflow Finished Successfully.. on $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n""

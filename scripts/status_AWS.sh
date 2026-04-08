@@ -6,6 +6,9 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 KEY_FILE="$PROJECT_ROOT/sn1.pem"
 REMOTE_USER_HOST="ec2-user@13.234.173.198"
 
+# Force IST for local date commands
+export TZ='Asia/Kolkata'
+
 # Colors for output
 if [ -t 1 ]; then
     RED='\033[0;31m'
@@ -24,7 +27,7 @@ SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 echo -e "${GREEN}>>> Connecting to AWS to verify Sanvasify status on $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 
-ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash -s" << 'EOF'
+ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash -s" << 'EOF'
     # Colors for remote output
     # 0. System Health Overview
     echo -e "${YELLOW}--- 0. System Health Overview ---${NC}"
@@ -80,6 +83,32 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "GREEN='$GREEN' YELLOW
                 sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT COUNT(*) FROM sif_schemes;" 2>/dev/null || echo "Error"
                 echo -n "Latest Date:   "
                 sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT MAX(date) FROM sif_schemes;" 2>/dev/null || echo "Error"
+                echo -n "Current date in LINUX: $(date -d "today" '+%Y-%m-%d'): "
+                echo -n "Current date in DuckDB: "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT current_date();" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "today" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "yesterday" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 1 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "2 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 2 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "3 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 3 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "4 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 4 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "5 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 5 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "6 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 6 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "7 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 7 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "8 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 8 DAY;" 2>/dev/null || echo "Error"
+                echo -n "No of Schemes Loaded for $(date -d "9 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 9 DAY;" 2>/dev/null || echo "Error"
+
+
+
             fi
 
             sudo rm -f "$TEMP_DB"

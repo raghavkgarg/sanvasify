@@ -65,6 +65,10 @@ func main() {
 	slog.Info("fetching date range", "from", fromDate.Format("2006-01-02"), "to", toDate.Format("2006-01-02"))
 
 	if err := f.FetchRange(context.Background(), fromDate, toDate, conf.Cfg.Fetcher.DelaySeconds); err != nil {
+		if strings.Contains(err.Error(), "Fetched file has no data ") {
+			slog.Info(err.Error())
+			os.Exit(2) // Exit with 2 to signal "nothing to do" to scripts
+		}
 		slog.Error("fetch range failed", "error", err)
 		os.Exit(1)
 	}

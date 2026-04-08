@@ -35,8 +35,8 @@ func (f *Fetcher) CalculateIncrementalRange(dbPath string, defaultFrom string) (
 		return parsedDefault, toDate, nil
 	}
 
-	// Calculate from_date as Latest Date + 1 day
-	fromDate := latestDate.Time.AddDate(0, 0, 1)
+	// Calculate from_date as Latest Date - 5 days
+	fromDate := latestDate.Time.AddDate(0, 0, -5)
 
 	// Optional: Check if we are already up to date
 	if fromDate.After(toDate) {

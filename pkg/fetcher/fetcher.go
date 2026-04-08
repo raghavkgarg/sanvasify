@@ -55,6 +55,11 @@ func (f *Fetcher) FetchAndConvert(ctx context.Context, date time.Time, parquetPa
 // FetchRange iterates through a range of dates and fetches/converts data for each business day.
 // It skips weekends and respects rate limits with a small delay between requests.
 func (f *Fetcher) FetchRange(ctx context.Context, start, end time.Time, delaySeconds int) error {
+	// Archive existing reports to the 'old' subdirectory
+	if err := f.archiveExistingReports(); err != nil {
+		return fmt.Errorf("failed to archive existing reports: %w", err)
+	}
+
 	fileName := fmt.Sprintf("nav_data_%s_to_%s.parquet", start.Format("2006-01-02"), end.Format("2006-01-02"))
 	parquetPath := filepath.Join(f.dataDir, fileName)
 
@@ -76,6 +81,29 @@ func (f *Fetcher) FetchRange(ctx context.Context, start, end time.Time, delaySec
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(time.Duration(delaySeconds) * time.Second):
+		}
+	}
+
+	// Check if the fetched file was created and contains data
+	info, err := os.Stat(parquetPath)
+	if os.IsNotExist(err) || (err == nil && info.Size() == 0) {
+		return fmt.Errorf("Fetched file has no data ")
+	}
+
+	return nil
+}
+
+func (f *Fetcher) archiveExistingReports() error {
+	oldDir := filepath.Join(f.dataDir, "old")
+	if err := os.MkdirAll(oldDir, 0755); err != nil {
+		return err
+	}
+
+	files, _ := filepath.Glob(filepath.Join(f.dataDir, "*.parquet"))
+	for _, file := range files {
+		dest := filepath.Join(oldDir, filepath.Base(file))
+		if err := os.Rename(file, dest); err != nil {
+			continue // Skip files that can't be moved
 		}
 	}
 	return nil

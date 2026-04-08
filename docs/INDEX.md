@@ -13,6 +13,10 @@ Complete documentation for the Sanvasify mutual fund analysis application.
 - **[Data Management](DATA_MANAGEMENT.md)** - Database setup and data fetching
 - **[API Reference](API.md)** - Complete API documentation
 
+## Strategy
+
+- **[Mobile Strategy](MOBILE_STRATEGY.md)** - iOS/Android strategy, tech stacks, and required backend changes
+
 ## Operations
 
 - **[Deployment Guide](DEPLOYMENT.md)** - Production deployment instructions
@@ -79,6 +83,7 @@ docs/
 ├── DATA_MANAGEMENT.md    # Database and data fetching
 ├── API.md                # API documentation
 ├── DEPLOYMENT.md         # Production deployment
+├── MOBILE_STRATEGY.md    # Mobile app strategy
 └── ARCHITECTURE.md       # System architecture
 
 etc/

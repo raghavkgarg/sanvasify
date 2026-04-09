@@ -101,7 +101,7 @@ function plotChart(data) {
         tooltip: {
             trigger: 'axis',
             formatter: function(params) {
-                const date = params[0].axisValue;
+                const date = params[0].axisValue ? params[0].axisValue.split('T')[0] : '';
                 const nav = params[0].data;
                 return `${date}<br/>NAV: ₹${nav.toFixed(4)}`;
             }

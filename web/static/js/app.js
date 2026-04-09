@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 borderColor: '#E2B13E',
                 textStyle: { color: '#fff' },
                 formatter: (params) => {
-                    const date = params[0].axisValue;
+                    const date = params[0].axisValue ? params[0].axisValue.split('T')[0] : '';
                     const nav = params[0].data;
                     return `${date}<br/>NAV: <strong style="color:#E2B13E">₹${nav.toFixed(4)}</strong>`;
                 }
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update UI with data
                 schemeNameEl.textContent = data.scheme_name;
                 navValueEl.textContent = `₹ ${data.net_asset_value}`;
-                navDateEl.textContent = data.date;
+                navDateEl.textContent = data.date ? data.date.split('T')[0] : '';
                 schemeCodeEl.textContent = data.scheme_code;
                 
                 // Show the card
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     schemeNameEl.textContent = data.scheme_name;
                     navValueEl.textContent = `₹ ${data.net_asset_value}`;
-                    navDateEl.textContent = data.date;
+                    navDateEl.textContent = data.date ? data.date.split('T')[0] : '';
                     schemeCodeEl.textContent = data.scheme_code;
                     resultCard.style.display = 'block';
 

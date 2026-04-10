@@ -10,6 +10,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # Force IST for local date commands
 export TZ='Asia/Kolkata'
 
+mkdir -p "$PROJECT_ROOT/scriptslog"
 KEY_FILE="$PROJECT_ROOT/sn1.pem"
 REMOTE_USER_HOST="ec2-user@13.234.173.198"
 LOCAL_DB="/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
@@ -32,8 +33,9 @@ else
 fi
 
 
+echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>..${NC}\n"
+echo -e "${GREEN}>>> Starting Database Sync Workflow on $(date '+%Y-%m-%d %H:%M:%S') .${NC}"
 
-echo ">>> Starting Database Sync Workflow..."
 
 # Pre-flight check: Verify connectivity to AWS before starting local work
 echo ">>> [PRE-FLIGHT] Checking SSH connectivity to AWS..."
@@ -114,7 +116,8 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' REM
     sudo systemctl start sanvasify
     sudo systemctl start caddy
     
-    echo "Deployment complete. Sanvasify status: \$(sudo systemctl is-active sanvasify)"
+    echo "Deployment complete. Sanvasify status: $(sudo systemctl is-active sanvasify)"
 EOF
-
-echo ">>> Database Workflow Finished Successfully.. on $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n""
+echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
+echo -e ">>> Database Workflow Finished Successfully.. on $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
+echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}\n"

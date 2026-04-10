@@ -25,6 +25,7 @@ else
 fi
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
+echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
 echo -e "${GREEN}>>> Connecting to AWS to verify Sanvasify status on $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 
 ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash -s" << 'EOF'
@@ -222,4 +223,6 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
     echo -e "${YELLOW}--- 8. Recent Application Logs (Last 10 lines) ---${NC}"
     sudo journalctl -u sanvasify -n 10 --no-pager
 EOF
-echo -e "${GREEN}>>> Verification Complete at $(date '+%Y-%m-%d %H:%M:%S').${NC}"
+echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
+echo -e "${GREEN}>>> Verification Completed at $(date '+%Y-%m-%d %H:%M:%S').${NC}"
+echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>..${NC}\n"

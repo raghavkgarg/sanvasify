@@ -59,13 +59,15 @@ The current OAuth flow redirects to HTML pages and sets HttpOnly cookies. Mobile
 
 Mobile apps can be chatty. Add per-client rate limiting to protect the backend.
 
-## Mobile Tech Stacks
+## Mobile Strategies
 
-Following the same project principles: minimal dependencies, lightweight, no unnecessary frameworks.
+Five approaches evaluated, from highest to lowest effort.
 
-### Android
+### Strategy 1: Native Per-Platform
 
-**Kotlin + Jetpack Compose** — the modern Android default, no extra frameworks needed.
+Separate native apps for each platform. Aligns with the project's minimal-dependency philosophy.
+
+#### Android — Kotlin + Jetpack Compose
 
 | Concern | Library | Why |
 |---------|---------|-----|
@@ -76,13 +78,9 @@ Following the same project principles: minimal dependencies, lightweight, no unn
 | Auth | AppAuth for Android | Standard OAuth2/PKCE library from OpenID Foundation |
 | Image | Coil | Kotlin-first, lightweight (if needed for fund logos later) |
 
-**Build**: Gradle with Kotlin DSL, standard Android toolchain.
+Build: Gradle with Kotlin DSL. Min SDK: API 26 (Android 8.0) — covers 95%+ of active devices.
 
-**Min SDK**: API 26 (Android 8.0) — covers 95%+ of active devices.
-
-### iOS
-
-**Swift + SwiftUI** — Apple's native stack, zero third-party UI dependencies.
+#### iOS — Swift + SwiftUI
 
 | Concern | Library | Why |
 |---------|---------|-----|
@@ -93,13 +91,18 @@ Following the same project principles: minimal dependencies, lightweight, no unn
 | Auth | ASWebAuthenticationSession | Built-in OAuth/PKCE support, no third-party library |
 | Keychain | Security framework | Built-in secure token storage |
 
-**Build**: Xcode, Swift Package Manager for any future dependencies.
+Build: Xcode, Swift Package Manager. Min target: iOS 16 — covers 90%+ of active devices; required for Swift Charts.
 
-**Min target**: iOS 16 — covers 90%+ of active devices; required for Swift Charts.
+#### Tradeoffs
 
-### Cross-Platform: Flutter
+- Best performance and smallest binary size
+- No bridge/runtime overhead, direct access to platform APIs
+- Simpler debugging and profiling with native tooling
+- Two full codebases to maintain — all UI, networking, JSON parsing, and business logic written twice
 
-Flutter (3.41 / Dart 3.11 as of early 2026) is the most viable cross-platform option for this project. Impeller is now the default rendering engine across all platforms, solving the historical jank/shader compilation issues. WebAssembly compilation for Flutter web is stable.
+### Strategy 2: Flutter
+
+Flutter (3.41 / Dart 3.11 as of early 2026) — single Dart codebase for both platforms. Impeller is now the default rendering engine across all platforms, solving the historical jank/shader compilation issues. WebAssembly compilation for Flutter web is stable.
 
 | Concern | Library | Why |
 |---------|---------|-----|
@@ -110,43 +113,41 @@ Flutter (3.41 / Dart 3.11 as of early 2026) is the most viable cross-platform op
 | Auth | `flutter_appauth` | Wraps AppAuth on both platforms, PKCE support |
 | Secure Storage | `flutter_secure_storage` | Wraps Keychain (iOS) + EncryptedSharedPreferences (Android) |
 
-**Pros vs. native-per-platform:**
+#### Kotlin/Swift involvement
 
-- Single codebase — eliminates the "port to the other OS" step entirely
-- Hot reload for fast UI iteration
-- Pixel-perfect UI parity across platforms
-- Can also target web, potentially replacing `web/static/` entirely
-- One charting library instead of mapping between MPAndroidChart and Swift Charts
-- One auth library instead of AppAuth + ASWebAuthenticationSession
-
-**Kotlin/Swift involvement:** Flutter doesn't eliminate native languages entirely. Every Flutter app has `android/` and `ios/` directories with native project scaffolding (Gradle config, `AppDelegate.swift`, `AndroidManifest.xml`). Kotlin/Swift shows up in two cases:
+Flutter doesn't eliminate native languages entirely. Every Flutter app has `android/` and `ios/` directories with native project scaffolding (Gradle config, `AppDelegate.swift`, `AndroidManifest.xml`). Kotlin/Swift shows up in two cases:
 
 - **Platform boilerplate** — configuring deep links for OAuth redirects, setting permissions, updating build settings. This is config-level work, not application logic.
 - **Platform channels** — when native functionality isn't covered by an existing plugin (or a plugin is broken/abandoned), you write a thin Kotlin/Swift bridge. For Sanvasify this is unlikely — HTTP, charts, secure storage, and OAuth all have mature plugins.
 
-In practice, expect ~95% Dart and occasional native config edits. Compare this to the native strategy where 100% of UI, networking, JSON parsing, and business logic is written twice.
+In practice, expect ~95% Dart and occasional native config edits.
 
-**Cons vs. native-per-platform:**
+#### Tradeoffs
 
+Pros:
+- Single codebase — eliminates the "port to the other OS" step
+- Hot reload for fast UI iteration
+- Pixel-perfect UI parity across platforms
+- Can also target web, potentially replacing `web/static/` entirely
+- One charting library, one auth library, one secure storage library
+
+Cons:
 - Adds a runtime + rendering engine — contradicts the minimal-dependency philosophy
 - Binary size ~15-20MB vs. 3-5MB for native apps this simple
 - Dart is a third language alongside Go, Kotlin, and Swift
 - Plugin ecosystem quality is uneven; some plugins are abandoned or poorly maintained
-- Platform-specific behavior still requires platform channels (native code anyway)
-- Debugging adds a layer of indirection vs. native tooling (Android Studio profiler, Xcode Instruments)
-- Web performance still not on par with native HTML/CSS/JS for content-heavy apps (adequate for this project)
+- Debugging adds a layer of indirection vs. native tooling
 
-**Current Flutter pain points (2026):**
-
+Current pain points (2026):
 - Hot reload occasionally breaks on complex state changes
 - Platform channels needed when plugins don't exist or break
 - Web target works but is heavier than hand-written HTML/CSS/JS
 
-### Hybrid: iOS Native + Android PWA
+### Strategy 3: iOS Native + Android PWA (Hybrid)
 
-Leverage the existing web frontend for Android users while building a native iOS app. Apple controls the full stack (hardware, OS, SDK) so SwiftUI, Swift Charts, URLSession, Keychain, and ASWebAuthenticationSession work together seamlessly. Android's ecosystem is more fragmented, but its Chrome browser has strong PWA support — and Sanvasify's feature set is almost entirely PWA-compatible.
+Build a native iOS app with Swift/SwiftUI. Serve Android users with the existing web frontend as a PWA. Apple controls the full stack (hardware, OS, SDK) so SwiftUI, Swift Charts, URLSession, Keychain, and ASWebAuthenticationSession work together seamlessly. Android's ecosystem is more fragmented, but Chrome has strong PWA support — and Sanvasify's feature set is almost entirely PWA-compatible.
 
-**PWA compatibility for Sanvasify features:**
+#### PWA compatibility for Sanvasify
 
 | Feature | PWA support | Native needed? |
 |---------|------------|----------------|
@@ -159,74 +160,125 @@ Leverage the existing web frontend for Android users while building a native iOS
 | Push notifications | Yes (Web Push on Android) | Nice to have |
 | App Store presence | No (sideload via browser) | Yes if needed |
 
-**Pros:**
+#### Tradeoffs
 
+Pros:
 - Zero additional Android code — the existing `web/static/` frontend serves Android users directly
 - One native codebase (Swift/SwiftUI) instead of two
-- The web app already works — nothing new to build for Android
 - Android Chrome supports install-to-home-screen, service workers, and Web Push
 - Avoids Android fragmentation entirely
+- Eliminates Android Studio from the toolchain
 
-**Cons:**
-
-- No Play Store presence — Android users install from the browser (or wrap in a TWA/Trusted Web Activity for Play Store listing with minimal effort)
+Cons:
+- No Play Store presence without a TWA (Trusted Web Activity) wrapper
 - Token storage is `localStorage` not EncryptedSharedPreferences — acceptable for a mutual fund browser, not for a banking app
 - No biometric lock on Android (unless using TWA with native glue)
 - Two different UX paradigms — native iOS feel vs. web feel on Android
-- PWA on Android still feels like a web page in edge cases (pull-to-refresh behavior, back button handling, splash screen)
+- PWA on Android still feels like a web page in edge cases (pull-to-refresh, back button, splash screen)
 
-### Cross-Platform: Kotlin Multiplatform (KMP)
+### Strategy 4: Kotlin Multiplatform (KMP)
 
-If maintaining two codebases becomes a burden but Flutter's runtime overhead is undesirable, KMP for shared networking/models with native UI is the lightest cross-platform option — it compiles to native code and doesn't require a runtime.
+Share networking and data models in Kotlin across platforms, with native UI (Jetpack Compose on Android, SwiftUI on iOS). Compiles to native code, no runtime overhead. Production apps at Netflix, Duolingo, and Cash App. Compose Multiplatform reached stable in mid-2025 for shared UI.
 
-### Dev Toolchain Requirements
+The lightest cross-platform option if Flutter's runtime overhead is undesirable but maintaining two fully separate codebases is too costly.
+
+### Strategy 5: Swift for Android (Emerging)
+
+As of Swift 6.3 (March 2026), Apple officially supports Android as a compilation target. The Swift Android Workgroup is Apple-backed, and the SDK shipped as part of the official Swift release.
+
+**What works today:**
+
+- Swift compiles directly to native ARM machine code for Android (no VM, no bridge, NDK-comparable performance)
+- `swift-java` and JNI Core enable interop with Kotlin/Java
+- 25%+ of Swift Package Index already builds for Android
+- Shared business logic, networking, data models, and background processing across iOS and Android
+
+**What does NOT work:**
+
+- SwiftUI does not run on Android — UI must still be written in Jetpack Compose or Android Views
+- IDE integration and debugging workflows are rough
+- CI/CD tooling is immature
+- This is a shared-logic approach, not "write once, run everywhere"
+
+**How it compares:** Philosophically identical to KMP — share logic, write native UI per platform. KMP has a multi-year head start. Swift for Android's advantage is only relevant if you already have a large Swift codebase to share.
+
+**Skip.tools (third-party, worth watching):** Transpiles SwiftUI source code into Kotlin + Jetpack Compose, producing genuinely native Android apps from a single SwiftUI codebase. Not part of Apple's official SDK.
+
+**Timeline expectations:**
+
+- 6 months: improved tooling, more packages supporting Android, proof-of-concept apps
+- 12-18 months: first major production apps using Swift shared logic on Android, CI/CD maturity
+- 2-3 years: possible SwiftUI-on-Android story from Apple (speculative)
+
+**Relevance to Sanvasify:** Low for now. The app's business logic lives in the Go backend, not in client-side Swift. An iOS native build would be mostly UI + thin API client — not the heavy shared-logic use case where this shines. Revisit if the tooling matures and a SwiftUI-on-Android path emerges.
+
+## Strategy Comparison
+
+### Effort and languages
+
+| Strategy | Codebases | Languages | Effort |
+|----------|-----------|-----------|--------|
+| 1. Native both | 2 mobile + 1 backend | Go, Kotlin, Swift | High |
+| 2. Flutter | 1 mobile + 1 backend | Go, Dart (+config-level Kotlin/Swift) | Medium |
+| 3. iOS native + Android PWA | 1 mobile + 1 web (exists) + 1 backend | Go, Swift, JS (exists) | Low |
+| 4. KMP | 1 shared + 2 UI + 1 backend | Go, Kotlin, Swift | Medium-High |
+| 5. Swift for Android | 1 shared + 2 UI + 1 backend | Go, Swift, Kotlin (UI only) | Medium-High (immature tooling) |
+
+### Dev toolchain
 
 | Strategy | Required Tools | Disk footprint |
 |----------|---------------|----------------|
-| Native both | Xcode, Android Studio, Kotlin/Gradle, Swift/SPM | ~20GB+ |
-| Flutter | Xcode, Android Studio, Flutter SDK, Dart SDK | ~25GB+ |
-| iOS native + Android PWA | Xcode only | ~12GB |
-| PWA only | Browser + existing Go/JS toolchain | Minimal |
+| 1. Native both | Xcode, Android Studio, Kotlin/Gradle, Swift/SPM | ~20GB+ |
+| 2. Flutter | Xcode, Android Studio, Flutter SDK, Dart SDK | ~25GB+ |
+| 3. iOS native + Android PWA | Xcode only | ~12GB |
+| 4. KMP | Xcode, Android Studio, Kotlin/Gradle | ~20GB+ |
+| 5. Swift for Android | Xcode, Android Studio (for Compose UI), Swift toolchain | ~20GB+ |
 
 - **Xcode** (~12GB) — required for any iOS development: building, signing, simulator, provisioning profiles
 - **Android Studio** (~8GB) — required for Android builds: Kotlin, Gradle, SDK manager, emulator images
 - **Flutter SDK** — adds ~3GB on top; still needs both Xcode and Android Studio for platform builds and signing
 - **PWA** — no additional tooling; the existing development setup (Go backend + browser dev tools) is sufficient
 
-The hybrid (iOS native + Android PWA) strategy eliminates Android Studio entirely, which is a meaningful reduction in toolchain complexity and maintenance overhead (SDK updates, Gradle version management, emulator upkeep).
-
-### Recommendation
-
-**Effort comparison:**
-
-| Strategy | Codebases | Languages | Effort |
-|----------|-----------|-----------|--------|
-| Native both | 2 mobile + 1 backend | Go, Kotlin, Swift | High |
-| Flutter | 1 mobile + 1 backend | Go, Dart | Medium |
-| iOS native + Android PWA | 1 mobile + 1 web (exists) + 1 backend | Go, Swift, JS (exists) | Low |
-| PWA only | 1 web (exists) + 1 backend | Go, JS (exists) | Lowest |
-
-The native-per-platform approach aligns with the project's minimal-dependency philosophy. Flutter is pragmatic for a solo maintainer — the app is simple enough that it won't hit Flutter's rough edges, and maintaining two native codebases is real cost.
-
-The iOS native + Android PWA hybrid offers the best effort-to-value ratio for Sanvasify specifically: the web frontend already exists and does everything the app needs, the app doesn't require deep Android platform integration, and iOS users get the premium native experience they expect. The main tradeoff is no Play Store distribution without a TWA wrapper.
-
 ## Feature Mapping
 
 How web features translate to mobile:
 
-| Web Feature | Mobile Equivalent |
-|-------------|-------------------|
-| Scheme dropdown + cascading filters | Native search bar + filter sheet |
-| ECharts NAV trend chart | MPAndroidChart / Swift Charts |
-| OAuth redirect flow | In-app browser (AppAuth / ASWebAuthenticationSession) |
-| Browser cookie auth | Keychain/EncryptedSharedPreferences + Bearer token |
-| Responsive CSS layout | Native adaptive layout (Compose / SwiftUI) |
+| Web Feature | Native Equivalent | PWA Equivalent |
+|-------------|-------------------|----------------|
+| Scheme dropdown + cascading filters | Native search bar + filter sheet | Same as web (already works) |
+| ECharts NAV trend chart | MPAndroidChart / Swift Charts / fl_chart | Same as web (ECharts) |
+| OAuth redirect flow | In-app browser (AppAuth / ASWebAuthenticationSession) | Same as web (redirect) |
+| Browser cookie auth | Keychain / EncryptedSharedPreferences + Bearer token | localStorage + Bearer token |
+| Responsive CSS layout | Native adaptive layout (Compose / SwiftUI) | Same as web (responsive CSS) |
+
+## Recommendation
+
+The iOS native + Android PWA hybrid (Strategy 3) offers the best effort-to-value ratio for Sanvasify:
+
+- The web frontend already exists and covers every feature the app needs
+- The app doesn't require deep Android platform integration
+- iOS users get the premium native experience where Apple's integrated stack shines
+- Android users get a functional app with zero additional development effort
+- Only Xcode is needed — no Android Studio, no Gradle, no Kotlin
+- The main tradeoff is no Play Store distribution without a TWA wrapper
+
+Flutter (Strategy 2) is the pragmatic fallback if a native Android experience becomes important — the app is simple enough (list, detail, chart) that it won't hit Flutter's rough edges.
+
+The native-per-platform approach (Strategy 1) aligns with the project's minimal-dependency philosophy but doubles the mobile development and maintenance cost.
+
+KMP (Strategy 4) and Swift for Android (Strategy 5) are better suited for projects with heavy client-side business logic. Sanvasify's logic lives in the Go backend, making these approaches overkill.
 
 ## Implementation Order
 
-1. **Backend changes** — API versioning, pagination, JSON errors, mobile OAuth endpoint
-2. **One platform first** — pick Android or iOS based on target user base
-3. **Core screens** — scheme list with search/filter → scheme detail with NAV chart
-4. **Auth** — OAuth login with secure token storage
-5. **Second platform** — port to the other OS
-6. **Enhancements** — push notifications, offline caching, biometric lock
+### For Strategy 3 (iOS native + Android PWA — recommended)
+
+1. **Backend changes** — API versioning, pagination, JSON errors, CORS, mobile OAuth endpoint, rate limiting
+2. **PWA enhancements** — service worker for offline caching, web app manifest for Android install-to-home-screen
+3. **iOS app** — scheme list with search/filter → scheme detail with NAV chart → OAuth login with Keychain token storage
+4. **Polish** — push notifications, biometric lock on iOS
+
+### For Strategy 2 (Flutter — fallback)
+
+1. **Backend changes** — same as above
+2. **Flutter app** — scheme list with search/filter → scheme detail with NAV chart → OAuth login with secure storage
+3. **Enhancements** — push notifications, offline caching, biometric lock

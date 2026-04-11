@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Awake till this script finishes (prevents sleep on macOS during long operations)
+caffeinate -i -w $$ & 
+
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
@@ -50,7 +53,7 @@ cd "$PROJECT_ROOT"
 
 echo -e "${GREEN}>>> [LOCAL] 1. Running Fetcher... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 
-go build -o dist/fetch ./cmd/fetch
+#go build -o dist/fetch ./cmd/fetch
 
 # Run fetcher and handle the "already up to date" signal (exit code 2)
 set +e

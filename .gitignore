@@ -18,6 +18,8 @@ dist/
 *.log
 *.err
 
+#Script files
+sync_to_icloud.sh
 
 # Test binary, built with `go test -c`
 *.test

@@ -282,3 +282,22 @@ KMP (Strategy 4) and Swift for Android (Strategy 5) are better suited for projec
 1. **Backend changes** — same as above
 2. **Flutter app** — scheme list with search/filter → scheme detail with NAV chart → OAuth login with secure storage
 3. **Enhancements** — push notifications, offline caching, biometric lock
+
+## Refined Phased Hybrid Strategy
+
+To maximize resource efficiency and save time, the following phased approach is recommended:
+
+### Phase 1: Market Validation (Current Focus)
+- **iOS:** Native SwiftUI app (Premium experience).
+- **Android:** PWA via browser (Zero extra code).
+- **Goal:** Validate mobile usage with minimal investment.
+
+### Phase 2: Store Distribution
+- **iOS:** Iterative updates to Native app.
+- **Android:** **Trusted Web Activity (TWA)**. This wraps the existing PWA into a Google Play Store-compatible package with near-zero logic rewrite.
+- **Goal:** Achieve presence in both Apple and Google stores.
+
+### Phase 3: Platform Maturity
+- **iOS:** Native SwiftUI.
+- **Android:** Full Native (Kotlin + Jetpack Compose) or KMP if client-side logic grows complex.
+- **Goal:** Full OS feature parity (widgets, background sync, advanced biometrics).

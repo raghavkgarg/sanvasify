@@ -28,8 +28,21 @@ case "$TASK" in
         go build -o dist/sanvasify ./cmd/server
         ./dist/sanvasify
         ;;
+    start)
+        echo ">>> Running Server..."
+        ./dist/sanvasify
+        ;;
+    stop)
+        echo ">>> Stopping Local Server..."
+        if  pgrep -f "dist/sanvasify" > /dev/null; then
+            pkill -f "dist/sanvasify"
+            echo "Server stopped."
+        else
+            echo "Server is not running."
+        fi
+        ;;
     *)
-        echo "Usage: $0 {fetch|load|server}"
+        echo "Usage: $0 {fetch|load|server|stop}"
         echo "Example: $0 server"
         exit 1
         ;;

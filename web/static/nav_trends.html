@@ -6,6 +6,17 @@
         <title>NAV Trends - Sanvasify</title>
         <link rel="stylesheet" href="css/style.css?v=1.0.2" />
         <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+        <style>
+            @media (max-width: 768px) {
+                #chart-container {
+                    height: 320px !important;
+                }
+                .welcome-block {
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                }
+            }
+        </style>
     </head>
     <body>
         <div class="sif-card">
@@ -59,6 +70,6 @@
         </div>
         <script src="js/navigation.js"></script>
         <script>initNavigation('nav_trends.html');</script>
-        <script src="js/trends.js?v=1.0.1"></script>
+        <script src="js/trends.js?v=1.0.3"></script>
     </body>
 </html>

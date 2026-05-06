@@ -20,6 +20,7 @@ dist/
 
 #Script files
 sync_to_icloud.sh
+sync_cloudflare.sh
 
 # Test binary, built with `go test -c`
 *.test

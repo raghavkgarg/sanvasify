@@ -1,13 +1,24 @@
 #!/bin/bash
 
+# Awake till this script finishes (prevents sleep on macOS during long operations)
+caffeinate -i -w $$ & 
+
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-KEY_FILE="$PROJECT_ROOT/sn1.pem"
-REMOTE_USER_HOST="ec2-user@13.234.173.198"
 
-# Force IST for local date commands
-export TZ='Asia/Kolkata'
+# Ensure common paths are included for launchd/automation environments
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+KEY_FILE="$PROJECT_ROOT/sn1.pem"
+# REMOTE_USER_HOST="ec2-user@13.234.173.198"
+
+
+# Path check for debugging launchd
+if ! command -v aws &> /dev/null; then
+    echo "Error: aws CLI not found in PATH: $PATH" >&2
+    exit 127
+fi
 
 # Colors for output
 if [ -t 1 ]; then
@@ -23,7 +34,42 @@ else
     NC=''
     SSH_TTY=""
 fi
-SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+# Dynamically fetch the Public IP using the AWS CLI based on the instance Name tag
+# Ensure your instance has the tag Name=Sanvasify-prod and is in the running state for this to work
+INSTANCE_NAME="sanvasify-prod"
+REMOTE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].PublicIpAddress" --output text 2>/dev/null)
+REMOTE_IPV6=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].NetworkInterfaces[0].Ipv6Addresses[0].Ipv6Address" --output text 2>/dev/null)
+
+IP_TO_USE=""
+
+if [ -n "$REMOTE_IP" ] && [ "$REMOTE_IP" != "None" ]; then
+    IP_TO_USE="$REMOTE_IP"
+    echo -e "${YELLOW}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
+    echo -e "Resolved Public IPv4 for instance with tag Name=$INSTANCE_NAME. IP is ${GREEN}$REMOTE_IP${NC}"
+    [ -n "$REMOTE_IPV6" ] && [ "$REMOTE_IPV6" != "None" ] && echo -e "Resolved Public IPv6 for instance with tag Name=$INSTANCE_NAME. IP is ${GREEN}$REMOTE_IPV6${NC}"
+elif [ -n "$REMOTE_IPV6" ] && [ "$REMOTE_IPV6" != "None" ]; then
+    IP_TO_USE="$REMOTE_IPV6"
+    echo -e "${YELLOW}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
+    echo -e "Public IPv4 not found. Resolved Public IPv6 for instance with tag Name=$INSTANCE_NAME. IP is ${GREEN}$REMOTE_IPV6${NC}"
+else
+    echo -e "${YELLOW}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
+    echo -e "${RED}Error: Could not resolve Public IPv4 or IPv6 for instance with tag Name=$INSTANCE_NAME. Is it running?${NC}"
+    exit 1
+fi
+
+# Format for SSH (IPv6 literals should NOT be bracketed for standard SSH on macOS)
+REMOTE_USER_HOST="ec2-user@$IP_TO_USE"
+
+# Force IST for local date commands
+export TZ='Asia/Kolkata'
+
+
+# SSH Hardening for Automation:
+# BatchMode=yes: No interactive prompts
+# ServerAliveInterval/CountMax: Detects network "flaps" and drops dead connections within 30 seconds
+# ConnectTimeout: Prevents hanging during the initial handshake
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o ConnectTimeout=10"
 
 echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
 echo -e "${GREEN}>>> Connecting to AWS to verify Sanvasify status on $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
@@ -47,6 +93,15 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
         echo -e "Status: ${RED}DISK Threshold passed or unreachable ($DISK_USAGE% used)${NC}"
     fi
     sudo df -h /opt/sanvasify/data | grep -v Filesystem
+
+    echo -e "\nDetailed Usage Findings:"
+    echo -e "  - Journal Logs:      ${YELLOW}$(sudo du -sh /var/log/journal 2>/dev/null | awk '{print $1}' || echo '0')${NC}"
+    echo -e "  - Audit Logs:        ${YELLOW}$(sudo du -sh /var/log/audit 2>/dev/null | awk '{print $1}' || echo '0')${NC}"
+    echo -e "  - System Activity:   ${YELLOW}$(sudo du -sh /var/log/sa 2>/dev/null | awk '{print $1}' || echo '0')${NC}"
+    echo -e "  - DuckDB Extensions: ${YELLOW}$(sudo du -sh /root/.duckdb 2>/dev/null | awk '{print $1}' || echo '0')${NC}"
+    echo -e "  - Application (/opt):${YELLOW}$(sudo du -sh /opt/sanvasify 2>/dev/null | awk '{print $1}' || echo '0')${NC}"
+    echo -e "  - Package Cache:     ${YELLOW}$(sudo du -sh /var/cache 2>/dev/null | awk '{print $1}' || echo '0')${NC}"
+
     echo ""
 
     # 2. Database File Verification (Phase 4.1)
@@ -84,34 +139,26 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
                 sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT COUNT(*) FROM sif_schemes;" 2>/dev/null || echo "Error"
                 echo -n "Latest Date:   "
                 sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT MAX(date) FROM sif_schemes;" 2>/dev/null || echo "Error"
-                echo -n "Current date in LINUX: $(date -d "today" '+%Y-%m-%d'): "
-                echo -n "Current date in DuckDB: "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT current_date();" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "today" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "yesterday" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 1 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "2 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 2 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "3 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 3 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "4 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 4 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "5 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 5 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "6 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 6 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "7 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 7 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "8 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 8 DAY;" 2>/dev/null || echo "Error"
-                echo -n "No of Schemes Loaded for $(date -d "9 days ago" '+%Y-%m-%d'): "
-                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SET TimeZone='Asia/Kolkata'; SELECT COUNT(*) FROM sif_schemes WHERE date = CURRENT_DATE - INTERVAL 9 DAY;" 2>/dev/null || echo "Error"
-
-
-
+                echo -n "Current date in LINUX: $(date -d "today" '+%Y-%m-%d'): "        
+                echo -n "Current date in DuckDB Time Method: "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT (now() + interval '5 hours 30 minutes')::DATE;" 2>/dev/null || echo "Error"
+                echo -e "${GREEN}>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.${NC}"
+                echo -n "Time Method - No of Schemes Loaded for $(date -d "today" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT COUNT(*) FROM sif_schemes WHERE date = (now() + interval '5 hours 30 minutes')::DATE;" 2>/dev/null || echo "Error"
+                echo -n "Time Method - No of Schemes Loaded for $(date -d "yesterday" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT COUNT(*) FROM sif_schemes WHERE date = (now() + interval '5 hours 30 minutes')::DATE - INTERVAL 1 DAY;" 2>/dev/null || echo "Error"
+                echo -n "Time Method - No of Schemes Loaded for $(date -d "2 days ago" '+%Y-%m-%d'): "
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "SELECT COUNT(*) FROM sif_schemes WHERE date = (now() + interval '5 hours 30 minutes')::DATE - INTERVAL 2 DAY;" 2>/dev/null || echo "Error"
+                echo -e "${GREEN}>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.${NC}"
+                echo -e "Count Method - No of Schemes Loaded for last 14 days from current date: \n"
+                sudo "$DUCKDB_CMD" "$TEMP_DB" -list -noheader -c "
+                                                                    select date, COUNT(*) as cnt
+                                                                            from sif_schemes
+                                                                            group by date
+                                                                            order by date desc
+                                                                            Limit  14;
+                                                                 " 2>/dev/null || echo "Error"
             fi
-
             sudo rm -f "$TEMP_DB"
         else
             echo -e "${YELLOW}Note: 'duckdb' CLI not found, skipping deep data check.${NC}"
@@ -153,7 +200,12 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
     done
     echo ""
 
-    curl -s http://localhost:8080/health | jq . || echo "ALERT: Health check failed"
+    HEALTH_RESP=$(curl -s http://localhost:8080/health)
+    if echo "$HEALTH_RESP" | jq . >/dev/null 2>&1; then
+        echo "$HEALTH_RESP" | jq .
+    else
+        echo -e "Health Check Response: ${YELLOW}$HEALTH_RESP${NC} (Non-JSON or Service Down)"
+    fi
     echo ""
 
 
@@ -219,8 +271,38 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
     fi
     echo ""
 
-    # 8. Recent Application Logs
-    echo -e "${YELLOW}--- 8. Recent Application Logs (Last 10 lines) ---${NC}"
+    # 8. Public IPv4 Address
+    echo -e "${YELLOW}--- 8. Public IPv4 Address ---${NC}"
+    # Prefer EC2 Metadata service for reliability and speed (IMDSv2 supported)
+    TOKEN=$(curl -f -s --noproxy "*" -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60" --connect-timeout 2 --max-time 2 2>/dev/null || echo "")
+    if [ -n "$TOKEN" ]; then
+        PUBLIC_IPV4=$(curl -f -s --noproxy "*" -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4 --connect-timeout 2 --max-time 2 2>/dev/null || echo "")
+    fi
+    
+    # Fallback to external service if metadata is disabled or fails
+    if [ -z "$PUBLIC_IPV4" ]; then
+        PUBLIC_IPV4=$(curl -f -4 -s --connect-timeout 5 --max-time 10 https://checkip.amazonaws.com 2>/dev/null || echo "")
+    fi
+
+    if [ -n "$PUBLIC_IPV4" ]; then
+        echo -e "Public IPv4: ${GREEN}$PUBLIC_IPV4${NC}"
+    else
+        echo -e "Public IPv4: ${RED}Could not retrieve${NC}"
+    fi
+    echo ""
+
+    # 8.5 Public IPv6 Address
+    echo -e "${YELLOW}--- 8.5 Public IPv6 Address ---${NC}"
+    PUBLIC_IPV6=$(curl -f -6 -s --connect-timeout 5 --max-time 10 https://ident.me 2>/dev/null || echo "")
+    if [ -n "$PUBLIC_IPV6" ]; then
+        echo -e "Public IPv6: ${GREEN}$PUBLIC_IPV6${NC}"
+    else
+        echo -e "Public IPv6: ${YELLOW}Not detected or no IPv6 connectivity${NC}"
+    fi
+    echo ""
+
+    # 9. Recent Application Logs
+    echo -e "${YELLOW}--- 9. Recent Application Logs (Last 10 lines) ---${NC}"
     sudo journalctl -u sanvasify -n 10 --no-pager
 EOF
 echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"

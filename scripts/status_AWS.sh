@@ -271,8 +271,18 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
     fi
     echo ""
 
-    # 8. Public IPv4 Address
-    echo -e "${YELLOW}--- 8. Public IPv4 Address ---${NC}"
+    # 8 Public IPv6 Address
+    echo -e "${YELLOW}--- 8. Public IPv6 Address ---${NC}"
+    PUBLIC_IPV6=$(curl -f -6 -s --connect-timeout 5 --max-time 10 https://ident.me 2>/dev/null || echo "")
+    if [ -n "$PUBLIC_IPV6" ]; then
+        echo -e "Public IPv6: ${GREEN}$PUBLIC_IPV6${NC}"
+    else
+        echo -e "Public IPv6: ${YELLOW}Not detected or no IPv6 connectivity${NC}"
+    fi
+    echo ""
+
+    # 10. Public IPv4 Address
+    echo -e "${YELLOW}--- 10. Public IPv4 Address ---${NC}"
     # Prefer EC2 Metadata service for reliability and speed (IMDSv2 supported)
     TOKEN=$(curl -f -s --noproxy "*" -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60" --connect-timeout 2 --max-time 2 2>/dev/null || echo "")
     if [ -n "$TOKEN" ]; then
@@ -291,18 +301,8 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
     fi
     echo ""
 
-    # 8.5 Public IPv6 Address
-    echo -e "${YELLOW}--- 8.5 Public IPv6 Address ---${NC}"
-    PUBLIC_IPV6=$(curl -f -6 -s --connect-timeout 5 --max-time 10 https://ident.me 2>/dev/null || echo "")
-    if [ -n "$PUBLIC_IPV6" ]; then
-        echo -e "Public IPv6: ${GREEN}$PUBLIC_IPV6${NC}"
-    else
-        echo -e "Public IPv6: ${YELLOW}Not detected or no IPv6 connectivity${NC}"
-    fi
-    echo ""
-
-    # 9. Recent Application Logs
-    echo -e "${YELLOW}--- 9. Recent Application Logs (Last 10 lines) ---${NC}"
+    # 11. Recent Application Logs
+    echo -e "${YELLOW}--- 11. Recent Application Logs (Last 10 lines) ---${NC}"
     sudo journalctl -u sanvasify -n 10 --no-pager
 EOF
 echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"

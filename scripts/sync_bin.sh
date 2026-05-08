@@ -8,8 +8,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 KEY_FILE="$PROJECT_ROOT/sn1.pem"
-REMOTE_USER_HOST="ec2-user@13.234.173.198"
+
+# Fixed IP Configuration
+
+IPV4="13.234.173.198"
+IPV6="2406:da1a:5e:0:7e64:c4a0:6ed6:9c12"
+IP_TO_USE="$IPV6" # Set to $IPV4 or $IPV6 as needed
+
+# User and Host Configuration
+REMOTE_USER_HOST="ec2-user@$IP_TO_USE"
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+# SCP requires brackets for IPv6 literals to distinguish from the host/path separator.
+SCP_DEST="$REMOTE_USER_HOST"
+if [[ "$IP_TO_USE" == *:* ]]; then
+    SCP_DEST="ec2-user@[$IP_TO_USE]"
+fi
 
 echo ">>> [LOCAL] 1. Navigating to project root..."
 cd "$PROJECT_ROOT"
@@ -21,7 +35,7 @@ echo ">>> [LOCAL] 2. Building for Linux ARM64..."
 make build-linux-arm64
 
 echo ">>> [LOCAL] 3. Uploading Binary to staging area..."
-scp $SSH_OPTS -i "$KEY_FILE" "$PROJECT_ROOT/sanvasify" "$REMOTE_USER_HOST:~/"
+scp $SSH_OPTS -i "$KEY_FILE" "$PROJECT_ROOT/sanvasify" "$SCP_DEST:~/"
 
 echo ">>> [REMOTE] 4-10. Executing Remote Deployment..."
 ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF

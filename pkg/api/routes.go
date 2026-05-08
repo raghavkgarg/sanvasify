@@ -22,6 +22,11 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/api/search", authMW(s, jsonMW(s.handleSearch())))
 
 	// Static files without middleware
+	// Serve the redesign at /v1/
+	v1Dir := http.Dir("web/v1")
+	s.router.Handle("/v1/", http.StripPrefix("/v1/", http.FileServer(v1Dir)))
+
+	// Legacy/Current version remains on the root
 	s.router.Handle("/", http.FileServer(http.Dir("web/static")))
 }
 

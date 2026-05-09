@@ -30,18 +30,16 @@ func (f *Fetcher) CalculateIncrementalRange(dbPath string, defaultFrom string) (
 		return time.Time{}, time.Time{}, fmt.Errorf("invalid default from date: %w", err)
 	}
 
-	// If the database has no records, fallback to the config's from_date
-	if !latestDate.Valid {
-		return parsedDefault, toDate, nil
+	// If the database has records, check if we are already up to date
+	if latestDate.Valid {
+		// If the latest stored date is today or later, we don't need to fetch
+		if !latestDate.Time.Before(toDate) {
+			return time.Time{}, time.Time{}, fmt.Errorf("data is already up to date (latest: %s)", latestDate.Time.Format("2006-01-02"))
+		}
+		// Calculate from_date as Latest Date - 5 days (safety window to catch any late AMFI updates)
+		return latestDate.Time.AddDate(0, 0, -5), toDate, nil
 	}
 
-	// Calculate from_date as Latest Date - 5 days
-	fromDate := latestDate.Time.AddDate(0, 0, -5)
-
-	// Optional: Check if we are already up to date
-	if fromDate.After(toDate) {
-		return time.Time{}, time.Time{}, fmt.Errorf("data is already up to date (latest: %s)", latestDate.Time.Format("2006-01-02"))
-	}
-
-	return fromDate, toDate, nil
+	// Fallback to the config's from_date if DB is empty
+	return parsedDefault, toDate, nil
 }

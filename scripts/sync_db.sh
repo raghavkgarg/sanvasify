@@ -51,6 +51,9 @@ REMOTE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE
 REMOTE_IPV6=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].NetworkInterfaces[0].Ipv6Addresses[0].Ipv6Address" --output text 2>/dev/null)
 
 IP_TO_USE=""
+    echo -e "${GREEN}>*>..${NC}\n"
+    echo -e "${GREEN}>*>..${NC}\n"
+    echo -e "${GREEN}>*>..${NC}\n"
 if [ -n "$REMOTE_IP" ] && [ "$REMOTE_IP" != "None" ]; then
     IP_TO_USE="$REMOTE_IP"
     echo -e "Resolved Public IPv4 for instance Name=$INSTANCE_NAME: ${GREEN}$REMOTE_IP${NC}"
@@ -65,7 +68,6 @@ fi
 
 # Format for SSH (IPv6 literals should NOT be bracketed for standard SSH on macOS)
 REMOTE_USER_HOST="ec2-user@$IP_TO_USE"
-
 echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>..${NC}\n"
 echo -e "${GREEN}>>> Starting Database Sync Workflow on $(date '+%Y-%m-%d %H:%M:%S') .${NC}"
 
@@ -81,12 +83,19 @@ if ! ssh $SSH_OPTS -i "$KEY_FILE" -o ConnectTimeout=5 -o BatchMode=yes "$REMOTE_
     echo -e "${YELLOW}Ensure your current IP (${CURRENT_IP}) is allowed in the AWS Security Group for port 22.${NC}\n"
     exit 1
 fi
+# Pre-flight check: Verify if the Local server is running and stop it to prevent database file locks during transfer
+if  pgrep -f "dist/sanvasify" > /dev/null; then
+    pkill -f "dist/sanvasify"
+    echo -e "${RED}>>> [PRE-FLIGHT] Local Server stopped....${NC}\n"
+else
+    echo -e "${GREEN}>>> [PRE-FLIGHT] Local Server is not running...${NC}\n"
+fi
 
 cd "$PROJECT_ROOT"
 
 echo -e "${GREEN}>>> [LOCAL] 1. Running Fetcher... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 
-#go build -o dist/fetch ./cmd/fetch
+go build -o dist/fetch ./cmd/fetch
 
 # Run fetcher and handle the "already up to date" signal (exit code 2)
 set +e
@@ -114,8 +123,15 @@ fi
 scp $SSH_OPTS -i "$KEY_FILE" "$LOCAL_DB" "$SCP_DEST:~/"
 
 echo -e "${GREEN}>>> [REMOTE] Executing Deployment Steps (4-9)... ${NC}\n"
-ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' REMOTE_DATA_DIR='$REMOTE_DATA_DIR' GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash -s" << 'EOF'
+ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" bash -s << EOF
     # Colors for remote output
+    export TZ='Asia/Kolkata'
+    export REMOTE_DATA_DIR='$REMOTE_DATA_DIR'
+    export GREEN='$GREEN'
+    export YELLOW='$YELLOW'
+    export RED='$RED'
+    export NC='$NC'
+
     set -e # Exit immediately if a command fails on the remote server
     # 4. Stop Services (Stopping first ensures the database file isn't in use)
     echo "Stopping Sanvasify and Caddy services..."

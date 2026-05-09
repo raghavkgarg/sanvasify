@@ -43,6 +43,10 @@ REMOTE_IPV6=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTAN
 
 IP_TO_USE=""
 
+    echo -e "${GREEN}>*>..${NC}\n"
+    echo -e "${GREEN}>*>..${NC}\n"
+    echo -e "${GREEN}>*>..${NC}\n"
+
 if [ -n "$REMOTE_IP" ] && [ "$REMOTE_IP" != "None" ]; then
     IP_TO_USE="$REMOTE_IP"
     echo -e "${YELLOW}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
@@ -281,6 +285,12 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
     fi
     echo ""
 
+    # 9. Recent Application Logs
+    echo -e "${YELLOW}--- 9. Recent Application Logs (Last 10 lines) ---${NC}"
+    sudo journalctl -u sanvasify -n 10 --no-pager
+    echo ""
+
+
     # 10. Public IPv4 Address
     echo -e "${YELLOW}--- 10. Public IPv4 Address ---${NC}"
     # Prefer EC2 Metadata service for reliability and speed (IMDSv2 supported)
@@ -301,9 +311,6 @@ ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' GRE
     fi
     echo ""
 
-    # 11. Recent Application Logs
-    echo -e "${YELLOW}--- 11. Recent Application Logs (Last 10 lines) ---${NC}"
-    sudo journalctl -u sanvasify -n 10 --no-pager
 EOF
 echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>.${NC}"
 echo -e "${GREEN}>>> Verification Completed at $(date '+%Y-%m-%d %H:%M:%S').${NC}"

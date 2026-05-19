@@ -45,44 +45,9 @@ else
     SSH_TTY=""
 fi
 
-# Resolve Public IP dynamically (prefer IPv4, fallback to IPv6)
-INSTANCE_NAME="sanvasify-prod"
-REMOTE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].PublicIpAddress" --output text 2>/dev/null)
-REMOTE_IPV6=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].NetworkInterfaces[0].Ipv6Addresses[0].Ipv6Address" --output text 2>/dev/null)
-
-IP_TO_USE=""
     echo -e "${GREEN}>*>..${NC}\n"
+    echo -e "${GREEN}>*>.Database Sync Script Version 1.0.0${NC}\n"
     echo -e "${GREEN}>*>..${NC}\n"
-    echo -e "${GREEN}>*>..${NC}\n"
-if [ -n "$REMOTE_IP" ] && [ "$REMOTE_IP" != "None" ]; then
-    IP_TO_USE="$REMOTE_IP"
-    echo -e "Resolved Public IPv4 for instance Name=$INSTANCE_NAME: ${GREEN}$REMOTE_IP${NC}"
-    [ -n "$REMOTE_IPV6" ] && [ "$REMOTE_IPV6" != "None" ] && echo -e "Found Public IPv6: ${GREEN}$REMOTE_IPV6${NC}"
-elif [ -n "$REMOTE_IPV6" ] && [ "$REMOTE_IPV6" != "None" ]; then
-    IP_TO_USE="$REMOTE_IPV6"
-    echo -e "Public IPv4 not found. Resolved Public IPv6 for instance Name=$INSTANCE_NAME: ${GREEN}$REMOTE_IPV6${NC}"
-else
-    echo -e "${RED}Error: Could not resolve Public IPv4 or IPv6 for instance Name=$INSTANCE_NAME. Is it running?${NC}"
-    exit 1
-fi
-
-# Format for SSH (IPv6 literals should NOT be bracketed for standard SSH on macOS)
-REMOTE_USER_HOST="ec2-user@$IP_TO_USE"
-echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>..${NC}\n"
-echo -e "${GREEN}>>> Starting Database Sync Workflow on $(date '+%Y-%m-%d %H:%M:%S') .${NC}"
-
-# Pre-flight check: Verify connectivity to AWS before starting local work
-echo ">>> [PRE-FLIGHT] Checking SSH connectivity to AWS..."
-if ! ssh $SSH_OPTS -i "$KEY_FILE" -o ConnectTimeout=5 -o BatchMode=yes "$REMOTE_USER_HOST" exit; then
-    # Detect local public IP for troubleshooting (Try IPv4 for 5s, fallback to IPv6)
-    CURRENT_IP=$(curl -f -4 -s --noproxy "*" --connect-timeout 5 https://checkip.amazonaws.com 2>/dev/null || echo "")
-    if [ -z "$CURRENT_IP" ]; then
-        CURRENT_IP=$(curl -f -6 -s --noproxy "*" --connect-timeout 5 https://ident.me 2>/dev/null || echo "unknown")
-    fi
-    echo -e "\n${RED}Error: Connection to AWS failed.${NC}"
-    echo -e "${YELLOW}Ensure your current IP (${CURRENT_IP}) is allowed in the AWS Security Group for port 22.${NC}\n"
-    exit 1
-fi
 # Pre-flight check: Verify if the Local server is running and stop it to prevent database file locks during transfer
 if  pgrep -f "dist/sanvasify" > /dev/null; then
     pkill -f "dist/sanvasify"
@@ -109,10 +74,44 @@ if [[ "$FETCH_STATUS" -eq 2 ]]; then
 elif [ $FETCH_STATUS -ne 0 ]; then
     exit $FETCH_STATUS
 fi
+echo -e "${GREEN}>>> [LOCAL] 1.1 Fetcher completed... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 
 echo -e "${GREEN}>>> [LOCAL] 2. Running Loader... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 go build -o dist/load ./cmd/load
 ./dist/load
+
+# Resolve Public IP dynamically (prefer IPv4, fallback to IPv6)
+INSTANCE_NAME="sanvasify-prod"
+REMOTE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].PublicIpAddress" --output text 2>/dev/null)
+REMOTE_IPV6=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTANCE_NAME" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].NetworkInterfaces[0].Ipv6Addresses[0].Ipv6Address" --output text 2>/dev/null)
+
+IP_TO_USE=""
+if [ -n "$REMOTE_IP" ] && [ "$REMOTE_IP" != "None" ]; then
+    IP_TO_USE="$REMOTE_IP"
+    echo -e "Resolved Public IPv4 for instance Name=$INSTANCE_NAME: ${GREEN}$REMOTE_IP${NC}"
+elif [ -n "$REMOTE_IPV6" ] && [ "$REMOTE_IPV6" != "None" ]; then
+    IP_TO_USE="$REMOTE_IPV6"
+    echo -e "Public IPv4 not found. Resolved Public IPv6 for instance Name=$INSTANCE_NAME: ${GREEN}$REMOTE_IPV6${NC}"
+else
+    echo -e "${RED}Error: Could not resolve Public IPv4 or IPv6 for instance Name=$INSTANCE_NAME. Is it running?${NC}"
+    exit 1
+fi
+
+# Format for SSH (IPv6 literals should NOT be bracketed for standard SSH on macOS)
+REMOTE_USER_HOST="ec2-user@$IP_TO_USE"
+echo -e "${GREEN}>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>..${NC}\n"
+echo -e "${GREEN}>>> Starting Database Sync Workflow on $(date '+%Y-%m-%d %H:%M:%S') .${NC}"
+
+# connectivity check after loader
+echo ">>> [NETWORK] Checking SSH connectivity to AWS..."
+if ! ssh $SSH_OPTS -i "$KEY_FILE" -o ConnectTimeout=5 -o BatchMode=yes "$REMOTE_USER_HOST" exit; then
+    # Detect local public IP for troubleshooting (Try IPv4 for 5s, fallback to IPv6)
+    CURRENT_IP=$(curl -f -4 -s --noproxy "*" --connect-timeout 5 https://checkip.amazonaws.com 2>/dev/null || echo "")
+    [ -z "$CURRENT_IP" ] && CURRENT_IP=$(curl -f -6 -s --noproxy "*" --connect-timeout 5 https://ident.me 2>/dev/null || echo "unknown")
+    echo -e "\n${RED}Error: Connection to AWS failed.${NC}"
+    echo -e "${YELLOW}Ensure your current IP (${CURRENT_IP}) is allowed in the AWS Security Group for port 22.${NC}\n"
+    exit 1
+fi
 
 echo -e "${GREEN}>>> [LOCAL] 3. Uploading Database to staging area on AWS... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 # SCP requires brackets for IPv6 literals to distinguish from the host/path separator
@@ -123,18 +122,9 @@ fi
 scp $SSH_OPTS -i "$KEY_FILE" "$LOCAL_DB" "$SCP_DEST:~/"
 
 echo -e "${GREEN}>>> [REMOTE] Executing Deployment Steps (4-9)... ${NC}\n"
-ssh $SSH_OPTS $SSH_TTY -i "$KEY_FILE" "$REMOTE_USER_HOST" bash -s << EOF
-    # Colors for remote output
-    export TZ='Asia/Kolkata'
-    export REMOTE_DATA_DIR='$REMOTE_DATA_DIR'
-    export GREEN='$GREEN'
-    export YELLOW='$YELLOW'
-    export RED='$RED'
-    export NC='$NC'
-
+ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' REMOTE_DATA_DIR='$REMOTE_DATA_DIR' GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash" << 'EOF'
     set -e # Exit immediately if a command fails on the remote server
     # 4. Stop Services (Stopping first ensures the database file isn't in use)
-    echo "Stopping Sanvasify and Caddy services..."
     echo -e "${GREEN}>>> [REMOTE] 4. Stopping Sanvasify and Caddy services...... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 
     sudo systemctl stop sanvasify

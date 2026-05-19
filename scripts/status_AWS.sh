@@ -44,7 +44,7 @@ REMOTE_IPV6=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$INSTAN
 IP_TO_USE=""
 
     echo -e "${GREEN}>*>..${NC}\n"
-    echo -e "${GREEN}>*>..${NC}\n"
+    echo -e "${GREEN}>*>.AWS Instance Verification Script Version 1.0.0${NC}\n"
     echo -e "${GREEN}>*>..${NC}\n"
 
 if [ -n "$REMOTE_IP" ] && [ "$REMOTE_IP" != "None" ]; then

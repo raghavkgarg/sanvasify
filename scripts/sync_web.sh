@@ -11,7 +11,7 @@ KEY_FILE="$PROJECT_ROOT/sn1.pem"
 
 # Fixed IP Configuration
 IPV4="13.234.173.198"
-IPV6="2406:da1a:5e:0:7e64:c4a0:6ed6:9c12"
+IPV6="2406:da1a:5e:0:6456:790e:6774:9561"
 IP_TO_USE="$IPV6" # Set to $IPV4 or $IPV6 as needed
 
 REMOTE_USER_HOST="ec2-user@$IP_TO_USE"

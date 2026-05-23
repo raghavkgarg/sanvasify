@@ -19,6 +19,7 @@ dist/
 *.err
 
 #Script files
+scripts/V2/*.sh
 sync_to_icloud.sh
 sync_cloudflare.sh
 

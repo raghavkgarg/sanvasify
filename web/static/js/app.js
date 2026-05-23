@@ -261,6 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
             opt.textContent = val;
             select.appendChild(opt);
         });
+
+        // Default to "Growth Direct" if available for Distribution Mode
+        if (filter.field === 'dist_mode' && uniqueValues.includes("Growth Direct")) {
+            select.value = "Growth Direct";
+        }
     }
 
     function handleFilterChange(index) {

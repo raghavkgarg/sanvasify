@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Awake till this script finishes (prevents sleep on macOS during long operations)
-caffeinate -i -w $$ & 
+# Prevent display, idle, system, and disk sleep while this script is running
+caffeinate -dimsu -w $$ & 
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
@@ -12,6 +12,27 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Ensure common paths are included for launchd/automation environments
 export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
+#########################################
+# Pre-flight Power Check (macOS specific)
+echo "$(date): Battery check started."
+BATT_INFO=$(pmset -g batt)
+if [[ "$BATT_INFO" != *"Battery Power"* ]]; then
+    echo "$(date): Connected to AC power. No action needed."
+fi
+
+BATT_PCT=$(echo "$BATT_INFO" | grep -o "[0-9]\{1,3\}%" | tr -d '%')
+RECIPIENT="raghavk.garg@icloud.com" # Replace with your Apple ID or Phone Number
+MSG="Sanvasify Mac Alert: Battery is at ${BATT_PCT}%. Please connect to power."
+
+echo "$(date): Battery is at ${BATT_PCT}%"
+if [ "$BATT_PCT" -lt 30 ]; then
+    osascript -e "display notification \"$MSG\" with title \"Mac Battery Alert\""
+    osascript -e "tell application \"Messages\" to send \"$MSG\" to buddy \"$RECIPIENT\"" &>/dev/null || true
+    [ "$BATT_PCT" -lt 20 ] && echo "Critical Battery" && exit 1
+fi
+
+########################################
 
 # Path check for AWS CLI
 if ! command -v aws &> /dev/null; then
@@ -28,7 +49,14 @@ KEY_FILE="$PROJECT_ROOT/sn1.pem"
 LOCAL_DB="/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
 REMOTE_DATA_DIR="/opt/sanvasify/data"
 # Hardened SSH options to prevent hanging during network "flaps" or system sleep
-SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o ConnectTimeout=10"
+# IPQoS=throughput helps prevent packet drops on unstable connections
+SSH_OPTS="-o StrictHostKeyChecking=no \
+          -o UserKnownHostsFile=/dev/null \
+          -o BatchMode=yes \
+          -o ServerAliveInterval=30 \
+          -o ServerAliveCountMax=10 \
+          -o IPQoS=throughput \
+          -o ConnectTimeout=15"
 
 # Colors for output
 if [ -t 1 ]; then
@@ -119,7 +147,19 @@ SCP_DEST="$REMOTE_USER_HOST"
 if [[ "$IP_TO_USE" == *:* ]]; then
     SCP_DEST="ec2-user@[$IP_TO_USE]"
 fi
-scp $SSH_OPTS -i "$KEY_FILE" "$LOCAL_DB" "$SCP_DEST:~/"
+
+# Retry logic for SCP to handle "Broken pipe" or "Connection reset"
+MAX_RETRIES=3
+RETRY_COUNT=0
+until scp $SSH_OPTS -i "$KEY_FILE" "$LOCAL_DB" "$SCP_DEST:~/"; do
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+        echo -e "${RED}Error: SCP failed after $MAX_RETRIES attempts.${NC}"
+        exit 1
+    fi
+    echo -e "${YELLOW}Warning: SCP failed. Retrying ($RETRY_COUNT/$MAX_RETRIES)...${NC}"
+    sleep 5
+done
 
 echo -e "${GREEN}>>> [REMOTE] Executing Deployment Steps (4-9)... ${NC}\n"
 ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" "TZ='Asia/Kolkata' REMOTE_DATA_DIR='$REMOTE_DATA_DIR' GREEN='$GREEN' YELLOW='$YELLOW' RED='$RED' NC='$NC' bash" << 'EOF'

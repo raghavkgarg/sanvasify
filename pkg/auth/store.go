@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 )
 
@@ -69,8 +68,4 @@ func (s *DBStore) UpdateLastLogin(ctx context.Context, email string) error {
 		UPDATE users SET last_login = ? WHERE email = ?
 	`, time.Now(), email)
 	return err
-}
-
-func generateUserID(email, provider string) string {
-	return fmt.Sprintf("%s:%s", provider, email)
 }

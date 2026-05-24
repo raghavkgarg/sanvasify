@@ -16,6 +16,10 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+type contextKey string
+
+const claimsKey contextKey = "claims"
+
 // Config holds authentication configuration
 type Config struct {
 	JWTSecret      string        `toml:"jwt_secret"`
@@ -87,7 +91,7 @@ func (jm *JWTManager) Generate(claims *Claims) (string, error) {
 }
 
 func (jm *JWTManager) Validate(tokenString string) (*Claims, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -216,7 +220,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "claims", claims)
+		ctx := context.WithValue(r.Context(), claimsKey, claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -227,8 +231,8 @@ func (m *Middleware) extractToken(r *http.Request) string {
 	}
 
 	auth := r.Header.Get("Authorization")
-	if strings.HasPrefix(auth, "Bearer ") {
-		return strings.TrimPrefix(auth, "Bearer ")
+	if after, ok := strings.CutPrefix(auth, "Bearer "); ok {
+		return after
 	}
 
 	return ""

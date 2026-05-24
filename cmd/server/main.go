@@ -109,7 +109,7 @@ func main() {
 	}
 
 	s := api.NewServer(dataStore, database.DB(), logger)
-	
+
 	// Start server in goroutine
 	go func() {
 		if err := s.Start(); err != nil && err != http.ErrServerClosed {
@@ -122,16 +122,16 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	
+
 	// Graceful shutdown with timeout
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	
+
 	logger.Info("shutting down server")
 	if err := s.Shutdown(shutdownCtx); err != nil {
 		logger.Error("server shutdown error", "error", err)
 	}
-	
+
 	dataStore.Close()
 	logger.Info("server stopped")
 }

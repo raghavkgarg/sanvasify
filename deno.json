@@ -1,0 +1,17 @@
+{
+  "lint": {
+    "include": ["web/v1/js/"],
+    "rules": {
+      "exclude": ["no-window", "no-window-prefix"]
+    }
+  },
+  "fmt": {
+    "include": ["web/v1/js/"],
+    "indentWidth": 2,
+    "singleQuote": true
+  },
+  "compilerOptions": {
+    "checkJs": true,
+    "lib": ["dom", "esnext"]
+  }
+}

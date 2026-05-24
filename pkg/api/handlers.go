@@ -68,11 +68,11 @@ func (s *Server) handleFilters() http.HandlerFunc {
 func (s *Server) handleSearch() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		filters := map[string]string{
-			store.ColumnFundType:          r.URL.Query().Get(store.ColumnFundType),
-			store.ColumnFundStrategy:      r.URL.Query().Get(store.ColumnFundStrategy),
-			store.ColumnFundCompany:       r.URL.Query().Get(store.ColumnFundCompany),
+			store.ColumnFundType:           r.URL.Query().Get(store.ColumnFundType),
+			store.ColumnFundStrategy:       r.URL.Query().Get(store.ColumnFundStrategy),
+			store.ColumnFundCompany:        r.URL.Query().Get(store.ColumnFundCompany),
 			store.ColumnDistributionOption: r.URL.Query().Get(store.ColumnDistributionOption),
-			store.ColumnPurchaseMode:      r.URL.Query().Get(store.ColumnPurchaseMode),
+			store.ColumnPurchaseMode:       r.URL.Query().Get(store.ColumnPurchaseMode),
 		}
 
 		schemes, err := s.store.SearchSchemes(r.Context(), filters)

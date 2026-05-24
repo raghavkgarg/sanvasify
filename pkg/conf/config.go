@@ -33,11 +33,11 @@ type Server struct {
 }
 
 type Auth struct {
-	Enabled        bool           `toml:"enabled"`
-	JWTSecret      string         `toml:"jwt_secret"`
-	JWTExpiryHours int            `toml:"jwt_expiry_hours"`
-	Google         OAuthProvider  `toml:"google"`
-	GitHub         OAuthProvider  `toml:"github"`
+	Enabled        bool          `toml:"enabled"`
+	JWTSecret      string        `toml:"jwt_secret"`
+	JWTExpiryHours int           `toml:"jwt_expiry_hours"`
+	Google         OAuthProvider `toml:"google"`
+	GitHub         OAuthProvider `toml:"github"`
 }
 
 type OAuthProvider struct {
@@ -68,7 +68,7 @@ func validate() error {
 	if !Cfg.UseDB && Cfg.InputFile == "" {
 		return fmt.Errorf("input_file is required when use_db is false")
 	}
-	
+
 	// Allow secrets from environment variables
 	if envSecret := os.Getenv("JWT_SECRET"); envSecret != "" {
 		Cfg.Auth.JWTSecret = envSecret
@@ -79,12 +79,12 @@ func validate() error {
 	if githubSecret := os.Getenv("GITHUB_CLIENT_SECRET"); githubSecret != "" {
 		Cfg.Auth.GitHub.ClientSecret = githubSecret
 	}
-	
+
 	// Validate auth config if enabled
 	if Cfg.Auth.Enabled && Cfg.Auth.JWTSecret == "" {
 		return fmt.Errorf("jwt_secret is required when auth is enabled (set in config or JWT_SECRET env var)")
 	}
-	
+
 	return nil
 }
 

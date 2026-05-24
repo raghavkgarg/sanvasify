@@ -125,7 +125,7 @@ func (d *DB) SearchSchemes(ctx context.Context, filters map[string]string) ([]st
 		) latest ON s.scheme_code = latest.scheme_code AND s.date = latest.max_date
 		WHERE 1=1
 	`
-	args := []interface{}{}
+	args := []any{}
 
 	if v, ok := filters[store.ColumnFundType]; ok && v != "" {
 		query += ` AND s.fund_type ILIKE ?`

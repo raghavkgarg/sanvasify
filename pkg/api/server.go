@@ -56,7 +56,7 @@ func NewServer(dataStore store.Store, db *sql.DB, logger *slog.Logger) *Server {
 	}
 
 	s.routes()
-	
+
 	port := strconv.Itoa(conf.Cfg.Server.Port)
 	s.server = &http.Server{
 		Addr:         ":" + port,
@@ -65,7 +65,7 @@ func NewServer(dataStore store.Store, db *sql.DB, logger *slog.Logger) *Server {
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
 	}
-	
+
 	return s
 }
 

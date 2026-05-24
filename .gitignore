@@ -18,7 +18,7 @@ dist/
 *.log
 *.err
 
-#Script files
+# Scripts (private)
 scripts/V2/*.sh
 sync_to_icloud.sh
 sync_cloudflare.sh
@@ -26,7 +26,7 @@ sync_cloudflare.sh
 # Test binary, built with `go test -c`
 *.test
 
-# Output of the go coverage tool, specifically
+# Output of the go coverage tool
 *.out
 
 # Local development and debug files
@@ -34,12 +34,16 @@ Debug.txt
 scratch.txt
 
 # Go build artifacts
-# Use a leading slash to only match binaries in the project root
 /sanvasify-server
 /sanvasify
 
-# Environment variables - never commit these
+# Environment variables
 .env
 .env.*
 !/.env.example
-.kiro/settings/lsp.json
+
+# Kiro (machine-specific)
+.kiro/
+
+# Deno
+node_modules/

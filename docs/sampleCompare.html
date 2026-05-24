@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SIF Tracker | Hybrid Long-Short & Equity Strategies Comparison</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f8fc;
+            color: #1a2c3e;
+            padding: 24px 20px 100px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            overflow: hidden;
+            padding: 24px 28px 32px;
+        }
+
+        /* Header Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e6edf2;
+            margin-bottom: 24px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            font-weight: 500;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #1f3b4c;
+            font-size: 0.95rem;
+        }
+        .nav-links a:hover { color: #0f67b3; }
+        .auth-buttons {
+            display: flex;
+            gap: 16px;
+        }
+        .subscribe-btn {
+            background: #0a2b39;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .login-btn {
+            background: transparent;
+            border: 1px solid #bdd3e2;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Strategy Tabs (NEW - critical missing piece) */
+        .strategy-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eef2f7;
+        }
+        .strategy-tab {
+            padding: 8px 20px;
+            border-radius: 40px;
+            background: transparent;
+            border: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #4a627a;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .strategy-tab:hover {
+            background: #eef2f7;
+        }
+        .strategy-tab.active {
+            background: #0a2b39;
+            color: white;
+        }
+
+        /* Metric Toggle Row (Annualised | 1M | 3M | SI) */
+        .metric-toggle-row {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            margin: 16px 0 20px;
+            flex-wrap: wrap;
+        }
+        .metric-buttons {
+            display: flex;
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 48px;
+        }
+        .metric-btn {
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .metric-btn.active-metric {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            color: #0f67b3;
+            font-weight: 600;
+        }
+        .nav-date {
+            font-size: 0.8rem;
+            color: #6c8eae;
+            margin-left: auto;
+        }
+
+        /* Category & Date */
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .category-badge {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .as-of-date {
+            color: #4f6f8a;
+            font-weight: 500;
+            background: #f0f4f9;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+        }
+
+        /* Filters Bar */
+        .filters-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin: 12px 0 24px;
+        }
+        .search-wrapper {
+            flex: 2;
+            min-width: 220px;
+        }
+        .search-wrapper input {
+            width: 100%;
+            padding: 12px 18px;
+            border: 1px solid #cfdfea;
+            border-radius: 48px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .search-wrapper input:focus {
+            border-color: #2c7cb6;
+            box-shadow: 0 0 0 2px rgba(44,124,182,0.2);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .reset-btn {
+            background: white;
+            border: 1px solid #cbdde8;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .reset-btn:hover {
+            background: #eef2f7;
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid #e9eff3;
+        }
+        .funds-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 750px;
+        }
+        .funds-table th {
+            text-align: left;
+            padding: 16px 12px;
+            background: #f9fbfd;
+            font-weight: 600;
+            color: #1f4868;
+            border-bottom: 1px solid #e2eaf0;
+            cursor: pointer;
+        }
+        .funds-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #ecf3f8;
+        }
+        .fund-name {
+            font-weight: 600;
+            color: #0f2f40;
+        }
+        .amc-name {
+            color: #4a627a;
+            font-size: 0.75rem;
+        }
+        .positive { color: #15803d; font-weight: 600; }
+        .negative { color: #b91c1c; font-weight: 600; }
+        .neutral { color: #5e6f8d; }
+        .compare-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2c7cb6;
+        }
+        .best-cell { background-color: #e6f7ec; font-weight: 700; }
+        .worst-cell { background-color: #ffe9e9; }
+
+        /* Sticky Compare Panel */
+        .compare-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid #cfe3ef;
+            box-shadow: 0 -8px 25px rgba(0,0,0,0.08);
+            padding: 20px 28px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.98);
+        }
+        .compare-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .close-compare {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .chart-container canvas {
+            max-height: 220px;
+            width: 100%;
+        }
+        .footer-note {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #7c8ea0;
+            border-top: 1px solid #e2eaf0;
+            padding-top: 20px;
+        }
+        @media (max-width: 680px) {
+            .container { padding: 16px; }
+            .strategy-tab { padding: 6px 14px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header: Home | Education | Resources | Subscribe | Log In -->
+    <div class="top-nav">
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Education</a>
+            <a href="#">Resources</a>
+        </div>
+        <div class="auth-buttons">
+            <button class="subscribe-btn">Subscribe</button>
+            <button class="login-btn">Log In</button>
+        </div>
+    </div>
+
+    <!-- ========== STRATEGY TABS (All / Hybrid Long-Short / Equity Long-Short / Equity Ex-Top 100) ========= -->
+    <div class="strategy-tabs">
+        <button class="strategy-tab active" data-strategy="all">All</button>
+        <button class="strategy-tab" data-strategy="hybrid">Hybrid Long-Short</button>
+        <button class="strategy-tab" data-strategy="equity-ls">Equity Long-Short</button>
+        <button class="strategy-tab" data-strategy="equity-ex">Equity Ex-Top 100</button>
+    </div>
+
+    <!-- Metric toggles: Annualised | 1M | 3M | SI (UI for future sorting) -->
+    <div class="metric-toggle-row">
+        <div class="metric-buttons">
+            <button class="metric-btn active-metric" data-metric="annualised">↓↑ Annualised</button>
+            <button class="metric-btn" data-metric="1m">1M</button>
+            <button class="metric-btn" data-metric="3m">3M</button>
+            <button class="metric-btn" data-metric="si">SI</button>
+        </div>
+        <div class="nav-date">NAV as of 22 May 2026</div>
+    </div>
+
+    <!-- Sub-header & Filters -->
+    <div class="category-header">
+        <span class="category-badge" id="activeCategoryLabel">📊 All Strategies</span>
+        <span class="as-of-date">NAV as of 22 May 2026</span>
+    </div>
+
+    <div class="filters-bar">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="🔍 Search AMC or Fund name ...">
+        </div>
+        <div class="action-buttons">
+            <button id="resetCompareBtn" class="reset-btn">Reset compare</button>
+            <button id="resetFiltersBtn" class="reset-btn">Reset filters</button>
+        </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="table-responsive">
+        <table class="funds-table" id="fundsTable">
+            <thead>
+                <tr><th data-sort="fund">Fund Name</th><th data-sort="amc">AMC</th><th data-sort="nav">NAV</th><th data-sort="annualised">Annualised</th><th data-sort="1m">1M</th><th data-sort="3m">3M</th><th>Compare</th></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <div class="footer-note">* Past performance not guarantee of future returns. Data as of 22 May 2026. For educational use.</div>
+</div>
+
+<!-- Compare Panel -->
+<div id="comparePanel" class="compare-panel" style="display: none;">
+    <div class="compare-header"><span class="compare-title">📊 Comparison (Selected Funds)</span><button id="closeComparePanel" class="close-compare">×</button></div>
+    <div id="compareContent"><canvas id="compareChart"></canvas></div>
+</div>
+
+<script>
+    // ----------------------- MULTI-STRATEGY DATA -------------------------
+    const allFunds = {
+        hybrid: [  // Hybrid Long-Short (from screenshot)
+            { id: "h1", name: "Altiva Hybrid Long-Short Fund", amc: "Edelweiss Mutual Fund", nav: 10.63, annualised: 11.15, ret1m: 0.97, ret3m: 2.32, si: 9.8, strategy: "hybrid" },
+            { id: "h2", name: "Titanium Hybrid Long-Short Fund", amc: "Tata Asset Management", nav: 9.99, annualised: -0.20, ret1m: -1.35, ret3m: -0.08, si: 2.1, strategy: "hybrid" },
+            { id: "h3", name: "Magnum Hybrid Long-Short Fund", amc: "SBI Mutual Fund", nav: 10.30, annualised: 5.31, ret1m: 0.98, ret3m: 0.56, si: 7.2, strategy: "hybrid" },
+            { id: "h4", name: "qsf Hybrid Long-Short Fund", amc: "Quant Mutual Fund", nav: 10.45, annualised: 7.75, ret1m: 0.21, ret3m: 5.70, si: 8.4, strategy: "hybrid" },
+            { id: "h5", name: "ISIF Hybrid Long-Short Fund", amc: "ICICI Prudential", nav: 9.91, annualised: -1.98, ret1m: -1.15, ret3m: -0.93, si: 1.5, strategy: "hybrid" },
+            { id: "h6", name: "Arudha Hybrid Long-Short Fund", amc: "Bandhan Mutual Fund", nav: 10.14, annualised: 4.81, ret1m: -0.09, ret3m: 0.77, si: 5.9, strategy: "hybrid" },
+            { id: "h7", name: "Apex Hybrid Long-Short Fund", amc: "Aditya Birla Capital", nav: 10.11, annualised: 0.30, ret1m: 1.10, ret3m: null, si: 3.2, strategy: "hybrid" }
+        ],
+        equity_ls: [  // Equity Long-Short sample data
+            { id: "e1", name: "Alpha Equity Long-Short Fund", amc: "HDFC Mutual Fund", nav: 28.45, annualised: 14.2, ret1m: 1.85, ret3m: 4.1, si: 12.5, strategy: "equity-ls" },
+            { id: "e2", name: "Pulse Equity Long-Short Fund", amc: "Kotak Mutual Fund", nav: 22.30, annualised: 9.5, ret1m: 0.45, ret3m: 2.3, si: 10.1, strategy: "equity-ls" },
+            { id: "e3", name: "Sigma Equity Long-Short Fund", amc: "Nippon India MF", nav: 31.12, annualised: 18.3, ret1m: 2.1, ret3m: 5.2, si: 15.0, strategy: "equity-ls" }
+        ],
+        equity_ex: [  // Equity Ex-Top 100
+            { id: "x1", name: "Momentum Ex-Top 100 Fund", amc: "Motilal Oswal", nav: 18.75, annualised: 21.3, ret1m: 3.2, ret3m: 8.1, si: 19.2, strategy: "equity-ex" },
+            { id: "x2", name: "NextEdge Ex-Top 100 Fund", amc: "Axis Mutual Fund", nav: 15.40, annualised: 16.7, ret1m: 2.4, ret3m: 5.3, si: 14.5, strategy: "equity-ex" },
+            { id: "x3", name: "Rising Bharat Ex-Top 100", amc: "Sundaram MF", nav: 12.90, annualised: 12.9, ret1m: 1.1, ret3m: 3.9, si: 11.8, strategy: "equity-ex" }
+        ]
+    };
+
+    let currentStrategy = "all"; // all, hybrid, equity-ls, equity-ex
+    let selectedFundIds = [];
+    let searchTerm = "";
+    let currentSort = { column: "annualised", direction: "desc" };
+    let chartInstance = null;
+
+    function getVisibleFunds() {
+        let funds = [];
+        if (currentStrategy === "all") {
+            funds = [...allFunds.hybrid, ...allFunds.equity_ls, ...allFunds.equity_ex];
+        } else if (currentStrategy === "hybrid") {
+            funds = [...allFunds.hybrid];
+        } else if (currentStrategy === "equity-ls") {
+            funds = [...allFunds.equity_ls];
+        } else if (currentStrategy === "equity-ex") {
+            funds = [...allFunds.equity_ex];
+        }
+        return funds;
+    }
+
+    function filterAndSortFunds() {
+        let funds = getVisibleFunds();
+        if (searchTerm.trim()) {
+            const lower = searchTerm.toLowerCase();
+            funds = funds.filter(f => f.name.toLowerCase().includes(lower) || f.amc.toLowerCase().includes(lower));
+        }
+        funds.sort((a,b) => {
+            let aVal, bVal;
+            if (currentSort.column === "fund") { aVal = a.name; bVal = b.name; }
+            else if (currentSort.column === "amc") { aVal = a.amc; bVal = b.amc; }
+            else if (currentSort.column === "nav") { aVal = a.nav; bVal = b.nav; }
+            else if (currentSort.column === "annualised") { aVal = a.annualised ?? -9999; bVal = b.annualised ?? -9999; }
+            else if (currentSort.column === "1m") { aVal = a.ret1m ?? -9999; bVal = b.ret1m ?? -9999; }
+            else if (currentSort.column === "3m") { aVal = a.ret3m ?? -9999; bVal = b.ret3m ?? -9999; }
+            else return 0;
+            if (aVal === bVal) return 0;
+            const dir = currentSort.direction === "asc" ? 1 : -1;
+            return (aVal > bVal ? dir : -dir);
+        });
+        return funds;
+    }
+
+    function getBestWorstGlobal(funds) {
+        const ann = funds.map(f=>f.annualised).filter(v=>v!==null);
+        const m1 = funds.map(f=>f.ret1m).filter(v=>v!==null);
+        const m3 = funds.map(f=>f.ret3m).filter(v=>v!==null);
+        return {
+            bestAnnual: ann.length ? Math.max(...ann) : null, worstAnnual: ann.length ? Math.min(...ann) : null,
+            best1M: m1.length ? Math.max(...m1) : null, worst1M: m1.length ? Math.min(...m1) : null,
+            best3M: m3.length ? Math.max(...m3) : null, worst3M: m3.length ? Math.min(...m3) : null,
+        };
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById("tableBody");
+        const filtered = filterAndSortFunds();
+        const bestWorst = getBestWorstGlobal(filtered);
+        tbody.innerHTML = "";
+        filtered.forEach(fund => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = `<div class="fund-name">${fund.name}</div><div class="amc-name">${fund.amc.split(' ').slice(0,2).join(' ')}</div>`;
+            row.insertCell(1).innerText = fund.amc;
+            row.insertCell(2).innerText = fund.nav.toFixed(2);
+            const annCell = row.insertCell(3);
+            const annVal = fund.annualised;
+            annCell.innerHTML = `<span class="${annVal>0?'positive':annVal<0?'negative':'neutral'}">${annVal!==null?annVal.toFixed(2)+'%':'—'}</span>`;
+            if (bestWorst.bestAnnual !== null && annVal === bestWorst.bestAnnual) annCell.classList.add("best-cell");
+            if (bestWorst.worstAnnual !== null && annVal === bestWorst.worstAnnual) annCell.classList.add("worst-cell");
+            const m1Cell = row.insertCell(4);
+            const m1Val = fund.ret1m;
+            m1Cell.innerHTML = `<span class="${m1Val>0?'positive':m1Val<0?'negative':'neutral'}">${m1Val!==null?m1Val.toFixed(2)+'%':'—'}</span>`;
+            if (bestWorst.best1M !== null && m1Val === bestWorst.best1M) m1Cell.classList.add("best-cell");
+            if (bestWorst.worst1M !== null && m1Val === bestWorst.worst1M) m1Cell.classList.add("worst-cell");
+            const m3Cell = row.insertCell(5);
+            const m3Val = fund.ret3m;
+            m3Cell.innerHTML = `<span class="${m3Val>0?'positive':m3Val<0?'negative':'neutral'}">${m3Val!==null?m3Val.toFixed(2)+'%':'—'}</span>`;
+            if (bestWorst.best3M !== null && m3Val === bestWorst.best3M) m3Cell.classList.add("best-cell");
+            if (bestWorst.worst3M !== null && m3Val === bestWorst.worst3M) m3Cell.classList.add("worst-cell");
+            const compareCell = row.insertCell(6);
+            const chk = document.createElement("input");
+            chk.type = "checkbox";
+            chk.className = "compare-checkbox";
+            chk.checked = selectedFundIds.includes(fund.id);
+            chk.onchange = () => {
+                if (chk.checked) {
+                    if (selectedFundIds.length >= 4) { alert("Max 4 funds for comparison"); chk.checked=false; return; }
+                    if (!selectedFundIds.includes(fund.id)) selectedFundIds.push(fund.id);
+                } else {
+                    const idx = selectedFundIds.indexOf(fund.id);
+                    if (idx !== -1) selectedFundIds.splice(idx,1);
+                }
+                updateComparePanel();
+                renderTable();
+            };
+            compareCell.appendChild(chk);
+        });
+        document.querySelectorAll("#fundsTable th").forEach(th => {
+            th.onclick = () => {
+                const colMap = {"Fund Name":"fund","AMC":"amc","NAV":"nav","Annualised":"annualised","1M":"1m","3M":"3m"};
+                const key = colMap[th.innerText.split('↕')[0].trim()];
+                if (key) {
+                    if (currentSort.column === key) currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc";
+                    else { currentSort.column = key; currentSort.direction = "desc"; }
+                    renderTable();
+                }
+            };
+        });
+    }
+
+    function updateComparePanel() {
+        const panel = document.getElementById("comparePanel");
+        if (!selectedFundIds.length) { panel.style.display = "none"; if(chartInstance) chartInstance.destroy(); return; }
+        panel.style.display = "block";
+        const selected = selectedFundIds.map(id => {
+            const all = [...allFunds.hybrid, ...allFunds.equity_ls, ...allFunds.equity_ex];
+            return all.find(f => f.id === id);
+        }).filter(Boolean);
+        const ctx = document.getElementById("compareChart")?.getContext("2d");
+        if (!ctx) return;
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: "bar",
+            data: { labels: selected.map(s=>s.name.split(' ').slice(0,2).join(' ')),
+                    datasets: [
+                        { label: "Annualised %", data: selected.map(s=>s.annualised ?? 0), backgroundColor: "#2c7cb6" },
+                        { label: "1M %", data: selected.map(s=>s.ret1m ?? 0), backgroundColor: "#38a169" },
+                        { label: "3M %", data: selected.map(s=>s.ret3m ?? 0), backgroundColor: "#e6a017" }
+                    ] },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+
+    // Event listeners
+    document.querySelectorAll(".strategy-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+            document.querySelectorAll(".strategy-tab").forEach(t=>t.classList.remove("active"));
+            tab.classList.add("active");
+            currentStrategy = tab.getAttribute("data-strategy");
+            const labelMap = { all:"All Strategies", hybrid:"Hybrid Long-Short", "equity-ls":"Equity Long-Short", "equity-ex":"Equity Ex-Top 100" };
+            document.getElementById("activeCategoryLabel").innerText = `📊 ${labelMap[currentStrategy]}`;
+            selectedFundIds = [];
+            renderTable();
+            updateComparePanel();
+        });
+    });
+    document.getElementById("searchInput").addEventListener("input", (e) => { searchTerm = e.target.value; renderTable(); });
+    document.getElementById("resetCompareBtn").addEventListener("click", () => { selectedFundIds = []; renderTable(); updateComparePanel(); });
+    document.getElementById("resetFiltersBtn").addEventListener("click", () => { searchTerm = ""; document.getElementById("searchInput").value = ""; currentSort={column:"annualised",direction:"desc"}; renderTable(); });
+    document.getElementById("closeComparePanel").addEventListener("click", () => { selectedFundIds = []; renderTable(); updateComparePanel(); });
+    document.querySelectorAll(".metric-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".metric-btn").forEach(b=>b.classList.remove("active-metric"));
+            btn.classList.add("active-metric");
+            const metric = btn.getAttribute("data-metric");
+            if(metric === "annualised") currentSort = {column:"annualised", direction:"desc"};
+            if(metric === "1m") currentSort = {column:"1m", direction:"desc"};
+            if(metric === "3m") currentSort = {column:"3m", direction:"desc"};
+            renderTable();
+        });
+    });
+    renderTable();
+</script>
+</body>
+</html>

@@ -108,7 +108,7 @@ func main() {
 		dataStore = store.NewMemoryStore(report)
 	}
 
-	s := api.NewServer(dataStore, database.DB(), logger)
+	s := api.NewServer(dataStore, database, logger)
 
 	// Start server in goroutine
 	go func() {

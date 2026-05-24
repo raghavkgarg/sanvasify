@@ -116,3 +116,17 @@ func (s *Server) handleNAVHistory() http.HandlerFunc {
 		}
 	}
 }
+
+func (s *Server) handleCompare() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		strategy := r.URL.Query().Get("strategy")
+		results, err := s.db.GetSchemeReturns(r.Context(), strategy)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if err := json.NewEncoder(w).Encode(results); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}

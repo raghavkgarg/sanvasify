@@ -3,15 +3,38 @@
  * Shared Utilities for Sanvasify Frontend
  */
 
+// --- API ---
+
 export async function fetchJSON(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   return await response.json();
 }
 
+// --- Formatting ---
+
 export function formatDate(dateStr) {
   if (!dateStr) return '';
   return dateStr.split('T')[0];
+}
+
+// --- ECharts helpers ---
+
+export function initChart(container) {
+  const chart = echarts.init(container);
+  chart.setOption({
+    title: {
+      text: 'Select a scheme to view trends',
+      left: 'center',
+      top: 'center',
+      textStyle: { color: '#6688a3', fontSize: 16 },
+    },
+  });
+  return chart;
+}
+
+export function autoResize(chart) {
+  window.addEventListener('resize', () => chart && chart.resize());
 }
 
 export function plotNAVChart(chart, data, options = {}) {
@@ -95,6 +118,31 @@ export function plotNAVChart(chart, data, options = {}) {
   chart.setOption(Object.assign(defaultOption, options), true);
 }
 
+// --- Scheme dropdown ---
+
+export async function loadSchemes(selectEl) {
+  try {
+    const schemes = await fetchJSON('/api/schemes');
+    schemes.sort((a, b) => a.scheme_name.localeCompare(b.scheme_name));
+    selectEl.innerHTML =
+      '<option value="" disabled selected>Select a scheme</option>';
+    schemes.forEach((scheme) => {
+      const option = document.createElement('option');
+      option.value = scheme.scheme_code;
+      option.textContent = scheme.scheme_name;
+      selectEl.appendChild(option);
+    });
+    return schemes;
+  } catch (error) {
+    console.error('Error loading schemes:', error);
+    selectEl.innerHTML =
+      '<option value="" disabled selected>Error loading schemes</option>';
+    return [];
+  }
+}
+
+// --- Stats ---
+
 export function getNAVStats(data) {
   if (!data || data.length === 0) return null;
 
@@ -128,4 +176,27 @@ export function updateStatsUI(elements, stats) {
     Math.abs(change).toFixed(4)
   } (${changePercent}%)`;
   elements.change.style.color = isPositive ? '#4CAF50' : '#f56c6c';
+}
+
+// --- Shared NAV history loader ---
+
+export async function loadNAVHistory(chart, schemeCode, statsCard) {
+  try {
+    const data = await fetchJSON(`/api/nav/history?code=${schemeCode}`);
+    plotNAVChart(chart, data);
+
+    const stats = getNAVStats(data);
+    if (stats && statsCard) {
+      updateStatsUI({
+        current: document.getElementById('current-nav'),
+        highest: document.getElementById('highest-nav'),
+        lowest: document.getElementById('lowest-nav'),
+        change: document.getElementById('nav-change'),
+      }, stats);
+      statsCard.style.display = 'block';
+      setTimeout(() => chart.resize(), 0);
+    }
+  } catch (error) {
+    console.error('Error loading NAV history:', error);
+  }
 }

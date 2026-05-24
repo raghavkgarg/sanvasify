@@ -658,3 +658,136 @@ h3 {
         font-size: 1.2rem;
     }
 }
+
+/* --- NAV page layout (extracted from inline styles) --- */
+
+.advanced-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.filters-column {
+  flex: 1 1 280px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.filters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.7rem;
+}
+
+.filter-actions {
+  margin-top: 0.5rem;
+}
+
+.filter-actions .btn-primary {
+  width: 100%;
+}
+
+.results-column {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.quick-search-section {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.result-card {
+  min-height: 180px;
+  padding: 1.25rem;
+}
+
+.result-card h2 {
+  margin-top: 0;
+  margin-bottom: 1.1rem;
+  font-size: 1.35rem;
+}
+
+.result-card .detail-row {
+  margin-bottom: 0.8rem;
+}
+
+.result-card .detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.trends-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 35px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.chart-panel {
+  flex: 2 1 400px;
+  min-width: 0;
+  height: 550px;
+  background: rgba(15, 46, 63, 0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(226, 177, 62, 0.2);
+}
+
+.stats-panel {
+  flex: 1 1 280px;
+  max-width: 340px;
+}
+
+.stats-panel .section-title {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.stats-vertical-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.stats-panel .stat-box {
+  background: rgba(15, 46, 63, 0.6);
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 177, 62, 0.15);
+}
+
+.stats-panel .stat-label {
+  color: #cbd5e6;
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.stats-panel .stat-value {
+  color: #E2B13E;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .chart-panel {
+    height: 350px;
+  }
+  .filters-column,
+  .stats-panel {
+    max-width: 100%;
+  }
+  .welcome-block {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}

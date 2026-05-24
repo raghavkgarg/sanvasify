@@ -14,6 +14,7 @@ func (s *Server) routes() {
 
 	// Public API routes (no auth required)
 	s.router.HandleFunc("/api/schemes", jsonMW(s.handleSchemes()))
+	s.router.HandleFunc("/api/schemes/compare", jsonMW(s.handleCompare()))
 	s.router.HandleFunc("/api/filters", jsonMW(s.handleFilters()))
 
 	// Protected API routes (auth required)

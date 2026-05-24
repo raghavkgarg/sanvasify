@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"database/sql"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -10,20 +9,23 @@ import (
 
 	"github.com/raghavkgarg/sanvasify/pkg/auth"
 	"github.com/raghavkgarg/sanvasify/pkg/conf"
+	"github.com/raghavkgarg/sanvasify/pkg/db"
 	"github.com/raghavkgarg/sanvasify/pkg/store"
 )
 
 type Server struct {
 	store        store.Store
+	db           *db.DB
 	router       *http.ServeMux
 	server       *http.Server
 	authHandlers *auth.Handlers
 	authMW       *auth.Middleware
 }
 
-func NewServer(dataStore store.Store, db *sql.DB, logger *slog.Logger) *Server {
+func NewServer(dataStore store.Store, database *db.DB, logger *slog.Logger) *Server {
 	s := &Server{
 		store:  dataStore,
+		db:     database,
 		router: http.NewServeMux(),
 	}
 
@@ -46,7 +48,7 @@ func NewServer(dataStore store.Store, db *sql.DB, logger *slog.Logger) *Server {
 
 		oauthMgr := auth.NewOAuthManager(authCfg)
 		jwtMgr := auth.NewJWTManager(authCfg.JWTSecret, authCfg.JWTExpiry())
-		authStore, err := auth.NewDBStore(db)
+		authStore, err := auth.NewDBStore(database.DB())
 		if err != nil {
 			logger.Error("failed to initialize auth store", "error", err)
 		} else {

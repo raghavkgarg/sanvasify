@@ -8,14 +8,12 @@
 </head>
 <body>
 
-<!-- ===== COMBINED SIF CARD (First design) with Welcome Section integrated ===== -->
-<div class="sif-card">
-  <div class="guide-container">
+<!-- Content for the main page, without the sif-card wrapper -->
     
     <!-- MERGED WELCOME SECTION (from second design, but restyled to match SIF theme) -->
     <div class="welcome-block">
       <div class="branding-group">
-        <img src="Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
+        <img src="images/Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
         <div class="welcome-text">
           <h2>Welcome to Sanvasify</h2>
           <p>Your place for information on Specialised Investment Funds</p>
@@ -28,6 +26,7 @@
         <a href="nav_trends.html" class="nav-badge-link">
             <div class="nav-badge"><strong>📈 NAV Trends</strong> — Historical performance</div>
         </a>
+        <div id="nav-placeholder"></div>
       </div>
     </div>
 
@@ -216,19 +215,7 @@
       <span class="gold-dot"></span> Disclaimer: Content on this site is for educational purposes only and does not constitute financial, tax, or legal advice. We are not licensed financial advisors. While NAV data is sourced from the AMFI website, accuracy and completeness are not guaranteed. Always consult with a qualified professional before making investment decisions. <span class="gold-dot"></span>
     </div>
   </div>
-</div>
-
 <!-- Keep navigation script from second design (external) -->
-<script src="js/navigation.js"></script>
-<script>
-  // Ensure initNavigation exists from external js, otherwise define fallback
-  if (typeof initNavigation === 'function') {
-    initNavigation('index.html');
-  } else {
-    console.log("Navigation script loaded but initNavigation not defined — using safe fallback.");
-    // Optional fallback: just avoid errors
-    function initNavigation() {}
-  }
-</script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -19,8 +19,6 @@
         </style>
     </head>
     <body>
-        <div class="sif-card">
-            <div class="guide-container">
                 <div class="welcome-block">
                     <div class="branding-group">
                         <img src="images/Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
@@ -29,7 +27,7 @@
                             <p class="subhead">Visualizing historical performance and volatility cycles</p>
                         </div>
                     </div>
-                    <a href="index.html" class="home-btn">← Home</a>
+                    <div id="nav-placeholder"></div>
                 </div>
 
                 <main>
@@ -66,10 +64,6 @@
                         </div>
                     </div>
                 </main>
-            </div>
-        </div>
-        <script src="js/navigation.js"></script>
-        <script>initNavigation('nav_trends.html');</script>
-        <script src="js/trends.js?v=1.0.3"></script>
+        <script type="module" src="js/trends.js?v=1.0.3"></script>
     </body>
 </html>

@@ -1,10 +1,20 @@
+import { initNavigation } from './navigation.js';
+import { fetchJSON, formatDate, plotNAVChart, getNAVStats, updateStatsUI } from './utils.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize navigation first (on every page)
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    initNavigation(currentPath);
+
     const schemeSelect = document.getElementById('scheme-select');
     const resultCard = document.getElementById('result-card');
     const schemeNameEl = document.getElementById('scheme-name');
     const navValueEl = document.getElementById('nav-value');
     const navDateEl = document.getElementById('nav-date');
     const schemeCodeEl = document.getElementById('scheme-code');
+
+    // Exit early if we are not on the check NAV page
+    if (!schemeSelect) return;
 
     // Trends elements
     const chartContainer = document.getElementById('chart-container');
@@ -28,101 +38,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load NAV history for a scheme
     async function loadNAVHistory(schemeCode) {
         try {
-            const response = await fetch(`/api/nav/history?code=${schemeCode}`);
-            if (!response.ok) throw new Error('Failed to load NAV history');
-            const data = await response.json();
-            plotChart(data);
+            const data = await fetchJSON(`/api/nav/history?code=${schemeCode}`);
+            plotNAVChart(chart, data);
             updateStats(data);
         } catch (error) {
             console.error('Error loading NAV history:', error);
-            if (chart) {
-                chart.setOption({
-                    title: {
-                        text: 'Trends currently unavailable',
-                        left: 'center',
-                        top: 'center',
-                        textStyle: { color: '#f56c6c', fontSize: 16 }
-                    }
-                });
-            }
         }
-    }
-
-    function plotChart(data) {
-        if (!chart || !data || data.length === 0) return;
-        data.sort((a, b) => new Date(a.date) - new Date(b.date));
-        const dates = data.map(d => d.date);
-        const navValues = data.map(d => parseFloat(d.net_asset_value) || 0);
-
-        const option = {
-            tooltip: {
-                trigger: 'axis',
-                backgroundColor: '#0F2E3F',
-                borderColor: '#E2B13E',
-                textStyle: { color: '#fff' },
-                formatter: (params) => {
-                    const date = params[0].axisValue ? params[0].axisValue.split('T')[0] : '';
-                    const nav = params[0].data;
-                    return `${date}<br/>NAV: <strong style="color:#E2B13E">₹${nav.toFixed(4)}</strong>`;
-                }
-            },
-            xAxis: {
-                type: 'category',
-                data: dates,
-                axisLabel: {
-                    color: '#cbd5e6',
-                    rotate: 45,
-                    formatter: (value) => new Date(value).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
-                }
-            },
-            yAxis: {
-                type: 'value',
-                scale: true,
-                axisLabel: { color: '#cbd5e6', formatter: '₹{value}' },
-                splitLine: { lineStyle: { color: 'rgba(203, 213, 230, 0.1)' } }
-            },
-            series: [{
-                name: 'NAV',
-                type: 'line',
-                data: navValues,
-                smooth: true,
-                lineStyle: { width: 3, color: '#E2B13E' },
-                itemStyle: { color: '#E2B13E' },
-                areaStyle: {
-                    color: {
-                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-                        colorStops: [{ offset: 0, color: 'rgba(226, 177, 62, 0.3)' }, { offset: 1, color: 'rgba(226, 177, 62, 0.05)' }]
-                    }
-                }
-            }],
-            grid: { left: '3%', right: '4%', bottom: '10%', top: '5%', containLabel: true },
-            dataZoom: [{ type: 'inside' }, { type: 'slider', handleStyle: { color: '#E2B13E' } }]
-        };
-        chart.setOption(option, true);
     }
 
     function updateStats(data) {
-        if (!statsCard) return;
-        if (!data || data.length === 0) {
-            statsCard.style.display = 'none';
+        const stats = getNAVStats(data);
+        if (!stats) {
+            if (statsCard) statsCard.style.display = 'none';
             return;
         }
-        const navValues = data.map(d => parseFloat(d.net_asset_value) || 0);
-        const current = navValues[navValues.length - 1];
-        const first = navValues[0];
-        const highest = Math.max(...navValues);
-        const lowest = Math.min(...navValues);
-        const change = current - first;
-        const changePercent = ((change / first) * 100).toFixed(2);
-
-        document.getElementById('current-nav').textContent = `₹${current.toFixed(4)}`;
-        document.getElementById('highest-nav').textContent = `₹${highest.toFixed(4)}`;
-        document.getElementById('lowest-nav').textContent = `₹${lowest.toFixed(4)}`;
-
-        const changeEl = document.getElementById('nav-change');
-        const changeText = `₹${Math.abs(change).toFixed(4)} (${changePercent}%)`;
-        changeEl.textContent = change >= 0 ? `+${changeText}` : `-${changeText}`;
-        changeEl.style.color = change >= 0 ? '#4CAF50' : '#f56c6c';
+        
+        updateStatsUI({
+            current: document.getElementById('current-nav'),
+            highest: document.getElementById('highest-nav'),
+            lowest: document.getElementById('lowest-nav'),
+            change: document.getElementById('nav-change')
+        }, stats);
+        
         statsCard.style.display = 'block';
         
         // Force chart to recalculate width now that statsCard takes up space
@@ -154,8 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // 1. Fetch the list of schemes to populate the dropdown
-    fetch('/api/schemes')
-        .then(response => response.json())
+    fetchJSON('/api/schemes')
         .then(schemes => {
             // Store for advanced search filtering
             // Filter to include both Open Ended and Interval schemes as requested
@@ -196,16 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const code = e.target.value;
         if (!code) return;
 
-        fetch(`/api/nav?code=${code}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Scheme not found');
-                return response.json();
-            })
+        fetchJSON(`/api/nav?code=${code}`)
             .then(data => {
                 // Update UI with data
                 schemeNameEl.textContent = data.scheme_name;
                 navValueEl.textContent = `₹ ${data.net_asset_value}`;
-                navDateEl.textContent = data.date ? data.date.split('T')[0] : '';
+                navDateEl.textContent = formatDate(data.date);
                 schemeCodeEl.textContent = data.scheme_code;
                 
                 // Show the card
@@ -340,15 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Hide result card initially until new data is fetched
             hideResults();
 
-            fetch(`/api/search?${params}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('No scheme found matching these criteria');
-                    return response.json();
-                })
+            fetchJSON(`/api/search?${params}`)
                 .then(data => {
                     schemeNameEl.textContent = data.scheme_name;
                     navValueEl.textContent = `₹ ${data.net_asset_value}`;
-                    navDateEl.textContent = data.date ? data.date.split('T')[0] : '';
+                    navDateEl.textContent = formatDate(data.date);
                     schemeCodeEl.textContent = data.scheme_code;
                     resultCard.style.display = 'block';
 

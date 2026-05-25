@@ -33,7 +33,15 @@ export function initChart(container) {
   const chart = echarts.init(container);
   const c = chartColors();
   chart.setOption({
-    title: { text: 'Select a scheme to view trends', left: 'center', top: 'center', textStyle: { color: c.axis, fontSize: 16 } },
+    graphic: {
+      type: 'group',
+      left: 'center',
+      top: 'middle',
+      children: [
+        { type: 'text', style: { text: '📈', font: '36px sans-serif', fill: c.axis, opacity: 0.4 }, left: 'center', top: -20 },
+        { type: 'text', style: { text: 'Select a scheme to view trends', font: '14px sans-serif', fill: c.axis, opacity: 0.7 }, left: 'center', top: 24 },
+      ],
+    },
   });
   return chart;
 }
@@ -63,6 +71,8 @@ export function plotNAVChart(chart, data) {
 
 // --- Scheme dropdown ---
 export async function loadSchemes(selectEl) {
+  selectEl.innerHTML = '<option value="" disabled selected>Loading...</option>';
+  selectEl.disabled = true;
   try {
     const schemes = await fetchJSON('/api/schemes');
     schemes.sort((a, b) => a.scheme_name.localeCompare(b.scheme_name));
@@ -73,6 +83,7 @@ export async function loadSchemes(selectEl) {
       o.textContent = s.scheme_name;
       selectEl.appendChild(o);
     }
+    selectEl.disabled = false;
     return schemes;
   } catch (e) {
     console.error('Error loading schemes:', e);

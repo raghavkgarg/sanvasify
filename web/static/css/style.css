@@ -388,6 +388,51 @@ td {
   font-weight: 600;
 }
 
+/* ===== LOADING & EMPTY STATES ===== */
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin: var(--space-7) auto;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-9) 0;
+  color: var(--color-text-dim);
+  font-size: var(--text-sm);
+  gap: var(--space-3);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-9) var(--space-4);
+  color: var(--color-text-dim);
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-3);
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: var(--text-sm);
+  max-width: 280px;
+}
+
 /* ===== GUIDE PAGE ===== */
 .guide-section {
   margin-bottom: var(--space-8);
@@ -409,9 +454,42 @@ td {
   color: var(--color-accent);
 }
 
+/* ===== HAMBURGER MENU ===== */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: var(--space-2);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .site-nav { padding: 0 var(--space-4); }
+  .nav-toggle { display: block; }
+
+  .site-nav .nav-links {
+    display: none;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    flex-direction: column;
+    padding: var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .site-nav .nav-links.open { display: flex; }
+
+  .site-nav .nav-links a {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+  }
+
+  .site-nav { position: relative; }
   .page { padding: var(--space-5) var(--space-4); }
   .page-header h1 { font-size: var(--text-xl); }
   .chart-container { height: 350px; }

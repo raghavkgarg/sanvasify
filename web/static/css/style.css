@@ -788,6 +788,134 @@ h3 {
   color: var(--color-text-on-primary);
 }
 
+/* ===== COMPARE PAGE ===== */
+.compare-tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.compare-tab {
+  padding: var(--space-2) var(--space-6);
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid var(--color-border-accent);
+  font-weight: var(--weight-medium);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.compare-tab:hover {
+  background: var(--color-primary-bg);
+}
+
+.compare-tab.active {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border-color: var(--color-primary);
+}
+
+.compare-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.compare-search {
+  flex: 1;
+  max-width: 400px;
+  padding: 10px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-accent);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.compare-search:focus-visible {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-dim);
+}
+
+.compare-date {
+  font-size: var(--text-sm);
+  color: var(--color-text-dim);
+}
+
+.table-responsive {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-accent);
+}
+
+table.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 700px;
+}
+
+table.compare-table th {
+  text-align: left;
+  padding: 14px 12px;
+  background: var(--color-bg-elevated);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border-accent);
+  cursor: pointer;
+}
+
+table.compare-table th:hover {
+  color: var(--color-primary);
+}
+
+table.compare-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+table.compare-table .fund-name {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+table.compare-table .positive { color: #10B981; font-weight: var(--weight-semibold); }
+table.compare-table .negative { color: #f56c6c; font-weight: var(--weight-semibold); }
+table.compare-table .neutral { color: var(--color-text-dim); }
+table.compare-table .best-cell { background: rgba(16, 185, 129, 0.12); }
+table.compare-table .worst-cell { background: rgba(245, 108, 108, 0.1); }
+
+.compare-chk {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.compare-panel {
+  margin-top: var(--space-7);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.compare-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  color: var(--color-text-muted);
+  font-weight: var(--weight-semibold);
+}
+
 /* ===== MEDIA QUERIES ===== */
 @media (max-width: 768px) {
   body {

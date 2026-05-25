@@ -81,7 +81,14 @@
 ## Future
 
 ### Phase 10: Frontend v2
-- Theme support (started in latest commits)
+- Design system with CSS custom properties (dark/light themes) ✅
+- Theme toggle with localStorage persistence ✅
+- Removed all inline styles, utility classes ✅
+- Makefile lifecycle: start/stop/restart/status/logs/kill ✅
+- Embed static assets (`go:embed`) — single binary, no runtime file deps
+  - Embed `web/static/` via `//go:embed` in a new `web/embed.go`
+  - Embed `config/Config.toml` as default config (override via flag/env)
+  - Remove `stage` target from Makefile once embedded
 - Compare page for multiple schemes
 - Better mobile responsiveness
 - Performance stats panel

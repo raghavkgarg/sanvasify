@@ -32,6 +32,7 @@ sync_cloudflare.sh
 # Local development and debug files
 Debug.txt
 scratch.txt
+config/Config.local.toml
 
 # Go build artifacts
 /sanvasify-server

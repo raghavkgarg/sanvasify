@@ -1,6 +1,6 @@
 .PHONY: build build-fetch build-load build-gensecret build-all
 .PHONY: build-linux-arm64 build-linux-amd64
-.PHONY: start stop restart status logs run kill
+.PHONY: start stop restart status logs run kill stage
 .PHONY: test test-all
 .PHONY: package cleanup lint-js fmt-js check-js clean help
 
@@ -58,9 +58,20 @@ package: cleanup test build-all
 
 # --- Service management ---
 
-start: build stop
+stage:
+	@rm -rf $(DIST)/web $(DIST)/config $(DIST)/data
+	@cp -R web $(DIST)/
+	@mkdir -p $(DIST)/config
+	@if [ -f config/Config.local.toml ]; then \
+		cp config/Config.local.toml $(DIST)/config/Config.toml; \
+	else \
+		cp config/Config.toml $(DIST)/config/Config.toml; \
+	fi
+	@[ -d data ] && cp -R data $(DIST)/ || true
+
+start: build stage stop
 	@echo "Starting $(BINARY)..."
-	@nohup ./$(DIST)/$(BINARY) >> $(LOG_FILE) 2>&1 & echo $$! > $(PID_FILE)
+	@cd $(DIST) && nohup ./$(BINARY) >> $(LOG_FILE) 2>&1 & echo $$! > $(PID_FILE)
 	@echo "PID $$(cat $(PID_FILE)) → $(LOG_FILE)"
 
 stop: kill
@@ -74,9 +85,9 @@ stop: kill
 
 restart: start
 
-run: build stop
+run: build stage stop
 	@echo "Running $(BINARY) (foreground, Ctrl-C to stop)..."
-	./$(DIST)/$(BINARY)
+	cd $(DIST) && ./$(BINARY)
 
 status:
 	@if [ -f $(PID_FILE) ] && kill -0 $$(cat $(PID_FILE)) 2>/dev/null; then \

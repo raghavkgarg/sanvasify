@@ -27,6 +27,19 @@
   --color-border-accent: var(--color-primary-dim);
   --color-border-subtle: rgba(30, 122, 111, 0.3);
 
+  /* Data visualization */
+  --color-positive: #10B981;
+  --color-negative: #f56c6c;
+  --color-chart-line: #E2B13E;
+  --color-chart-area-start: rgba(226, 177, 62, 0.3);
+  --color-chart-area-end: rgba(226, 177, 62, 0.05);
+  --color-chart-tooltip-bg: #0F2E3F;
+  --color-chart-axis: #cbd5e6;
+  --color-chart-grid: rgba(203, 213, 230, 0.1);
+  --color-chart-bar-1: #E2B13E;
+  --color-chart-bar-2: #10B981;
+  --color-chart-bar-3: #3B82F6;
+
   /* --- Spacing (4px base) --- */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -112,6 +125,18 @@
   --color-border: rgba(0, 0, 0, 0.08);
   --color-border-accent: rgba(184, 134, 11, 0.3);
   --color-border-subtle: rgba(15, 94, 84, 0.2);
+
+  --color-positive: #059669;
+  --color-negative: #dc2626;
+  --color-chart-line: #b8860b;
+  --color-chart-area-start: rgba(184, 134, 11, 0.2);
+  --color-chart-area-end: rgba(184, 134, 11, 0.02);
+  --color-chart-tooltip-bg: #1e293b;
+  --color-chart-axis: #64748b;
+  --color-chart-grid: rgba(0, 0, 0, 0.06);
+  --color-chart-bar-1: #b8860b;
+  --color-chart-bar-2: #059669;
+  --color-chart-bar-3: #2563eb;
 
   --shadow-lg: 0 10px 30px -8px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.08);

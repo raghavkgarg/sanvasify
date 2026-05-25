@@ -84,14 +84,22 @@
 - Design system with CSS custom properties (dark/light themes) ✅
 - Theme toggle with localStorage persistence ✅
 - Removed all inline styles, utility classes ✅
+- ES modules (import/export) across all JS files ✅
+- Shared common.js (chart, API, stats) — eliminated duplication ✅
+- Compare page ported to web/static ✅
 - Makefile lifecycle: start/stop/restart/status/logs/kill ✅
+- Config.local.toml for local dev (gitignored, fallback to Config.toml) ✅
+- web/static self-contained (web/v1 deletable) ✅
+- Add data-viz color tokens + read from CSS in JS (chart theme-awareness)
+- Fix light-theme gaps (chart bg, cap-container, compare table cells)
+- Unify navigation across all pages (consistent nav bar or badges)
+- Sort indicators (▲/▼) on compare table headers
+- Restyle login page with design tokens
+- Loading skeleton/spinner for async content
 - Embed static assets (`go:embed`) — single binary, no runtime file deps
   - Embed `web/static/` via `//go:embed` in a new `web/embed.go`
   - Embed `config/Config.toml` as default config (override via flag/env)
   - Remove `stage` target from Makefile once embedded
-- Compare page for multiple schemes
-- Better mobile responsiveness
-- Performance stats panel
 
 ### Phase 11: Data Enrichment
 - More AMFI data categories

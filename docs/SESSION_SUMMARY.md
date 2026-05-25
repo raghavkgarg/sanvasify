@@ -24,6 +24,7 @@ Build "Sanvasify" — a web platform for browsing, searching, and analyzing Indi
 | 9 | May 19–24 | Frontend v1 | New web design with themes, compare page, sync script timeout fixes |
 | 10 | May 24 | Docs & tooling | .kiro skills/steering/agent, docs restructure (removed 10 redundant files), SESSION_SUMMARY + PHASES + ARCHITECTURE, Makefile rewrite (cleanup/test/lint-js targets), Go 1.26.3, staticcheck fixes, deno lint/fmt/check, govulncheck clean |
 | 11 | May 24 | Frontend refactor + Compare page | Extracted common.js (shared chart/schemes/stats), rewrote trends.js (105→18 lines), fixed app.js monkey-patch, moved inline styles to CSS. Built compare page: API endpoint (server-side 1M/3M/annualised returns via DuckDB CTEs), compare.html + compare.js (strategy tabs, search, sort, best/worst highlight, ECharts compare panel) |
+| 12 | May 25 | Design system + ES modules | CSS design tokens (dark/light themes), refactored style.css to use variables, theme toggle (localStorage), removed all inline styles. Converted all JS to ES modules (import/export). Ported compare page to web/static. Makefile: start/stop/restart/status/logs/kill/stage targets. Config.local.toml for dev. web/static now self-contained (web/v1 can be deleted). |
 
 ## TECHNICAL CONTEXT
 
@@ -52,13 +53,15 @@ GET /api/filters              — Filter options (fund type, strategy, company)
 GET /api/search?...           — Search with filters
 ```
 
-### Frontend (web/v1/)
-- `index.html` — Scheme browser (search, filters, table)
-- `nav.html` — Scheme detail + NAV chart
-- `nav_trends.html` — Chart.js NAV trend visualization
-- `compare.html` — Side-by-side scheme comparison
+### Frontend (web/static/ — current)
+- `index.html` — SIF guide + scheme browser navigation
+- `nav.html` — Scheme detail + NAV chart (cascading filters)
+- `nav_trends.html` — ECharts NAV trend visualization
+- `compare.html` — Side-by-side scheme comparison (strategy tabs, sort, chart)
 - `login.html` — OAuth login
-- JS: `common.js` (shared), `app.js`, `trends.js`, `compare.js`, `navigation.js`, `login.js`
+- CSS: `design-tokens.css` (variables, dark/light themes), `style.css` (components), `login.css`
+- JS (ES modules): `common.js` (shared API/chart/stats), `app.js`, `trends.js`, `compare.js`, `navigation.js`, `theme.js`, `login.js`
+- `web/v1/` — Legacy, can be deleted
 
 ### Deploy Scripts
 - `scripts/sync_bin.sh` — Deploy binary to EC2

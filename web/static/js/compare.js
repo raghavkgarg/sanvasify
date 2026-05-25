@@ -1,5 +1,5 @@
 'use strict';
-import { fetchJSON } from './common.js';
+import { fetchJSON, chartColors } from './common.js';
 
 let allData = [], filtered = [], selected = [];
 let sortCol = 'annualised', sortDir = 'desc', searchTerm = '';
@@ -84,19 +84,20 @@ function getBestWorst() {
 function updatePanel() {
   if (selected.length === 0) { panel.style.display = 'none'; return; }
   panel.style.display = 'block';
+  const c = chartColors();
   const funds = selected.map(code => allData.find(f => f.scheme_code === code)).filter(Boolean);
   if (chartInstance) chartInstance.dispose();
   chartInstance = echarts.init(chartEl);
   chartInstance.setOption({
     tooltip: { trigger: 'axis' },
-    legend: { top: 0, textStyle: { color: '#cbd5e6' } },
+    legend: { top: 0, textStyle: { color: c.axis } },
     grid: { top: 40, bottom: 30, left: 50, right: 20 },
-    xAxis: { type: 'category', data: funds.map(f => f.scheme_name.split(' ').slice(0, 3).join(' ')), axisLabel: { color: '#cbd5e6', rotate: 15 } },
-    yAxis: { type: 'value', axisLabel: { color: '#cbd5e6', formatter: '{value}%' }, splitLine: { lineStyle: { color: 'rgba(203,213,230,0.1)' } } },
+    xAxis: { type: 'category', data: funds.map(f => f.scheme_name.split(' ').slice(0, 3).join(' ')), axisLabel: { color: c.axis, rotate: 15 } },
+    yAxis: { type: 'value', axisLabel: { color: c.axis, formatter: '{value}%' }, splitLine: { lineStyle: { color: c.grid } } },
     series: [
-      { name: 'Annualised', type: 'bar', data: funds.map(f => f.ret_annualised ?? 0), itemStyle: { color: '#E2B13E' } },
-      { name: '1M', type: 'bar', data: funds.map(f => f.ret_1m ?? 0), itemStyle: { color: '#10B981' } },
-      { name: '3M', type: 'bar', data: funds.map(f => f.ret_3m ?? 0), itemStyle: { color: '#3B82F6' } },
+      { name: 'Annualised', type: 'bar', data: funds.map(f => f.ret_annualised ?? 0), itemStyle: { color: c.bar1 } },
+      { name: '1M', type: 'bar', data: funds.map(f => f.ret_1m ?? 0), itemStyle: { color: c.bar2 } },
+      { name: '3M', type: 'bar', data: funds.map(f => f.ret_3m ?? 0), itemStyle: { color: c.bar3 } },
     ],
   });
 }
@@ -119,6 +120,8 @@ document.querySelectorAll('#compare-table th[data-sort]').forEach(th => {
     const col = th.dataset.sort;
     if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
     else { sortCol = col; sortDir = 'desc'; }
+    document.querySelectorAll('#compare-table th[data-sort]').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+    th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
     applyFilter();
   });
 });

@@ -1,5 +1,26 @@
 'use strict';
 
+// --- Theme-aware colors (read from CSS custom properties) ---
+function getColor(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+
+export function chartColors() {
+  return {
+    line: getColor('--color-chart-line'),
+    areaStart: getColor('--color-chart-area-start'),
+    areaEnd: getColor('--color-chart-area-end'),
+    tooltipBg: getColor('--color-chart-tooltip-bg'),
+    axis: getColor('--color-chart-axis'),
+    grid: getColor('--color-chart-grid'),
+    positive: getColor('--color-positive'),
+    negative: getColor('--color-negative'),
+    bar1: getColor('--color-chart-bar-1'),
+    bar2: getColor('--color-chart-bar-2'),
+    bar3: getColor('--color-chart-bar-3'),
+  };
+}
+
 // --- API ---
 export async function fetchJSON(url) {
   const res = await fetch(url);
@@ -10,10 +31,9 @@ export async function fetchJSON(url) {
 // --- ECharts helpers ---
 export function initChart(container) {
   const chart = echarts.init(container);
+  const c = chartColors();
   chart.setOption({
-    title: {
-      text: 'Select a scheme to vi
-      ew trends', left: 'center', top: 'center', textStyle: { color: '#6688a3', fontSize: 16 } },
+    title: { text: 'Select a scheme to view trends', left: 'center', top: 'center', textStyle: { color: c.axis, fontSize: 16 } },
   });
   return chart;
 }
@@ -24,19 +44,20 @@ export function autoResize(chart) {
 
 export function plotNAVChart(chart, data) {
   if (!chart || !data || data.length === 0) return;
+  const c = chartColors();
   const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
   const dates = sorted.map(d => d.date);
   const navValues = sorted.map(d => parseFloat(d.net_asset_value) || 0);
 
   chart.setOption({
-    tooltip: { trigger: 'axis', backgroundColor: '#0F2E3F', borderColor: '#E2B13E', textStyle: { color: '#fff' },
-      formatter: p => `${(p[0].axisValue || '').split('T')[0]}<br/>NAV: <strong style="color:#E2B13E">₹${p[0].data.toFixed(4)}</strong>` },
-    xAxis: { type: 'category', data: dates, axisLabel: { color: '#cbd5e6', rotate: 45, formatter: v => new Date(v).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) } },
-    yAxis: { type: 'value', scale: true, axisLabel: { color: '#cbd5e6', formatter: '₹{value}' }, splitLine: { lineStyle: { color: 'rgba(203,213,230,0.1)' } } },
-    series: [{ name: 'NAV', type: 'line', data: navValues, smooth: true, lineStyle: { width: 3, color: '#E2B13E' }, itemStyle: { color: '#E2B13E' },
-      areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(226,177,62,0.3)' }, { offset: 1, color: 'rgba(226,177,62,0.05)' }] } } }],
+    tooltip: { trigger: 'axis', backgroundColor: c.tooltipBg, borderColor: c.line, textStyle: { color: '#fff' },
+      formatter: p => `${(p[0].axisValue || '').split('T')[0]}<br/>NAV: <strong style="color:${c.line}">₹${p[0].data.toFixed(4)}</strong>` },
+    xAxis: { type: 'category', data: dates, axisLabel: { color: c.axis, rotate: 45, formatter: v => new Date(v).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) } },
+    yAxis: { type: 'value', scale: true, axisLabel: { color: c.axis, formatter: '₹{value}' }, splitLine: { lineStyle: { color: c.grid } } },
+    series: [{ name: 'NAV', type: 'line', data: navValues, smooth: true, lineStyle: { width: 3, color: c.line }, itemStyle: { color: c.line },
+      areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: c.areaStart }, { offset: 1, color: c.areaEnd }] } } }],
     grid: { left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true },
-    dataZoom: [{ type: 'inside' }, { type: 'slider', handleStyle: { color: '#E2B13E' } }],
+    dataZoom: [{ type: 'inside' }, { type: 'slider', handleStyle: { color: c.line } }],
   }, true);
 }
 
@@ -72,12 +93,13 @@ export function computeStats(data) {
 
 export function renderStats(statsCard, stats) {
   if (!stats) return;
+  const c = chartColors();
   document.getElementById('current-nav').textContent = `₹${stats.current.toFixed(4)}`;
   document.getElementById('highest-nav').textContent = `₹${stats.highest.toFixed(4)}`;
   document.getElementById('lowest-nav').textContent = `₹${stats.lowest.toFixed(4)}`;
   const el = document.getElementById('nav-change');
   el.textContent = `${stats.isPositive ? '+' : ''}₹${Math.abs(stats.change).toFixed(4)} (${stats.changePercent}%)`;
-  el.style.color = stats.isPositive ? '#4CAF50' : '#f56c6c';
+  el.style.color = stats.isPositive ? c.positive : c.negative;
   statsCard.style.display = 'block';
 }
 

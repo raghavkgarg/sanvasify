@@ -292,7 +292,7 @@ h1 {
 }
 
 #chart-container {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--color-bg-elevated);
   border-radius: var(--radius-2xl);
   padding: var(--space-4);
   border: 1px solid var(--color-border-subtle);
@@ -461,7 +461,7 @@ h3 {
 }
 
 .cap-container {
-  background: #0A1C2C;
+  background: var(--color-bg-surface);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   margin: var(--space-4) 0;
@@ -870,6 +870,23 @@ table.compare-table th {
   color: var(--color-text-muted);
   border-bottom: 1px solid var(--color-border-accent);
   cursor: pointer;
+  user-select: none;
+}
+
+table.compare-table th[data-sort]::after {
+  content: ' ⇅';
+  opacity: 0.4;
+  font-size: 0.75em;
+}
+
+table.compare-table th[data-sort].sort-asc::after {
+  content: ' ▲';
+  opacity: 1;
+}
+
+table.compare-table th[data-sort].sort-desc::after {
+  content: ' ▼';
+  opacity: 1;
 }
 
 table.compare-table th:hover {
@@ -886,8 +903,8 @@ table.compare-table .fund-name {
   color: var(--color-text-secondary);
 }
 
-table.compare-table .positive { color: #10B981; font-weight: var(--weight-semibold); }
-table.compare-table .negative { color: #f56c6c; font-weight: var(--weight-semibold); }
+table.compare-table .positive { color: var(--color-positive); font-weight: var(--weight-semibold); }
+table.compare-table .negative { color: var(--color-negative); font-weight: var(--weight-semibold); }
 table.compare-table .neutral { color: var(--color-text-dim); }
 table.compare-table .best-cell { background: rgba(16, 185, 129, 0.12); }
 table.compare-table .worst-cell { background: rgba(245, 108, 108, 0.1); }

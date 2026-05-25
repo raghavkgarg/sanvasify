@@ -43,7 +43,7 @@ func GetLatestParquet(dir string) (string, error) {
 }
 
 // parseDouble converts a string to float64, returning nil for empty strings or invalid values
-func parseDouble(s string) interface{} {
+func parseDouble(s string) any {
 	if s == "" {
 		return nil
 	}
@@ -55,7 +55,7 @@ func parseDouble(s string) interface{} {
 }
 
 // nullIfEmpty returns nil if the string is empty, otherwise returns the string
-func nullIfEmpty(s string) interface{} {
+func nullIfEmpty(s string) any {
 	if s == "" {
 		return nil
 	}

@@ -1,8 +1,10 @@
+// @ts-nocheck: page script — strict types pending
+// deno-lint-ignore no-unused-vars
 function loginWith(provider) {
-    window.location.href = `/api/auth/login?provider=${provider}`;
+  window.location.href = `/api/auth/login?provider=${provider}`;
 }
 
 // Redirect if already logged in
 fetch('/api/auth/me')
-    .then(res => res.ok && (window.location.href = '/'))
-    .catch(() => {});
+  .then((res) => res.ok && (window.location.href = '/'))
+  .catch(() => {});

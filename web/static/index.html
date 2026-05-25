@@ -4,15 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Sanvasify - Specialised Investment Fund | SIF Guide</title>
-  <link rel="stylesheet" href="css/style.css?v=1.0.2" />
+  <link rel="stylesheet" href="css/design-tokens.css" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-<!-- ===== COMBINED SIF CARD (First design) with Welcome Section integrated ===== -->
 <div class="sif-card">
   <div class="guide-container">
-    
-    <!-- MERGED WELCOME SECTION (from second design, but restyled to match SIF theme) -->
+
     <div class="welcome-block">
       <div class="branding-group">
         <img src="images/Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
@@ -23,34 +22,32 @@
       </div>
       <div class="nav-links-info">
         <a href="nav.html" class="nav-badge-link">
-             <div class="nav-badge"><strong>📊 Check SIF NAV</strong> — NAV of SIF</div>
+          <div class="nav-badge"><strong>📊 Check SIF NAV</strong> — NAV of SIF</div>
         </a>
         <a href="nav_trends.html" class="nav-badge-link">
-            <div class="nav-badge"><strong>📈 NAV Trends</strong> — Historical performance</div>
+          <div class="nav-badge"><strong>📈 NAV Trends</strong> — Historical performance</div>
+        </a>
+        <a href="compare.html" class="nav-badge-link">
+          <div class="nav-badge"><strong>⚖️ Compare</strong> — Side-by-side</div>
         </a>
       </div>
     </div>
 
-    <!-- main header from first design -->
     <div class="strategy-header">
       <div>
         <span class="section-title">advanced investment framework</span>
-        <h1>A COMPLETE GUIDE <span style="color:#E2B13E;">ON SIFs</span></h1>
+        <h1>A COMPLETE GUIDE <span class="gold-accent">ON SIFs</span></h1>
       </div>
-      <div style="background:rgba(226,177,62,0.12); padding:0.4rem 1rem; border-radius:40px;">
-        <span style="color:#E2B13E; font-weight:500; font-size:0.8rem;">⚖️ Sophisticated risk management</span>
-      </div>
+      <div class="strategy-pill">⚖️ Sophisticated risk management</div>
     </div>
     <div class="subhead">
       For experienced investors — emphasizing sophisticated risk management over aggressive leverage.
     </div>
 
-    <!-- context summary: SEBI-regulated -->
     <div class="context-panel">
-      <p><strong>📋 Context Summary</strong> — SEBI-regulated mutual funds offering greater flexibility through ‘long-short’ strategies. <strong>Prioritizes risk management</strong> over high-leverage returns.</p>
+      <p><strong>📋 Context Summary</strong> — SEBI-regulated mutual funds offering greater flexibility through 'long-short' strategies. <strong>Prioritizes risk management</strong> over high-leverage returns.</p>
     </div>
 
-    <!-- CORE FEATURES & REQUIREMENTS (3 cards) -->
     <div>
       <span class="section-title">core features & requirements</span>
     </div>
@@ -72,20 +69,18 @@
       </div>
     </div>
 
-    <!-- STRATEGIC RISK MANAGEMENT section -->
-    <div style="margin-top: 0.5rem;">
+    <div class="mt-2">
       <span class="section-title">strategic risk management</span>
     </div>
 
     <div class="risk-section">
-      <!-- LEFT BLOCK: Long-short advantage -->
       <div class="risk-block">
         <h3>📉 THE LONG-SHORT ADVANTAGE <span class="risk-badge">alpha & downside</span></h3>
         <div class="long-short-desc">
-          Managers can profit from both <strong style="color:#E2B13E;">rising markets</strong> and <strong style="color:#E2B13E;">falling prices</strong> using derivative positions — while maintaining lower volatility than pure long funds.
+          Managers can profit from both <strong class="text-primary">rising markets</strong> and <strong class="text-primary">falling prices</strong> using derivative positions — while maintaining lower volatility than pure long funds.
         </div>
         <div class="cap-container">
-          <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
+          <div class="d-flex justify-between items-center flex-wrap">
             <span><span class="cap-percent">25%</span> <span class="cap-label">UNHEDGED SHORT CAP</span></span>
           </div>
           <div class="footnote">
@@ -94,24 +89,22 @@
         </div>
       </div>
 
-      <!-- RIGHT BLOCK: Focus on risk-adjusted returns -->
       <div class="risk-block">
         <h3>🎯 FOCUS ON RISK-ADJUSTED RETURNS</h3>
         <div class="focus-card">
-          <p style="font-weight: 500; margin-bottom: 0.25rem;">🔒 Downside protection + steady income</p>
-          <p style="font-size:0.9rem; color:#cbd5e6;">SIFs aim for downside protection and steady income rather than “multibagger” or outsized returns. Consistency over speculation.</p>
+          <p class="font-semibold mb-3">🔒 Downside protection + steady income</p>
+          <p class="text-muted text-sm">SIFs aim for downside protection and steady income rather than "multibagger" or outsized returns. Consistency over speculation.</p>
         </div>
-        <div style="margin-top: 1rem;">
-          <span style="color:#E2B13E; font-weight:600;">✔ Long-short flexibility</span><br>
-          <span style="color:#b9d0f0; font-size:0.85rem;">Generating absolute returns in all market cycles</span>
+        <div class="mt-4">
+          <span class="text-primary font-semibold">✔ Long-short flexibility</span><br>
+          <span class="text-muted text-sm">Generating absolute returns in all market cycles</span>
         </div>
       </div>
     </div>
 
-    <!-- COMPARISON TABLE: HOW SIFs STACK UP -->
     <div class="comparison-wrapper">
       <span class="section-title">How SIFs Stack Up Against Other Investment Avenues</span>
-      <div style="overflow-x: auto;">
+      <div class="overflow-x-auto">
         <table class="comparison-table">
           <thead>
             <tr>
@@ -146,8 +139,8 @@
             </tr>
             <tr>
               <td class="mf-label">Taxation at Investor Level</td>
-              <td>Similar to Mutual Funds, depending on asset class <a href="#" style="color:#E2B13E; font-size:0.7rem; text-decoration:none; font-weight:700;">KNOW MORE</a></td>
-              <td>Tax-efficient as per the asset class <a href="#" style="color:#E2B13E; font-size:0.7rem; text-decoration:none; font-weight:700;">KNOW MORE</a></td>
+              <td>Similar to Mutual Funds, depending on asset class <a href="#" class="link-accent">KNOW MORE</a></td>
+              <td>Tax-efficient as per the asset class <a href="#" class="link-accent">KNOW MORE</a></td>
               <td>Based on individual security treatment</td>
               <td>Nil</td>
             </tr>
@@ -182,33 +175,30 @@
           </tbody>
         </table>
       </div>
-      <div class="footnote" style="margin-top: 1rem; text-align: center;">
+      <div class="footnote mt-4 text-center">
         **As per current Income Tax Laws. Please consult your investment / tax adviser before making any investment decision.
+      </div>
     </div>
 
-    <!-- extra strategic reminder -->
-    <div style="background: rgba(30,122,111,0.2); border-radius: 1.2rem; padding: 1rem 1.5rem; margin: 0.5rem 0 1rem 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-      <div style="display: flex; gap: 1rem; align-items: center;">
-        <span style="font-size: 2rem;">⚖️</span>
+    <div class="callout">
+      <div class="callout-content">
+        <span class="callout-icon">⚖️</span>
         <div>
-          <div style="font-weight:700; color:#E2B13E;">THE LONG-SHORT ADVANTAGE</div>
-          <div style="color:#d1e0f0; font-size:0.85rem;">Managers can profit from both rising markets and falling prices using derivative positions.</div>
+          <div class="callout-title">THE LONG-SHORT ADVANTAGE</div>
+          <div class="callout-desc">Managers can profit from both rising markets and falling prices using derivative positions.</div>
         </div>
       </div>
-      <div style="background:#0A2540; padding: 0.4rem 0.9rem; border-radius: 60px; border:1px solid #1E7A6F;">
-        <span style="color:#E2B13E; font-weight:500;">📊 25% unhedged short limit</span>
-      </div>
+      <div class="callout-badge">📊 25% unhedged short limit</div>
     </div>
 
-    <!-- SEBI compliance & additional notes -->
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-between; margin-top: 0.5rem;">
-      <div style="background: #0F2E3F; border-radius: 1rem; padding: 0.8rem 1.2rem; flex:1;">
-        <span style="color:#E2B13E; font-weight:600;">⛔ NO-LEVERAGE POLICY</span>
-        <p style="color:#bdd4f0; font-size:0.8rem; margin-top: 0.3rem;">Funds cannot exceed capital → prevents destructive speculation & margin calls.</p>
+    <div class="d-flex flex-wrap justify-between gap-4 mt-2">
+      <div class="info-box">
+        <span class="info-box-title">⛔ NO-LEVERAGE POLICY</span>
+        <p>Funds cannot exceed capital → prevents destructive speculation & margin calls.</p>
       </div>
-      <div style="background: #0F2E3F; border-radius: 1rem; padding: 0.8rem 1.2rem; flex:1;">
-        <span style="color:#E2B13E; font-weight:600;">🛡️ 25% NAKED SHORT CEILING</span>
-        <p style="color:#bdd4f0; font-size:0.8rem; margin-top: 0.3rem;">SEBI caps naked shorts to protect from extreme volatility events.</p>
+      <div class="info-box">
+        <span class="info-box-title">🛡️ 25% NAKED SHORT CEILING</span>
+        <p>SEBI caps naked shorts to protect from extreme volatility events.</p>
       </div>
     </div>
 
@@ -218,17 +208,12 @@
   </div>
 </div>
 
-<!-- Keep navigation script from second design (external) -->
-<script src="js/navigation.js"></script>
-<script>
-  // Ensure initNavigation exists from external js, otherwise define fallback
-  if (typeof initNavigation === 'function') {
-    initNavigation('index.html');
-  } else {
-    console.log("Navigation script loaded but initNavigation not defined — using safe fallback.");
-    // Optional fallback: just avoid errors
-    function initNavigation() {}
-  }
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
+
+<script type="module">
+  import { initNavigation } from './js/navigation.js';
+  initNavigation('index.html');
 </script>
+<script src="js/theme.js"></script>
 </body>
 </html>

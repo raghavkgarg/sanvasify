@@ -1,83 +1,25 @@
-// Shared navigation component
-function createNavigation(currentPage) {
-    const pages = [
-        { name: 'Home', url: 'index.html' },
-        { name: 'Check SIF NAV', url: 'nav.html' },
-        { name: 'NAV Trends', url: 'nav_trends.html' }
-    ];
+'use strict';
 
-    const nav = document.createElement('nav');
-    nav.className = 'main-nav';
+const pages = [
+  { name: 'Home', url: 'index.html' },
+  { name: 'Check SIF NAV', url: 'nav.html' },
+  { name: 'NAV Trends', url: 'nav_trends.html' },
+  { name: 'Compare', url: 'compare.html' },
+];
 
-    const navContainer = document.createElement('div');
-    navContainer.className = 'nav-container';
+export function initNavigation(currentPage) {
+  const placeholder = document.getElementById('nav-placeholder');
+  if (!placeholder) return;
 
-    pages.forEach(page => {
-        const link = document.createElement('a');
-        link.href = page.url;
-        link.textContent = page.name;
-        link.className = 'nav-link';
-        
-        if (page.url === currentPage) {
-            link.classList.add('active');
-        }
-        
-        navContainer.appendChild(link);
-    });
-
-    // Add user menu
-    const userMenu = document.createElement('div');
-    userMenu.className = 'user-menu';
-    userMenu.id = 'user-menu';
-    navContainer.appendChild(userMenu);
-
-    nav.appendChild(navContainer);
-    return nav;
-}
-
-// Insert navigation after brand container
-function initNavigation(currentPage) {
-    const brandContainer = document.querySelector('.brand-container');
-    if (brandContainer) {
-        const nav = createNavigation(currentPage);
-        brandContainer.appendChild(nav);
-        loadUserInfo();
-    }
-}
-
-// Load and display user info
-function loadUserInfo() {
-    fetch('/api/auth/me')
-        .then(res => {
-            if (res.ok) {
-                return res.json();
-            }
-            return null;
-        })
-        .then(user => {
-            const userMenu = document.getElementById('user-menu');
-            if (user) {
-                userMenu.innerHTML = `
-                    <span class="user-name">${user.name}</span>
-                    <button class="logout-btn" onclick="logout()">Logout</button>
-                `;
-            } else {
-                // Show login button if auth endpoint exists
-                userMenu.innerHTML = `
-                    <button class="login-btn" onclick="window.location.href='/login.html'">Login</button>
-                `;
-            }
-        })
-        .catch(() => {
-            // Auth not configured, hide menu
-            document.getElementById('user-menu').style.display = 'none';
-        });
-}
-
-// Logout function
-function logout() {
-    fetch('/api/auth/logout')
-        .then(() => {
-            window.location.href = '/login.html';
-        });
+  const nav = document.createElement('nav');
+  nav.className = 'main-nav';
+  for (const page of pages) {
+    const a = document.createElement('a');
+    a.href = page.url;
+    a.textContent = page.name;
+    a.className = 'nav-link';
+    if (page.url === currentPage) a.classList.add('active');
+    nav.appendChild(a);
+  }
+  placeholder.replaceWith(nav);
 }

@@ -1,0 +1,221 @@
+// @ts-nocheck: page script — strict types pending
+import { initNavigation } from './navigation.js';
+import { fetchJSON } from './common.js';
+
+initNavigation('compare.html');
+
+let allData = [];
+let filtered = [];
+let selected = [];
+let sortCol = 'annualised';
+let sortDir = 'desc';
+let searchTerm = '';
+let chartInstance = null;
+
+const tbody = document.getElementById('compare-body');
+const panel = document.getElementById('compare-panel');
+const chartEl = document.getElementById('compare-chart');
+const dateEl = document.getElementById('compare-date');
+
+// --- Data loading ---
+
+async function loadData(strategy) {
+  const url = strategy
+    ? `/api/schemes/compare?strategy=${encodeURIComponent(strategy)}`
+    : '/api/schemes/compare';
+  allData = await fetchJSON(url);
+  if (allData.length > 0) {
+    dateEl.textContent = `NAV as of ${allData[0].date.split('T')[0]}`;
+  }
+  applyFilter();
+}
+
+// --- Filter & sort ---
+
+function applyFilter() {
+  filtered = allData;
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase();
+    filtered = filtered.filter((f) =>
+      f.scheme_name.toLowerCase().includes(q) ||
+      f.fund_company.toLowerCase().includes(q)
+    );
+  }
+  filtered.sort((a, b) => {
+    const av = getVal(a, sortCol);
+    const bv = getVal(b, sortCol);
+    if (av === bv) return 0;
+    return (av > bv ? 1 : -1) * (sortDir === 'asc' ? 1 : -1);
+  });
+  render();
+}
+
+function getVal(row, col) {
+  if (col === 'name') return row.scheme_name || '';
+  if (col === 'company') return row.fund_company || '';
+  if (col === 'nav') return row.nav ?? -Infinity;
+  if (col === 'annualised') return row.ret_annualised ?? -Infinity;
+  if (col === '1m') return row.ret_1m ?? -Infinity;
+  if (col === '3m') return row.ret_3m ?? -Infinity;
+  return 0;
+}
+
+// --- Render ---
+
+function render() {
+  const best = getBestWorst();
+  tbody.innerHTML = '';
+  filtered.forEach((fund) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="fund-name">${fund.scheme_name}</div></td>
+      <td>${fund.fund_company || ''}</td>
+      <td>${fund.nav != null ? fund.nav.toFixed(4) : '—'}</td>
+      ${retCell(fund.ret_annualised, best.annualised)}
+      ${retCell(fund.ret_1m, best.m1)}
+      ${retCell(fund.ret_3m, best.m3)}
+      <td><input type="checkbox" class="compare-chk" data-code="${fund.scheme_code}" ${
+      selected.includes(fund.scheme_code) ? 'checked' : ''
+    }/></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Checkbox listeners
+  tbody.querySelectorAll('.compare-chk').forEach((chk) => {
+    chk.addEventListener('change', (e) => {
+      const code = e.target.dataset.code;
+      if (e.target.checked) {
+        if (selected.length >= 4) {
+          e.target.checked = false;
+          return;
+        }
+        selected.push(code);
+      } else {
+        selected = selected.filter((c) => c !== code);
+      }
+      updatePanel();
+    });
+  });
+}
+
+function retCell(val, bestWorst) {
+  if (val == null) return '<td class="neutral">—</td>';
+  const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
+  let extra = '';
+  if (bestWorst && val === bestWorst.best) extra = ' best-cell';
+  if (bestWorst && val === bestWorst.worst) extra = ' worst-cell';
+  return `<td class="${cls}${extra}">${val.toFixed(2)}%</td>`;
+}
+
+function getBestWorst() {
+  const vals = (key) => filtered.map((f) => f[key]).filter((v) => v != null);
+  const bw = (arr) =>
+    arr.length ? { best: Math.max(...arr), worst: Math.min(...arr) } : null;
+  return {
+    annualised: bw(vals('ret_annualised')),
+    m1: bw(vals('ret_1m')),
+    m3: bw(vals('ret_3m')),
+  };
+}
+
+// --- Compare panel ---
+
+function updatePanel() {
+  if (selected.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  const funds = selected.map((code) =>
+    allData.find((f) => f.scheme_code === code)
+  ).filter(Boolean);
+
+  if (chartInstance) chartInstance.dispose();
+  chartInstance = echarts.init(chartEl);
+  chartInstance.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { top: 0, textStyle: { color: '#cbd5e6' } },
+    grid: { top: 40, bottom: 30, left: 50, right: 20 },
+    xAxis: {
+      type: 'category',
+      data: funds.map((f) => f.scheme_name.split(' ').slice(0, 3).join(' ')),
+      axisLabel: { color: '#cbd5e6', rotate: 15 },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#cbd5e6', formatter: '{value}%' },
+      splitLine: { lineStyle: { color: 'rgba(203,213,230,0.1)' } },
+    },
+    series: [
+      {
+        name: 'Annualised',
+        type: 'bar',
+        data: funds.map((f) => f.ret_annualised ?? 0),
+        itemStyle: { color: '#E2B13E' },
+      },
+      {
+        name: '1M',
+        type: 'bar',
+        data: funds.map((f) => f.ret_1m ?? 0),
+        itemStyle: { color: '#10B981' },
+      },
+      {
+        name: '3M',
+        type: 'bar',
+        data: funds.map((f) => f.ret_3m ?? 0),
+        itemStyle: { color: '#3B82F6' },
+      },
+    ],
+  });
+}
+
+// --- Events ---
+
+// Strategy tabs
+document.querySelectorAll('.compare-tab').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.compare-tab').forEach((t) =>
+      t.classList.remove('active')
+    );
+    tab.classList.add('active');
+    selected = [];
+    updatePanel();
+    loadData(tab.dataset.strategy);
+  });
+});
+
+// Search
+document.getElementById('compare-search').addEventListener('input', (e) => {
+  searchTerm = e.target.value;
+  applyFilter();
+});
+
+// Sort headers
+document.querySelectorAll('#compare-table th[data-sort]').forEach((th) => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.sort;
+    if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    else {
+      sortCol = col;
+      sortDir = 'desc';
+    }
+    applyFilter();
+  });
+});
+
+// Close panel
+document.getElementById('close-compare').addEventListener('click', () => {
+  selected = [];
+  updatePanel();
+  render();
+});
+
+// Resize
+window.addEventListener(
+  'resize',
+  () => chartInstance && chartInstance.resize(),
+);
+
+// Init
+loadData('');

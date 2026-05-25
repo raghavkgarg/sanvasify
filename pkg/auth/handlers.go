@@ -13,10 +13,10 @@ import (
 )
 
 type Handlers struct {
-	oauth   *OAuthManager
-	jwt     *JWTManager
-	store   Store
-	logger  *slog.Logger
+	oauth  *OAuthManager
+	jwt    *JWTManager
+	store  Store
+	logger *slog.Logger
 }
 
 func NewHandlers(oauth *OAuthManager, jwt *JWTManager, store Store, logger *slog.Logger) *Handlers {
@@ -176,7 +176,7 @@ func (h *Handlers) fetchUserInfo(ctx context.Context, provider Provider, token *
 		return nil, err
 	}
 
-	var data map[string]interface{}
+	var data map[string]any
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func (h *Handlers) fetchGitHubEmail(ctx context.Context, client *http.Client) (s
 	}
 	defer resp.Body.Close()
 
-	var emails []map[string]interface{}
+	var emails []map[string]any
 	if err := json.NewDecoder(resp.Body).Decode(&emails); err != nil {
 		return "", err
 	}

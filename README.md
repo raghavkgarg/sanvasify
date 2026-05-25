@@ -16,13 +16,36 @@ A web application for browsing, searching, and analyzing mutual fund schemes in 
 # Clone and build
 git clone https://github.com/raghavkgarg/sanvasify.git
 cd sanvasify
-go build -o dist/sanvasify ./cmd/server
 
-# Run server
-./dist/sanvasify
+# Create local config (one-time setup)
+cp config/Config.toml config/Config.local.toml
+# Edit config/Config.local.toml — set db_path to a local path, e.g.:
+#   db_path = "data/sanvasify.db"
+
+# Load data (if you have a parquet file)
+make run-load ARGS="-file data/nav_reports/your_file.parquet"
+
+# Start server (builds, stages assets to dist/, runs from dist/)
+make start
 ```
 
 Access at `http://localhost:8080`
+
+### Makefile Targets
+
+```
+make start       # Build, stage, start server (background)
+make stop        # Stop server + kill stray processes
+make restart     # Stop then start
+make run         # Build, stage, run foreground (Ctrl-C to stop)
+make status      # Check if server is running
+make logs        # Tail server logs
+make kill        # Kill stray processes on port 8080
+make cleanup     # Format + vet + staticcheck + vulncheck
+make help        # Show all targets
+```
+
+> **Note:** `config/Config.local.toml` is gitignored. Each developer creates their own with machine-specific paths (db_path, etc.). If it doesn't exist, `make start` falls back to `config/Config.toml`.
 
 ## Project Structure
 

@@ -87,7 +87,7 @@ func (f *Fetcher) FetchRange(ctx context.Context, start, end time.Time, delaySec
 	// Check if the fetched file was created and contains data
 	info, err := os.Stat(parquetPath)
 	if os.IsNotExist(err) || (err == nil && info.Size() == 0) {
-		return fmt.Errorf("Fetched file has no data ")
+		return fmt.Errorf("fetched file has no data")
 	}
 
 	return nil

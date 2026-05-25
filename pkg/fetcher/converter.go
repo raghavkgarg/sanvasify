@@ -81,7 +81,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 		builder.Field(4).(*array.StringBuilder).Append(s.NetAssetValue)
 		builder.Field(5).(*array.StringBuilder).Append(s.RepurchasePrice)
 		builder.Field(6).(*array.StringBuilder).Append(s.SalePrice)
-		
+
 		// Parse date string to Date32
 		t, err := time.Parse("02-Jan-2006", s.Date)
 		if err != nil {
@@ -89,7 +89,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 		}
 		days := arrow.Date32FromTime(t)
 		builder.Field(7).(*array.Date32Builder).Append(days)
-		
+
 		builder.Field(8).(*array.StringBuilder).Append(s.StrategyName)
 		builder.Field(9).(*array.StringBuilder).Append(s.FundHouseName)
 		builder.Field(10).(*array.StringBuilder).Append(s.FundType)
@@ -99,7 +99,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 		builder.Field(14).(*array.StringBuilder).Append(s.PurchaseMode)
 	}
 
-	record := builder.NewRecord()
+	record := builder.NewRecordBatch()
 	defer record.Release()
 
 	// Check if file exists
@@ -128,7 +128,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 		}
 
 		// Read all existing records
-		var existingRecords []arrow.Record
+		var existingRecords []arrow.RecordBatch
 		tbl, err := rdr.ReadTable(context.Background())
 		if err != nil {
 			return err
@@ -138,7 +138,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 		tr := array.NewTableReader(tbl, 0)
 		defer tr.Release()
 		for tr.Next() {
-			rec := tr.Record()
+			rec := tr.RecordBatch()
 			rec.Retain()
 			existingRecords = append(existingRecords, rec)
 		}
@@ -155,7 +155,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 			builder.Field(4).(*array.StringBuilder).Append(s.NetAssetValue)
 			builder.Field(5).(*array.StringBuilder).Append(s.RepurchasePrice)
 			builder.Field(6).(*array.StringBuilder).Append(s.SalePrice)
-			
+
 			// Parse date string to Date32
 			t, err := time.Parse("02-Jan-2006", s.Date)
 			if err != nil {
@@ -163,7 +163,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 			}
 			days := arrow.Date32FromTime(t)
 			builder.Field(7).(*array.Date32Builder).Append(days)
-			
+
 			builder.Field(8).(*array.StringBuilder).Append(s.StrategyName)
 			builder.Field(9).(*array.StringBuilder).Append(s.FundHouseName)
 			builder.Field(10).(*array.StringBuilder).Append(s.FundType)
@@ -173,7 +173,7 @@ func (f *Fetcher) appendToParquet(txtPath, parquetPath string) error {
 			builder.Field(14).(*array.StringBuilder).Append(s.PurchaseMode)
 		}
 
-		newRecord := builder.NewRecord()
+		newRecord := builder.NewRecordBatch()
 		defer newRecord.Release()
 
 		// Write all records (existing + new) to temp file

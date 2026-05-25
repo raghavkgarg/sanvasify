@@ -14,6 +14,7 @@ func (s *Server) routes() {
 
 	// Public API routes (no auth required)
 	s.router.HandleFunc("/api/schemes", jsonMW(s.handleSchemes()))
+	s.router.HandleFunc("/api/schemes/compare", jsonMW(s.handleCompare()))
 	s.router.HandleFunc("/api/filters", jsonMW(s.handleFilters()))
 
 	// Protected API routes (auth required)
@@ -22,11 +23,11 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/api/search", authMW(s, jsonMW(s.handleSearch())))
 
 	// Static files without middleware
-	// Serve the redesign at /v1/
+	// Legacy version at /v1/
 	v1Dir := http.Dir("web/v1")
 	s.router.Handle("/v1/", http.StripPrefix("/v1/", http.FileServer(v1Dir)))
 
-	// Legacy/Current version remains on the root
+	// Current version (design system v2) at root
 	s.router.Handle("/", http.FileServer(http.Dir("web/static")))
 }
 

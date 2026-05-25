@@ -125,7 +125,7 @@ func (d *DB) SearchSchemes(ctx context.Context, filters map[string]string) ([]st
 		) latest ON s.scheme_code = latest.scheme_code AND s.date = latest.max_date
 		WHERE 1=1
 	`
-	args := []interface{}{}
+	args := []any{}
 
 	if v, ok := filters[store.ColumnFundType]; ok && v != "" {
 		query += ` AND s.fund_type ILIKE ?`
@@ -229,4 +229,96 @@ func (d *DB) GetNAVHistory(ctx context.Context, schemeCode string) ([]store.Sche
 		schemes = append(schemes, s)
 	}
 	return schemes, rows.Err()
+}
+
+// SchemeReturn holds a scheme's latest NAV and computed period returns.
+type SchemeReturn struct {
+	Code           string   `json:"scheme_code"`
+	Name           string   `json:"scheme_name"`
+	NAV            *float64 `json:"nav"`
+	Date           string   `json:"date"`
+	FundStrategy   string   `json:"fund_strategy"`
+	FundCompany    string   `json:"fund_company"`
+	Ret1M          *float64 `json:"ret_1m"`
+	Ret3M          *float64 `json:"ret_3m"`
+	RetAnnualised  *float64 `json:"ret_annualised"`
+}
+
+// GetSchemeReturns computes 1M, 3M, and annualised returns for all schemes.
+func (d *DB) GetSchemeReturns(ctx context.Context, strategy string) ([]SchemeReturn, error) {
+	query := `
+		WITH latest AS (
+			SELECT scheme_code, MAX(date) AS max_date
+			FROM sif_schemes
+			GROUP BY scheme_code
+		),
+		current_nav AS (
+			SELECT s.scheme_code, s.scheme_name, s.net_asset_value, s.date,
+			       s.fund_strategy, s.fund_company
+			FROM sif_schemes s
+			JOIN latest l ON s.scheme_code = l.scheme_code AND s.date = l.max_date
+		),
+		nav_1m AS (
+			SELECT s.scheme_code, s.net_asset_value
+			FROM sif_schemes s
+			JOIN latest l ON s.scheme_code = l.scheme_code
+			WHERE s.date = (
+				SELECT MAX(date) FROM sif_schemes
+				WHERE scheme_code = s.scheme_code AND date <= l.max_date - INTERVAL '1 month'
+			)
+		),
+		nav_3m AS (
+			SELECT s.scheme_code, s.net_asset_value
+			FROM sif_schemes s
+			JOIN latest l ON s.scheme_code = l.scheme_code
+			WHERE s.date = (
+				SELECT MAX(date) FROM sif_schemes
+				WHERE scheme_code = s.scheme_code AND date <= l.max_date - INTERVAL '3 months'
+			)
+		),
+		nav_1y AS (
+			SELECT s.scheme_code, s.net_asset_value
+			FROM sif_schemes s
+			JOIN latest l ON s.scheme_code = l.scheme_code
+			WHERE s.date = (
+				SELECT MAX(date) FROM sif_schemes
+				WHERE scheme_code = s.scheme_code AND date <= l.max_date - INTERVAL '1 year'
+			)
+		)
+		SELECT
+			c.scheme_code, c.scheme_name, c.net_asset_value, c.date,
+			c.fund_strategy, c.fund_company,
+			CASE WHEN m1.net_asset_value > 0 THEN (c.net_asset_value - m1.net_asset_value) / m1.net_asset_value * 100 END AS ret_1m,
+			CASE WHEN m3.net_asset_value > 0 THEN (c.net_asset_value - m3.net_asset_value) / m3.net_asset_value * 100 END AS ret_3m,
+			CASE WHEN y1.net_asset_value > 0 THEN (c.net_asset_value - y1.net_asset_value) / y1.net_asset_value * 100 END AS ret_annualised
+		FROM current_nav c
+		LEFT JOIN nav_1m m1 ON c.scheme_code = m1.scheme_code
+		LEFT JOIN nav_3m m3 ON c.scheme_code = m3.scheme_code
+		LEFT JOIN nav_1y y1 ON c.scheme_code = y1.scheme_code
+		WHERE 1=1
+	`
+	args := []any{}
+	if strategy != "" {
+		query += ` AND c.fund_strategy ILIKE ?`
+		args = append(args, "%"+strategy+"%")
+	}
+	query += ` ORDER BY ret_annualised DESC NULLS LAST`
+
+	rows, err := d.conn.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []SchemeReturn
+	for rows.Next() {
+		var r SchemeReturn
+		if err := rows.Scan(&r.Code, &r.Name, &r.NAV, &r.Date,
+			&r.FundStrategy, &r.FundCompany,
+			&r.Ret1M, &r.Ret3M, &r.RetAnnualised); err != nil {
+			return nil, err
+		}
+		results = append(results, r)
+	}
+	return results, rows.Err()
 }

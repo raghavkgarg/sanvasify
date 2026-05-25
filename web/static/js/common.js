@@ -1,32 +1,34 @@
-// Shared Utilities for Sanvasify Frontend
+'use strict';
 
 // --- API ---
-async function fetchJSON(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  return await response.json();
+export async function fetchJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 // --- ECharts helpers ---
-function initChart(container) {
+export function initChart(container) {
   const chart = echarts.init(container);
   chart.setOption({
-    title: { text: 'Select a scheme to view trends', left: 'center', top: 'center', textStyle: { color: '#6688a3', fontSize: 16 } },
+    title: {
+      text: 'Select a scheme to vi
+      ew trends', left: 'center', top: 'center', textStyle: { color: '#6688a3', fontSize: 16 } },
   });
   return chart;
 }
 
-function autoResize(chart) {
+export function autoResize(chart) {
   window.addEventListener('resize', () => chart && chart.resize());
 }
 
-function plotNAVChart(chart, data, options) {
+export function plotNAVChart(chart, data) {
   if (!chart || !data || data.length === 0) return;
   const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
   const dates = sorted.map(d => d.date);
   const navValues = sorted.map(d => parseFloat(d.net_asset_value) || 0);
 
-  const opt = {
+  chart.setOption({
     tooltip: { trigger: 'axis', backgroundColor: '#0F2E3F', borderColor: '#E2B13E', textStyle: { color: '#fff' },
       formatter: p => `${(p[0].axisValue || '').split('T')[0]}<br/>NAV: <strong style="color:#E2B13E">₹${p[0].data.toFixed(4)}</strong>` },
     xAxis: { type: 'category', data: dates, axisLabel: { color: '#cbd5e6', rotate: 45, formatter: v => new Date(v).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) } },
@@ -35,26 +37,31 @@ function plotNAVChart(chart, data, options) {
       areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(226,177,62,0.3)' }, { offset: 1, color: 'rgba(226,177,62,0.05)' }] } } }],
     grid: { left: '3%', right: '4%', bottom: '15%', top: '15%', containLabel: true },
     dataZoom: [{ type: 'inside' }, { type: 'slider', handleStyle: { color: '#E2B13E' } }],
-  };
-  chart.setOption(Object.assign(opt, options || {}), true);
+  }, true);
 }
 
 // --- Scheme dropdown ---
-async function loadSchemes(selectEl) {
+export async function loadSchemes(selectEl) {
   try {
     const schemes = await fetchJSON('/api/schemes');
     schemes.sort((a, b) => a.scheme_name.localeCompare(b.scheme_name));
     selectEl.innerHTML = '<option value="" disabled selected>Select a scheme</option>';
-    schemes.forEach(s => { const o = document.createElement('option'); o.value = s.scheme_code; o.textContent = s.scheme_name; selectEl.appendChild(o); });
+    for (const s of schemes) {
+      const o = document.createElement('option');
+      o.value = s.scheme_code;
+      o.textContent = s.scheme_name;
+      selectEl.appendChild(o);
+    }
     return schemes;
   } catch (e) {
+    console.error('Error loading schemes:', e);
     selectEl.innerHTML = '<option value="" disabled selected>Error loading schemes</option>';
     return [];
   }
 }
 
 // --- Stats ---
-function getNAVStats(data) {
+export function computeStats(data) {
   if (!data || data.length === 0) return null;
   const vals = data.map(d => parseFloat(d.net_asset_value) || 0);
   const current = vals[vals.length - 1], first = vals[0];
@@ -63,24 +70,28 @@ function getNAVStats(data) {
   return { current, highest, lowest, change, changePercent: ((change / first) * 100).toFixed(2), isPositive: change >= 0 };
 }
 
-function updateStatsUI(elements, stats) {
+export function renderStats(statsCard, stats) {
   if (!stats) return;
-  elements.current.textContent = `₹${stats.current.toFixed(4)}`;
-  elements.highest.textContent = `₹${stats.highest.toFixed(4)}`;
-  elements.lowest.textContent = `₹${stats.lowest.toFixed(4)}`;
-  elements.change.textContent = `${stats.isPositive ? '+' : ''}₹${Math.abs(stats.change).toFixed(4)} (${stats.changePercent}%)`;
-  elements.change.style.color = stats.isPositive ? '#4CAF50' : '#f56c6c';
+  document.getElementById('current-nav').textContent = `₹${stats.current.toFixed(4)}`;
+  document.getElementById('highest-nav').textContent = `₹${stats.highest.toFixed(4)}`;
+  document.getElementById('lowest-nav').textContent = `₹${stats.lowest.toFixed(4)}`;
+  const el = document.getElementById('nav-change');
+  el.textContent = `${stats.isPositive ? '+' : ''}₹${Math.abs(stats.change).toFixed(4)} (${stats.changePercent}%)`;
+  el.style.color = stats.isPositive ? '#4CAF50' : '#f56c6c';
+  statsCard.style.display = 'block';
 }
 
-async function loadNAVHistory(chart, schemeCode, statsCard) {
+// --- Combined: load history, plot, show stats ---
+export async function loadNAVHistory(chart, schemeCode, statsCard) {
   try {
     const data = await fetchJSON(`/api/nav/history?code=${schemeCode}`);
     plotNAVChart(chart, data);
-    const stats = getNAVStats(data);
+    const stats = computeStats(data);
     if (stats && statsCard) {
-      updateStatsUI({ current: document.getElementById('current-nav'), highest: document.getElementById('highest-nav'), lowest: document.getElementById('lowest-nav'), change: document.getElementById('nav-change') }, stats);
-      statsCard.style.display = 'block';
+      renderStats(statsCard, stats);
       setTimeout(() => chart.resize(), 0);
     }
-  } catch (e) { console.error('Error loading NAV history:', e); }
+  } catch (e) {
+    console.error('Error loading NAV history:', e);
+  }
 }

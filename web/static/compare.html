@@ -64,10 +64,11 @@
 
   <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
 
-  <script src="js/navigation.js"></script>
-  <script>initNavigation('compare.html');</script>
-  <script src="js/common.js"></script>
+  <script type="module">
+    import { initNavigation } from './js/navigation.js';
+    initNavigation('compare.html');
+  </script>
   <script src="js/theme.js"></script>
-  <script src="js/compare.js"></script>
+  <script type="module" src="js/compare.js"></script>
 </body>
 </html>

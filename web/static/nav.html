@@ -112,9 +112,11 @@
 
   <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
 
-  <script src="js/navigation.js"></script>
-  <script>initNavigation('nav.html');</script>
+  <script type="module">
+    import { initNavigation } from './js/navigation.js';
+    initNavigation('nav.html');
+  </script>
   <script src="js/theme.js"></script>
-  <script src="js/app.js?v=1.0.3"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

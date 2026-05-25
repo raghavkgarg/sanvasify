@@ -210,8 +210,10 @@
 
 <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
 
-<script src="js/navigation.js"></script>
-<script>if (typeof initNavigation === 'function') initNavigation('index.html');</script>
+<script type="module">
+  import { initNavigation } from './js/navigation.js';
+  initNavigation('index.html');
+</script>
 <script src="js/theme.js"></script>
 </body>
 </html>

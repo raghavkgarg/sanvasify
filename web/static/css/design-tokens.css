@@ -1,21 +1,21 @@
 /* ===== SANVASIFY DESIGN TOKENS ===== */
 :root {
   /* --- Colors: Dark Theme (default) --- */
-  --color-bg-body: #eef2f5;
-  --color-bg-body-end: #dce4ec;
-  --color-bg-card: #0A2540;
-  --color-bg-surface: #0F2E3F;
-  --color-bg-elevated: rgba(15, 46, 63, 0.6);
-  --color-bg-overlay: rgba(255, 255, 255, 0.03);
-  --color-bg-overlay-hover: rgba(255, 255, 255, 0.07);
+  --color-bg-body: #0A1628;
+  --color-bg-body-end: #0E1B30;
+  --color-bg-card: #0F2035;
+  --color-bg-surface: #162D45;
+  --color-bg-elevated: rgba(22, 45, 69, 0.7);
+  --color-bg-overlay: rgba(255, 255, 255, 0.04);
+  --color-bg-overlay-hover: rgba(255, 255, 255, 0.08);
 
   --color-primary: #E2B13E;
   --color-primary-dim: rgba(226, 177, 62, 0.3);
   --color-primary-bg: rgba(226, 177, 62, 0.12);
 
-  --color-secondary: #1E7A6F;
-  --color-secondary-dim: rgba(30, 122, 111, 0.2);
-  --color-secondary-bg: rgba(30, 122, 111, 0.15);
+  --color-secondary: #2E5A88;
+  --color-secondary-dim: rgba(46, 90, 136, 0.25);
+  --color-secondary-bg: rgba(46, 90, 136, 0.15);
 
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #e2e8f0;
@@ -25,7 +25,7 @@
 
   --color-border: rgba(255, 255, 255, 0.1);
   --color-border-accent: var(--color-primary-dim);
-  --color-border-subtle: rgba(30, 122, 111, 0.3);
+  --color-border-subtle: rgba(46, 90, 136, 0.4);
 
   /* Data visualization */
   --color-positive: #10B981;
@@ -112,9 +112,9 @@
   --color-primary-dim: rgba(184, 134, 11, 0.2);
   --color-primary-bg: rgba(184, 134, 11, 0.08);
 
-  --color-secondary: #0f5e54;
-  --color-secondary-dim: rgba(15, 94, 84, 0.12);
-  --color-secondary-bg: rgba(15, 94, 84, 0.08);
+  --color-secondary: #1e3a5f;
+  --color-secondary-dim: rgba(30, 58, 95, 0.12);
+  --color-secondary-bg: rgba(30, 58, 95, 0.08);
 
   --color-text-primary: #1e293b;
   --color-text-secondary: #334155;
@@ -124,7 +124,7 @@
 
   --color-border: rgba(0, 0, 0, 0.08);
   --color-border-accent: rgba(184, 134, 11, 0.3);
-  --color-border-subtle: rgba(15, 94, 84, 0.2);
+  --color-border-subtle: rgba(30, 58, 95, 0.2);
 
   --color-positive: #059669;
   --color-negative: #dc2626;

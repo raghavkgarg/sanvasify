@@ -2,218 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Sanvasify - Specialised Investment Fund | SIF Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanvasify — SIF Investment Data</title>
   <link rel="stylesheet" href="css/design-tokens.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-
-<div class="sif-card">
-  <div class="guide-container">
-
-    <div class="welcome-block">
-      <div class="branding-group">
-        <img src="images/Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
-        <div class="welcome-text">
-          <h2>Welcome to Sanvasify</h2>
-          <p>Your place for information on Specialised Investment Funds</p>
-        </div>
-      </div>
-      <div class="nav-links-info">
-        <a href="nav.html" class="nav-badge-link">
-          <div class="nav-badge"><strong>📊 Check SIF NAV</strong> — NAV of SIF</div>
-        </a>
-        <a href="nav_trends.html" class="nav-badge-link">
-          <div class="nav-badge"><strong>📈 NAV Trends</strong> — Historical performance</div>
-        </a>
-        <a href="compare.html" class="nav-badge-link">
-          <div class="nav-badge"><strong>⚖️ Compare</strong> — Side-by-side</div>
-        </a>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><img src="images/Sanvasify.png" alt="Sanvasify" /><span>Sanvasify</span></a>
+      <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="nav.html">NAV Lookup</a>
+        <a href="nav_trends.html">Trends</a>
+        <a href="compare.html">Compare</a>
+        <a href="guide.html">Guide</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
       </div>
     </div>
+  </nav>
 
-    <div class="strategy-header">
-      <div>
-        <span class="section-title">advanced investment framework</span>
-        <h1>A COMPLETE GUIDE <span class="gold-accent">ON SIFs</span></h1>
-      </div>
-      <div class="strategy-pill">⚖️ Sophisticated risk management</div>
-    </div>
-    <div class="subhead">
-      For experienced investors — emphasizing sophisticated risk management over aggressive leverage.
+  <main class="page">
+    <div class="page-header">
+      <h1>Specialised Investment Funds</h1>
+      <p>NAV data, trends, and comparisons for SEBI-regulated SIF schemes</p>
     </div>
 
-    <div class="context-panel">
-      <p><strong>📋 Context Summary</strong> — SEBI-regulated mutual funds offering greater flexibility through 'long-short' strategies. <strong>Prioritizes risk management</strong> over high-leverage returns.</p>
+    <div class="dash-grid">
+      <a href="nav.html" class="dash-card">
+        <h3>📊 NAV Lookup</h3>
+        <p>Check current NAV for any SIF scheme. Filter by strategy, company, and distribution mode.</p>
+        <span class="dash-link">Open →</span>
+      </a>
+      <a href="nav_trends.html" class="dash-card">
+        <h3>📈 NAV Trends</h3>
+        <p>Historical performance charts with all-time high/low and absolute change metrics.</p>
+        <span class="dash-link">Open →</span>
+      </a>
+      <a href="compare.html" class="dash-card">
+        <h3>⚖️ Compare Schemes</h3>
+        <p>Side-by-side comparison with annualised, 1-month, and 3-month returns.</p>
+        <span class="dash-link">Open →</span>
+      </a>
+      <a href="guide.html" class="dash-card">
+        <h3>📋 SIF Guide</h3>
+        <p>How SIFs work, SEBI regulations, long-short strategies, and comparison with MF/PMS/AIF.</p>
+        <span class="dash-link">Read →</span>
+      </a>
     </div>
 
-    <div>
-      <span class="section-title">core features & requirements</span>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">💰</div>
-        <h3><span class="highlight-number">₹10 LAKH</span></h3>
-        <p><strong>Minimum investment</strong><br>SEBI mandates a higher entry barrier to ensure investors understand these complex financial strategies.</p>
+    <section style="margin-top: var(--space-9);">
+      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">About SIFs</h2>
+      <div class="panel">
+        <p style="color: var(--color-text-secondary); line-height: 1.7; font-size: var(--text-sm);">
+          Specialised Investment Funds are SEBI-regulated mutual funds offering long-short strategies for experienced investors.
+          Minimum investment: ₹10 Lakh. No leverage allowed. Naked short positions capped at 25%.
+          SIFs prioritize risk-adjusted returns and downside protection over aggressive growth.
+        </p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">📈</div>
-        <h3>Enhanced flexibility</h3>
-        <p>Fund managers can use advanced derivative tools to manage risk better than traditional funds.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🚫</div>
-        <h3>Strict no-leverage policy</h3>
-        <p>Funds cannot take positions exceeding their capital, preventing the high-risk outcomes of speculative trading.</p>
-      </div>
-    </div>
+    </section>
 
-    <div class="mt-2">
-      <span class="section-title">strategic risk management</span>
-    </div>
+    <footer style="margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--color-border); text-align: center;">
+      <p style="font-size: var(--text-xs); color: var(--color-text-dim);">
+        Disclaimer: For educational purposes only. NAV data sourced from AMFI. Not financial advice. Consult a qualified professional before investing.
+      </p>
+    </footer>
+  </main>
 
-    <div class="risk-section">
-      <div class="risk-block">
-        <h3>📉 THE LONG-SHORT ADVANTAGE <span class="risk-badge">alpha & downside</span></h3>
-        <div class="long-short-desc">
-          Managers can profit from both <strong class="text-primary">rising markets</strong> and <strong class="text-primary">falling prices</strong> using derivative positions — while maintaining lower volatility than pure long funds.
-        </div>
-        <div class="cap-container">
-          <div class="d-flex justify-between items-center flex-wrap">
-            <span><span class="cap-percent">25%</span> <span class="cap-label">UNHEDGED SHORT CAP</span></span>
-          </div>
-          <div class="footnote">
-            SEBI limits naked short positions to 25% to protect the portfolio from extreme volatility.
-          </div>
-        </div>
-      </div>
-
-      <div class="risk-block">
-        <h3>🎯 FOCUS ON RISK-ADJUSTED RETURNS</h3>
-        <div class="focus-card">
-          <p class="font-semibold mb-3">🔒 Downside protection + steady income</p>
-          <p class="text-muted text-sm">SIFs aim for downside protection and steady income rather than "multibagger" or outsized returns. Consistency over speculation.</p>
-        </div>
-        <div class="mt-4">
-          <span class="text-primary font-semibold">✔ Long-short flexibility</span><br>
-          <span class="text-muted text-sm">Generating absolute returns in all market cycles</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="comparison-wrapper">
-      <span class="section-title">How SIFs Stack Up Against Other Investment Avenues</span>
-      <div class="overflow-x-auto">
-        <table class="comparison-table">
-          <thead>
-            <tr>
-              <th>Feature</th>
-              <th>SIF</th>
-              <th>MF</th>
-              <th>PMS</th>
-              <th>AIF</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="mf-label">Target Investors</td>
-              <td>Investors seeking advanced yet tax-efficient strategies</td>
-              <td>First time to long-term investors</td>
-              <td>HNIs desiring personalized portfolio management</td>
-              <td>Ultra-HNIs & Institutions exploring non-traditional assets</td>
-            </tr>
-            <tr>
-              <td class="mf-label">Minimum Investment</td>
-              <td>₹10 Lakh (Across SIF Strategies)</td>
-              <td>₹5000 (Lumpsum)</td>
-              <td>₹50 Lakh</td>
-              <td>₹1 Crore</td>
-            </tr>
-            <tr>
-              <td class="mf-label">Structure</td>
-              <td>Hybrid between MF, PMS, AIF & retains MF-like taxation</td>
-              <td>Pooled, SEBI-regulated investment vehicle</td>
-              <td>Separately managed, direct stock ownership</td>
-              <td>Pooled, privately placed schemes</td>
-            </tr>
-            <tr>
-              <td class="mf-label">Taxation at Investor Level</td>
-              <td>Similar to Mutual Funds, depending on asset class <a href="#" class="link-accent">KNOW MORE</a></td>
-              <td>Tax-efficient as per the asset class <a href="#" class="link-accent">KNOW MORE</a></td>
-              <td>Based on individual security treatment</td>
-              <td>Nil</td>
-            </tr>
-            <tr>
-              <td class="mf-label">Taxation at Fund Level</td>
-              <td>Nil as per Section 10 (23D)</td>
-              <td>Nil as per Section 10 (23D)</td>
-              <td>Nil</td>
-              <td>Cat III - Capital gains @12.5% + Business Income @30% + surcharge + cess</td>
-            </tr>
-            <tr>
-              <td class="mf-label">Expense Ratio</td>
-              <td>Max at 2.25% and 2%</td>
-              <td>Max at 2.25% and 2%</td>
-              <td>Management Fee + Performance Fee</td>
-              <td>Management Fee + Performance Fee</td>
-            </tr>
-            <tr>
-              <td class="mf-label">Leverage</td>
-              <td>NA</td>
-              <td>NA</td>
-              <td>NA</td>
-              <td>Allowed - Gross exposure upto 200%</td>
-            </tr>
-            <tr>
-              <td class="mf-label">Derivatives</td>
-              <td>Naked shorts upto 25% + Hedging</td>
-              <td>Only for Hedging</td>
-              <td>Only for Hedging</td>
-              <td>Allowed</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="footnote mt-4 text-center">
-        **As per current Income Tax Laws. Please consult your investment / tax adviser before making any investment decision.
-      </div>
-    </div>
-
-    <div class="callout">
-      <div class="callout-content">
-        <span class="callout-icon">⚖️</span>
-        <div>
-          <div class="callout-title">THE LONG-SHORT ADVANTAGE</div>
-          <div class="callout-desc">Managers can profit from both rising markets and falling prices using derivative positions.</div>
-        </div>
-      </div>
-      <div class="callout-badge">📊 25% unhedged short limit</div>
-    </div>
-
-    <div class="d-flex flex-wrap justify-between gap-4 mt-2">
-      <div class="info-box">
-        <span class="info-box-title">⛔ NO-LEVERAGE POLICY</span>
-        <p>Funds cannot exceed capital → prevents destructive speculation & margin calls.</p>
-      </div>
-      <div class="info-box">
-        <span class="info-box-title">🛡️ 25% NAKED SHORT CEILING</span>
-        <p>SEBI caps naked shorts to protect from extreme volatility events.</p>
-      </div>
-    </div>
-
-    <div class="legal-note">
-      <span class="gold-dot"></span> Disclaimer: Content on this site is for educational purposes only and does not constitute financial, tax, or legal advice. We are not licensed financial advisors. While NAV data is sourced from the AMFI website, accuracy and completeness are not guaranteed. Always consult with a qualified professional before making investment decisions. <span class="gold-dot"></span>
-    </div>
-  </div>
-</div>
-
-<button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
-
-<script type="module">
-  import { initNavigation } from './js/navigation.js';
-  initNavigation('index.html');
-</script>
-<script src="js/theme.js"></script>
+  <script src="js/theme.js"></script>
 </body>
 </html>

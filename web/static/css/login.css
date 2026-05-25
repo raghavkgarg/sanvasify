@@ -1,4 +1,3 @@
-/* Login page — uses design tokens */
 body {
   display: flex;
   align-items: center;
@@ -7,20 +6,22 @@ body {
 }
 
 .login-container {
-  max-width: 400px;
+  max-width: 380px;
   width: 100%;
   padding: var(--space-8);
-  background: var(--color-bg-card);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-lg);
   text-align: center;
 }
 
 .login-container h1 {
-  color: var(--color-primary);
-  margin-bottom: var(--space-7);
   font-size: var(--text-2xl);
-  font-weight: var(--weight-bold);
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.login-subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-7);
+  font-size: var(--text-sm);
 }
 
 .login-btn {
@@ -28,22 +29,21 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: var(--space-4);
-  margin: var(--space-3) 0;
-  border: 1px solid var(--color-border-accent);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: 500;
   cursor: pointer;
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  transition: all var(--transition-base);
+  transition: all var(--transition);
 }
 
 .login-btn:hover {
-  background: var(--color-primary-bg);
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
 }
 
 .login-btn img {

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NAV Trends - Sanvasify</title>
+  <link rel="stylesheet" href="css/design-tokens.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+</head>
+<body>
+      <div class="welcome-block">
+        <div class="branding-group">
+          <img src="images/Sanvasify.png" alt="Sanvasify Logo" class="brand-logo" />
+          <div class="welcome-text">
+            <h1>NAV Trends</h1>
+            <p class="subhead">Visualizing historical performance and volatility cycles</p>
+          </div>
+        </div>
+        <div class="nav-links-info">
+          <a href="index.html" class="nav-badge-link"><div class="nav-badge"><strong>🏠 Home</strong></div></a>
+          <a href="nav.html" class="nav-badge-link"><div class="nav-badge"><strong>📊 NAV</strong></div></a>
+          <a href="compare.html" class="nav-badge-link"><div class="nav-badge"><strong>⚖️ Compare</strong></div></a>
+        </div>
+      </div>
+
+      <main>
+        <div class="search-section">
+          <label for="scheme-select">Select Investment Scheme</label>
+          <select id="scheme-select">
+            <option value="" disabled selected>Loading schemes...</option>
+          </select>
+        </div>
+
+        <div id="chart-container"></div>
+
+        <div id="stats-card" class="mt-7" style="display: none;">
+          <h3>Performance Metrics</h3>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">Current NAV</span>
+              <div class="stat-value" id="current-nav">--</div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">All-Time High</span>
+              <div class="stat-value" id="highest-nav">--</div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">All-Time Low</span>
+              <div class="stat-value" id="lowest-nav">--</div>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Absolute Change</span>
+              <div class="stat-value" id="nav-change">--</div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">🌙</button>
+
+  <script type="module">
+    import { initNavigation } from './js/navigation.js';
+    initNavigation('nav_trends.html');
+  </script>
+  <script src="js/theme.js"></script>
+  <script type="module" src="js/trends.js"></script>
+</body>
+</html>

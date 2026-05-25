@@ -70,26 +70,34 @@
 - Go 1.25 → 1.26.3 (resolved 9 stdlib vulnerabilities)
 - Fixed: deprecated Arrow API, unused code, context key type, error conventions
 
+### Phase 9: Compare Page & Frontend Refactor ✅
+- Extracted `common.js` (initChart, autoResize, loadSchemes, loadNAVHistory, stats)
+- Rewrote `trends.js` (105→18 lines) and `app.js` (removed monkey-patch, -29%)
+- Moved nav.html inline styles to CSS classes
+- New API: `GET /api/schemes/compare?strategy=X` (DuckDB CTEs for 1M/3M/annualised returns)
+- New page: `compare.html` + `compare.js` (strategy tabs, search, sort, best/worst, ECharts compare)
+- Refactored Server to hold `*db.DB` directly
+
 ## Future
 
-### Phase 9: Frontend v2
+### Phase 10: Frontend v2
 - Theme support (started in latest commits)
 - Compare page for multiple schemes
 - Better mobile responsiveness
 - Performance stats panel
 
-### Phase 10: Data Enrichment
+### Phase 11: Data Enrichment
 - More AMFI data categories
 - Historical data backfill
 - Fund house analytics
 - Sector/category aggregations
 
-### Phase 11: Mobile
+### Phase 12: Mobile
 - Strategy documented in `docs/MOBILE_STRATEGY.md`
 - PWA or native (Swift/Kotlin) — TBD
 - API already mobile-ready (JSON, stateless)
 
-### Phase 12: Cost Optimization
+### Phase 13: Cost Optimization
 - IPv6-only to eliminate $3.72/month IPv4 charge
 - Evaluate Cloudflare proxy
 - Consider ARM64 Graviton spot instances

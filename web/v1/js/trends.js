@@ -1,6 +1,11 @@
 // @ts-nocheck: page script — strict types pending
 import { initNavigation } from './navigation.js';
-import { autoResize, initChart, loadNAVHistory, loadSchemes } from './common.js';
+import {
+  autoResize,
+  initChart,
+  loadNAVHistory,
+  loadSchemes,
+} from './common.js';
 
 const schemeSelect = document.getElementById('scheme-select');
 const chartContainer = document.getElementById('chart-container');

@@ -23,6 +23,7 @@ Build "Sanvasify" — a web platform for browsing, searching, and analyzing Indi
 | 8 | May 6–9 | IPv4 + scripts | IPv4 sequencing, sync scripts (bin/web/db), cost docs, v1 web folder |
 | 9 | May 19–24 | Frontend v1 | New web design with themes, compare page, sync script timeout fixes |
 | 10 | May 24 | Docs & tooling | .kiro skills/steering/agent, docs restructure (removed 10 redundant files), SESSION_SUMMARY + PHASES + ARCHITECTURE, Makefile rewrite (cleanup/test/lint-js targets), Go 1.26.3, staticcheck fixes, deno lint/fmt/check, govulncheck clean |
+| 11 | May 24 | Frontend refactor + Compare page | Extracted common.js (shared chart/schemes/stats), rewrote trends.js (105→18 lines), fixed app.js monkey-patch, moved inline styles to CSS. Built compare page: API endpoint (server-side 1M/3M/annualised returns via DuckDB CTEs), compare.html + compare.js (strategy tabs, search, sort, best/worst highlight, ECharts compare panel) |
 
 ## TECHNICAL CONTEXT
 
@@ -43,19 +44,21 @@ Build "Sanvasify" — a web platform for browsing, searching, and analyzing Indi
 
 ### API Endpoints
 ```
-GET /api/schemes          — All schemes (latest NAV)
-GET /api/nav?code=X       — Scheme detail
-GET /api/nav/history?code=X — Historical NAV data
-GET /api/filters          — Filter options (fund type, strategy, company)
-GET /api/search?...       — Search with filters
+GET /api/schemes              — All schemes (latest NAV)
+GET /api/schemes/compare      — Computed returns (1M, 3M, annualised), optional ?strategy=
+GET /api/nav?code=X           — Scheme detail
+GET /api/nav/history?code=X   — Historical NAV data
+GET /api/filters              — Filter options (fund type, strategy, company)
+GET /api/search?...           — Search with filters
 ```
 
 ### Frontend (web/v1/)
 - `index.html` — Scheme browser (search, filters, table)
-- `nav.html` — Scheme detail
+- `nav.html` — Scheme detail + NAV chart
 - `nav_trends.html` — Chart.js NAV trend visualization
+- `compare.html` — Side-by-side scheme comparison
 - `login.html` — OAuth login
-- JS: `app.js`, `utils.js`, `trends.js`, `navigation.js`, `login.js`
+- JS: `common.js` (shared), `app.js`, `trends.js`, `compare.js`, `navigation.js`, `login.js`
 
 ### Deploy Scripts
 - `scripts/sync_bin.sh` — Deploy binary to EC2

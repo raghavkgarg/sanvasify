@@ -24,7 +24,7 @@ Build "Sanvasify" — a web platform for browsing, searching, and analyzing Indi
 | 9 | May 19–24 | Frontend v1 | New web design with themes, compare page, sync script timeout fixes |
 | 10 | May 24 | Docs & tooling | .kiro skills/steering/agent, docs restructure (removed 10 redundant files), SESSION_SUMMARY + PHASES + ARCHITECTURE, Makefile rewrite (cleanup/test/lint-js targets), Go 1.26.3, staticcheck fixes, deno lint/fmt/check, govulncheck clean |
 | 11 | May 24 | Frontend refactor + Compare page | Extracted common.js (shared chart/schemes/stats), rewrote trends.js (105→18 lines), fixed app.js monkey-patch, moved inline styles to CSS. Built compare page: API endpoint (server-side 1M/3M/annualised returns via DuckDB CTEs), compare.html + compare.js (strategy tabs, search, sort, best/worst highlight, ECharts compare panel) |
-| 12 | May 25 | Design system + ES modules | CSS design tokens (dark/light themes), refactored style.css to use variables, theme toggle (localStorage), removed all inline styles. Converted all JS to ES modules (import/export). Ported compare page to web/static. Makefile: start/stop/restart/status/logs/kill/stage targets. Config.local.toml for dev. web/static now self-contained (web/v1 can be deleted). |
+| 12 | May 25 | Full frontend redesign | Design system v1 (tokens, theme toggle, ES modules, inline style removal). Then full redesign v2: dropped card wrapper, new palette (gray-900 + muted gold), sticky top nav, full-width data-first pages. Created guide.html for SIF educational content. Dashboard with performance snapshot chart. Makefile lifecycle (start/stop/stage with Config.local.toml). Planned Phase 12: AI features (volatility rating, trend signals, similar funds, anomaly detection, percentile ranking, auto-clustering). |
 
 ## TECHNICAL CONTEXT
 
@@ -54,13 +54,15 @@ GET /api/search?...           — Search with filters
 ```
 
 ### Frontend (web/static/ — current)
-- `index.html` — SIF guide + scheme browser navigation
-- `nav.html` — Scheme detail + NAV chart (cascading filters)
+- `index.html` — Dashboard: tool cards + performance snapshot chart
+- `nav.html` — NAV lookup with cascading filters + chart
 - `nav_trends.html` — ECharts NAV trend visualization
-- `compare.html` — Side-by-side scheme comparison (strategy tabs, sort, chart)
+- `compare.html` — Side-by-side comparison (strategy tabs, sort, chart)
+- `guide.html` — SIF educational content (regulations, comparison table)
 - `login.html` — OAuth login
-- CSS: `design-tokens.css` (variables, dark/light themes), `style.css` (components), `login.css`
-- JS (ES modules): `common.js` (shared API/chart/stats), `app.js`, `trends.js`, `compare.js`, `navigation.js`, `theme.js`, `login.js`
+- CSS: `design-tokens.css` (gray-900/white palette, dark/light), `style.css` (full-width layout, top nav), `login.css`
+- JS (ES modules): `common.js` (shared API/chart/stats/colors), `app.js`, `trends.js`, `compare.js`, `dashboard.js`, `theme.js`, `login.js`
+- Design: sticky top nav, no card wrapper, data-first, muted gold accent
 - `web/v1/` — Legacy, can be deleted
 
 ### Deploy Scripts

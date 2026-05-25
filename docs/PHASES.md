@@ -80,7 +80,7 @@
 
 ## Future
 
-### Phase 10: Frontend v2
+### Phase 10: Frontend v2 ✅
 - Design system with CSS custom properties (dark/light themes) ✅
 - Theme toggle with localStorage persistence ✅
 - Removed all inline styles, utility classes ✅
@@ -90,29 +90,44 @@
 - Makefile lifecycle: start/stop/restart/status/logs/kill ✅
 - Config.local.toml for local dev (gitignored, fallback to Config.toml) ✅
 - web/static self-contained (web/v1 deletable) ✅
-- Add data-viz color tokens + read from CSS in JS (chart theme-awareness)
-- Fix light-theme gaps (chart bg, cap-container, compare table cells)
-- Unify navigation across all pages (consistent nav bar or badges)
-- Sort indicators (▲/▼) on compare table headers
-- Restyle login page with design tokens
+- Data-viz color tokens + theme-aware charts (JS reads CSS variables) ✅
+- Unified top nav bar across all pages ✅
+- Sort indicators (▲/▼) on compare table headers ✅
+- Login page restyled with design tokens ✅
+- Full redesign: dropped card wrapper, full-width layout, data-first pages ✅
+- New palette: gray-900 dark / white light, muted gold accent ✅
+- Guide page (SIF educational content moved from home) ✅
+- Dashboard performance snapshot chart (grouped bar by strategy) ✅
+
+### Phase 11: Frontend Polish (remaining)
 - Loading skeleton/spinner for async content
+- Empty states with illustrations for charts
+- Mobile hamburger menu for nav on small screens
 - Embed static assets (`go:embed`) — single binary, no runtime file deps
   - Embed `web/static/` via `//go:embed` in a new `web/embed.go`
   - Embed `config/Config.toml` as default config (override via flag/env)
   - Remove `stage` target from Makefile once embedded
 
-### Phase 11: Data Enrichment
+### Phase 12: Analytics & AI (no LLM, no subscriptions)
+- **Volatility Rating** — compute rolling std dev of returns per scheme, assign Low/Medium/High badge. Display on compare table and NAV detail.
+- **Trend Signal** — 7-day vs 30-day moving average crossover. Overlay MA lines on trends chart. Label: "Uptrend since X" / "Downtrend" / "Sideways".
+- **Similar Funds** — cosine similarity on fund attributes (strategy, company, return profile). Show 3 alternatives on NAV detail page.
+- **Anomaly Detection** — Z-score on daily returns. Flag funds with >3σ moves. Badge on compare table.
+- **Performance Percentile** — rank each scheme vs all SIFs. "Top 15% by annualised return." Show on NAV detail and compare tooltip.
+- **Auto-clustering** — K-means (3 clusters) on [annualised return, volatility, max drawdown]. Label: "Growth leaders", "Steady performers", "Underperformers". Filter tab on compare page.
+
+### Phase 13: Data Enrichment
 - More AMFI data categories
 - Historical data backfill
 - Fund house analytics
 - Sector/category aggregations
 
-### Phase 12: Mobile
+### Phase 14: Mobile
 - Strategy documented in `docs/MOBILE_STRATEGY.md`
 - PWA or native (Swift/Kotlin) — TBD
 - API already mobile-ready (JSON, stateless)
 
-### Phase 13: Cost Optimization
+### Phase 15: Cost Optimization
 - IPv6-only to eliminate $3.72/month IPv4 charge
 - Evaluate Cloudflare proxy
 - Consider ARM64 Graviton spot instances

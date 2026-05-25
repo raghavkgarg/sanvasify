@@ -51,6 +51,11 @@
       </a>
     </div>
 
+    <section style="margin-top: var(--space-7);">
+      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">Performance Snapshot</h2>
+      <div id="overview-chart" class="chart-container" style="height: 260px;"></div>
+    </section>
+
     <section style="margin-top: var(--space-9);">
       <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">About SIFs</h2>
       <div class="panel">
@@ -69,6 +74,8 @@
     </footer>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
   <script src="js/theme.js"></script>
+  <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>

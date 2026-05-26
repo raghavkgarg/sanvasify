@@ -8,6 +8,7 @@
   --color-border-dim: #1f2937;
 
   --color-text: #f9fafb;
+  --color-text-accent: #fca5a5;
   --color-text-secondary: #d1d5db;
   --color-text-muted: #9ca3af;
   --color-text-dim: #6b7280;
@@ -78,13 +79,14 @@
 
 /* --- Light Theme --- */
 .theme-light {
-  --color-bg: #fff1f2;
-  --color-surface: #ffe4e1;
-  --color-surface-alt: #ffdbdb;
-  --color-border: #e5e7eb;
-  --color-border-dim: #f3f4f6;
+  --color-bg: #fff1e5;
+  --color-surface: #f6e9da;
+  --color-surface-alt: #ebdcc8;
+  --color-border: #e6d9cc;
+  --color-border-dim: #f2e7d9;
 
   --color-text: #111827;
+  --color-text-accent: #6B2D3A;
   --color-text-secondary: #374151;
   --color-text-muted: #6b7280;
   --color-text-dim: #9ca3af;
@@ -97,7 +99,7 @@
   --color-positive: #059669;
   --color-negative: #dc2626;
 
-  --color-chart-line: #92700c;
+  --color-chart-line: #826200;
   --color-chart-area-start: rgba(146, 112, 12, 0.15);
   --color-chart-area-end: rgba(146, 112, 12, 0.02);
   --color-chart-tooltip-bg: #1f2937;

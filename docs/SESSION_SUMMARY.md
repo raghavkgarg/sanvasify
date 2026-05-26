@@ -25,6 +25,7 @@ Build "Sanvasify" — a web platform for browsing, searching, and analyzing Indi
 | 10 | May 24 | Docs & tooling | .kiro skills/steering/agent, docs restructure (removed 10 redundant files), SESSION_SUMMARY + PHASES + ARCHITECTURE, Makefile rewrite (cleanup/test/lint-js targets), Go 1.26.3, staticcheck fixes, deno lint/fmt/check, govulncheck clean |
 | 11 | May 24 | Frontend refactor + Compare page | Extracted common.js (shared chart/schemes/stats), rewrote trends.js (105→18 lines), fixed app.js monkey-patch, moved inline styles to CSS. Built compare page: API endpoint (server-side 1M/3M/annualised returns via DuckDB CTEs), compare.html + compare.js (strategy tabs, search, sort, best/worst highlight, ECharts compare panel) |
 | 12 | May 25 | Full frontend redesign | Design system v1 (tokens, theme toggle, ES modules, inline style removal). Then full redesign v2: dropped card wrapper, new palette (gray-900 + muted gold), sticky top nav, full-width data-first pages. Created guide.html for SIF educational content. Dashboard with performance snapshot chart. Makefile lifecycle (start/stop/stage with Config.local.toml). Compare page redesigned to horizontal card-list layout with SI returns. launchctl-based service management. Planned Phase 12: AI features. |
+| 13 | May 25–26 | Phase 12: Analytics | Built analytics engine (pkg/db/analytics.go): volatility rating (rolling std dev → Low/Medium/High), trend signals (7d vs 30d MA crossover), anomaly detection (Z-score >3σ), similar funds (attribute+return similarity). API: /api/analytics/{volatility,trends,anomalies,similar}. New analytics.html page with visual-first design: horizontal bar charts for volatility, SVG sparklines for trends, sized dots for anomalies. Deferred percentiles + clustering to Phase 12b (need 1yr data). Nav link added to all pages. |
 
 ## TECHNICAL CONTEXT
 
@@ -51,6 +52,10 @@ GET /api/nav?code=X           — Scheme detail
 GET /api/nav/history?code=X   — Historical NAV data
 GET /api/filters              — Filter options (fund type, strategy, company)
 GET /api/search?...           — Search with filters
+GET /api/analytics/volatility — Volatility ratings (std dev, Low/Medium/High)
+GET /api/analytics/trends     — Trend signals (MA7 vs MA30 crossover)
+GET /api/analytics/anomalies  — Anomalous daily moves (Z-score >3σ)
+GET /api/analytics/similar?code=X — Top 3 similar funds
 ```
 
 ### Frontend (web/static/ — current)
@@ -59,6 +64,7 @@ GET /api/search?...           — Search with filters
 - `nav_trends.html` — ECharts NAV trend visualization
 - `compare.html` — Side-by-side comparison (strategy tabs, sort, chart)
 - `guide.html` — SIF educational content (regulations, comparison table)
+- `analytics.html` — Fund analytics (volatility bars, trend sparklines, anomaly dots)
 - `login.html` — OAuth login
 - CSS: `design-tokens.css` (gray-900/white palette, dark/light), `style.css` (full-width layout, top nav), `login.css`
 - JS (ES modules): `common.js` (shared API/chart/stats/colors), `app.js`, `trends.js`, `compare.js`, `dashboard.js`, `theme.js`, `login.js`

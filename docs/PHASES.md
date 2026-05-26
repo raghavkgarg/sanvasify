@@ -78,45 +78,36 @@
 - New page: `compare.html` + `compare.js` (strategy tabs, search, sort, best/worst, ECharts compare)
 - Refactored Server to hold `*db.DB` directly
 
+### Phase 10: Frontend v2 ✅
+- Design system (CSS custom properties, dark/light themes, theme toggle)
+- ES modules, shared common.js, full-width data-first layout
+- New palette (gray-900/white, muted gold accent), sticky top nav
+- Guide page, dashboard performance snapshot chart
+- Makefile lifecycle, Config.local.toml, launchctl service management
+
+### Phase 11: Frontend Polish ✅
+- Loading spinners, empty states, mobile hamburger menu
+- Compare page card-list redesign with SI returns
+
+### Phase 12: Analytics ✅
+- Volatility Rating — rolling std dev, Low/Medium/High + percentile bar chart
+- Trend Signal — 7d vs 30d MA crossover, SVG sparklines
+- Anomaly Detection — Z-score >3σ, sized dot visualization
+- Similar Funds — attribute + return profile similarity, top 3
+- Analytics page (`analytics.html`) with visual-first tabbed UI
+- API: `/api/analytics/{volatility,trends,anomalies,similar}`
+
 ## Future
 
-### Phase 10: Frontend v2 ✅
-- Design system with CSS custom properties (dark/light themes) ✅
-- Theme toggle with localStorage persistence ✅
-- Removed all inline styles, utility classes ✅
-- ES modules (import/export) across all JS files ✅
-- Shared common.js (chart, API, stats) — eliminated duplication ✅
-- Compare page ported to web/static ✅
-- Makefile lifecycle: start/stop/restart/status/logs/kill ✅
-- Config.local.toml for local dev (gitignored, fallback to Config.toml) ✅
-- web/static self-contained (web/v1 deletable) ✅
-- Data-viz color tokens + theme-aware charts (JS reads CSS variables) ✅
-- Unified top nav bar across all pages ✅
-- Sort indicators (▲/▼) on compare table headers ✅
-- Login page restyled with design tokens ✅
-- Full redesign: dropped card wrapper, full-width layout, data-first pages ✅
-- New palette: gray-900 dark / white light, muted gold accent ✅
-- Guide page (SIF educational content moved from home) ✅
-- Dashboard performance snapshot chart (grouped bar by strategy) ✅
-
-### Phase 11: Frontend Polish (remaining)
-- Loading skeleton/spinner for async content ✅
-- Empty states with illustrations for charts ✅
-- Mobile hamburger menu for nav on small screens ✅
-- Compare page redesigned: card-list layout, SI returns, sort bar ✅
-- launchctl-based service management (replaces PID file approach) ✅
+### Phase 11: Remaining
 - Embed static assets (`go:embed`) — single binary, no runtime file deps
   - Embed `web/static/` via `//go:embed` in a new `web/embed.go`
   - Embed `config/Config.toml` as default config (override via flag/env)
   - Remove `stage` target from Makefile once embedded
 
-### Phase 12: Analytics & AI (no LLM, no subscriptions)
-- **Volatility Rating** — compute rolling std dev of returns per scheme, assign Low/Medium/High badge. Display on compare table and NAV detail.
-- **Trend Signal** — 7-day vs 30-day moving average crossover. Overlay MA lines on trends chart. Label: "Uptrend since X" / "Downtrend" / "Sideways".
-- **Similar Funds** — cosine similarity on fund attributes (strategy, company, return profile). Show 3 alternatives on NAV detail page.
-- **Anomaly Detection** — Z-score on daily returns. Flag funds with >3σ moves. Badge on compare table.
-- **Performance Percentile** — rank each scheme vs all SIFs. "Top 15% by annualised return." Show on NAV detail and compare tooltip.
-- **Auto-clustering** — K-means (3 clusters) on [annualised return, volatility, max drawdown]. Label: "Growth leaders", "Steady performers", "Underperformers". Filter tab on compare page.
+### Phase 12b: Analytics (needs 1+ year of data)
+- **Performance Percentile** — PERCENT_RANK on annualised return (all null with <1yr data)
+- **Auto-clustering** — K-means on [return, volatility, drawdown] (returns null without 1yr)
 
 ### Phase 13: Data Enrichment
 - More AMFI data categories

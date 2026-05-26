@@ -130,3 +130,52 @@ func (s *Server) handleCompare() http.HandlerFunc {
 		}
 	}
 }
+
+func (s *Server) handleVolatility() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		results, err := s.db.GetVolatilityRatings(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(results)
+	}
+}
+
+func (s *Server) handleTrends() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		results, err := s.db.GetTrendSignals(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(results)
+	}
+}
+
+func (s *Server) handleAnomalies() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		results, err := s.db.GetAnomalies(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(results)
+	}
+}
+
+func (s *Server) handleSimilar() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		code := r.URL.Query().Get("code")
+		if code == "" {
+			http.Error(w, "Missing scheme code", http.StatusBadRequest)
+			return
+		}
+		results, err := s.db.GetSimilarFunds(r.Context(), code)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(results)
+	}
+}

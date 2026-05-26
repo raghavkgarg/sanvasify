@@ -201,6 +201,16 @@ async function checkAndTriggerSearch() {
     }
   });
 
+  // Auto-load scheme from URL parameter if present (e.g. from Compare page)
+  const urlParams = new URLSearchParams(window.location.search);
+  const codeParam = urlParams.get('code');
+  if (codeParam) {
+    schemeSelect.value = codeParam;
+    if (schemeSelect.value === codeParam) {
+      schemeSelect.dispatchEvent(new Event('change'));
+    }
+  }
+
   const resetBtn = document.getElementById('btn-reset-filters');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {

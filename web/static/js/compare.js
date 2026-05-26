@@ -16,7 +16,12 @@ async function loadData(strategy) {
   const url = strategy
     ? `/api/schemes/compare?strategy=${encodeURIComponent(strategy)}`
     : '/api/schemes/compare';
-  allData = await fetchJSON(url);
+  const data = await fetchJSON(url);
+  // Filter to show only 'Growth - Direct' variants
+  allData = data.filter((f) =>
+    f.scheme_name.toLowerCase().includes('growth') &&
+    f.scheme_name.toLowerCase().includes('direct')
+  );
   if (allData.length > 0) {
     dateEl.textContent = `NAV as of ${allData[0].date.split('T')[0]}`;
   }
@@ -61,7 +66,9 @@ function render() {
           <span class="fund-card-pill">${
       strategyLabel(fund.fund_strategy)
     }</span>
-          <a href="nav.html" class="fund-card-link">View Details →</a>
+          <a href="nav.html?code=${
+      fund.scheme_code
+    }" class="fund-card-link">View Details →</a>
         </div>
       </div>
       <div class="fund-card-right">
@@ -104,7 +111,10 @@ function shortName(name) {
 
 function strategyLabel(s) {
   if (!s) return '';
-  return s.replace(' Fund', '').replace('Long-Short', 'L/S');
+  return s.replace(' Fund', '')
+    .replace('Long-Short', 'L/S')
+    .replace('Active Asset Allocator', 'Active Allocator')
+    .replace('Sector Rotation', 'Sector Rot');
 }
 
 function retBadge(label, val) {

@@ -72,9 +72,9 @@
 
 /* --- Light Theme --- */
 .theme-light {
-  --color-bg: #ffffff;
-  --color-surface: #f9fafb;
-  --color-surface-alt: #f3f4f6;
+  --color-bg: #fff1f2;
+  --color-surface: #ffe4e1;
+  --color-surface-alt: #ffdbdb;
   --color-border: #e5e7eb;
   --color-border-dim: #f3f4f6;
 

@@ -1,5 +1,10 @@
 'use strict';
-import { initChart, autoResize, loadSchemes, loadNAVHistory } from './common.js';
+import {
+  autoResize,
+  initChart,
+  loadNAVHistory,
+  loadSchemes,
+} from './common.js';
 
 const schemeSelect = document.getElementById('scheme-select');
 const chartContainer = document.getElementById('chart-container');
@@ -9,6 +14,6 @@ const chart = initChart(chartContainer);
 autoResize(chart);
 loadSchemes(schemeSelect);
 
-schemeSelect.addEventListener('change', e => {
+schemeSelect.addEventListener('change', (e) => {
   if (e.target.value) loadNAVHistory(chart, e.target.value, statsCard);
 });

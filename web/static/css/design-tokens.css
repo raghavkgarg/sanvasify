@@ -2,34 +2,34 @@
 :root {
   /* --- Dark Theme (default) --- */
   --color-bg: #111827;
-  --color-surface: #1F2937;
+  --color-surface: #1f2937;
   --color-surface-alt: #283548;
   --color-border: #374151;
-  --color-border-dim: #1F2937;
+  --color-border-dim: #1f2937;
 
   --color-text: #f9fafb;
   --color-text-secondary: #d1d5db;
   --color-text-muted: #9ca3af;
   --color-text-dim: #6b7280;
 
-  --color-accent: #D4A843;
+  --color-accent: #d4a843;
   --color-accent-dim: rgba(212, 168, 67, 0.15);
-  --color-accent-hover: #E2B84E;
+  --color-accent-hover: #e2b84e;
   --color-accent-text: #111827;
 
-  --color-positive: #10B981;
-  --color-negative: #EF4444;
+  --color-positive: #10b981;
+  --color-negative: #ef4444;
 
   /* Chart */
-  --color-chart-line: #D4A843;
+  --color-chart-line: #d4a843;
   --color-chart-area-start: rgba(212, 168, 67, 0.25);
   --color-chart-area-end: rgba(212, 168, 67, 0.02);
-  --color-chart-tooltip-bg: #1F2937;
+  --color-chart-tooltip-bg: #1f2937;
   --color-chart-axis: #9ca3af;
   --color-chart-grid: rgba(255, 255, 255, 0.06);
-  --color-chart-bar-1: #D4A843;
-  --color-chart-bar-2: #10B981;
-  --color-chart-bar-3: #6366F1;
+  --color-chart-bar-1: #d4a843;
+  --color-chart-bar-2: #10b981;
+  --color-chart-bar-3: #6366f1;
 
   /* --- Spacing --- */
   --space-1: 0.25rem;
@@ -83,23 +83,23 @@
   --color-text-muted: #6b7280;
   --color-text-dim: #9ca3af;
 
-  --color-accent: #92700C;
+  --color-accent: #92700c;
   --color-accent-dim: rgba(146, 112, 12, 0.1);
-  --color-accent-hover: #7A5E0A;
+  --color-accent-hover: #7a5e0a;
   --color-accent-text: #ffffff;
 
   --color-positive: #059669;
-  --color-negative: #DC2626;
+  --color-negative: #dc2626;
 
-  --color-chart-line: #92700C;
+  --color-chart-line: #92700c;
   --color-chart-area-start: rgba(146, 112, 12, 0.15);
   --color-chart-area-end: rgba(146, 112, 12, 0.02);
-  --color-chart-tooltip-bg: #1F2937;
+  --color-chart-tooltip-bg: #1f2937;
   --color-chart-axis: #6b7280;
   --color-chart-grid: rgba(0, 0, 0, 0.06);
-  --color-chart-bar-1: #92700C;
+  --color-chart-bar-1: #92700c;
   --color-chart-bar-2: #059669;
-  --color-chart-bar-3: #4F46E5;
+  --color-chart-bar-3: #4f46e5;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);

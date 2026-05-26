@@ -22,7 +22,6 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/api/nav/history", authMW(s, jsonMW(s.handleNAVHistory())))
 	s.router.HandleFunc("/api/search", authMW(s, jsonMW(s.handleSearch())))
 
-
 	// Current version (design system v2) at root
 	s.router.Handle("/", http.FileServer(http.Dir("web/static")))
 
@@ -37,7 +36,7 @@ func (s *Server) routes() {
 	// Latest version at /v2/
 	v2Dir := http.Dir("web/v2")
 	s.router.Handle("/v2/", http.StripPrefix("/v2/", http.FileServer(v2Dir)))
-	
+
 }
 
 // jsonMW wraps handlers with JSON and no-cache middleware

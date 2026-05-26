@@ -24,40 +24,39 @@
     </div>
   </nav>
 
-  <main class="page">
+  <main class="page page-wide">
     <div class="page-header">
       <h1>Compare Schemes</h1>
       <p>Side-by-side performance across strategies</p>
     </div>
 
-    <div class="compare-tabs">
-      <button class="compare-tab active" data-strategy="">All</button>
-      <button class="compare-tab" data-strategy="Hybrid">Hybrid Long-Short</button>
-      <button class="compare-tab" data-strategy="Equity">Equity</button>
+    <!-- Filters row -->
+    <div class="compare-controls">
+      <div class="compare-tabs">
+        <button class="compare-tab active" data-strategy="">All</button>
+        <button class="compare-tab" data-strategy="Hybrid">Hybrid Long-Short</button>
+        <button class="compare-tab" data-strategy="Equity Long-Short">Equity Long-Short</button>
+        <button class="compare-tab" data-strategy="Equity Ex-Top 100">Equity Ex-Top 100</button>
+      </div>
+      <div class="compare-meta">
+        <input type="text" id="compare-search" class="compare-search" placeholder="Search fund or company..." />
+        <span class="compare-date" id="compare-date"></span>
+      </div>
     </div>
 
-    <div class="compare-toolbar">
-      <input type="text" id="compare-search" class="compare-search" placeholder="Search fund or company..." />
-      <span class="compare-date" id="compare-date"></span>
+    <!-- Sort bar -->
+    <div class="sort-bar">
+      <span class="sort-bar-label">Sort by:</span>
+      <button class="sort-btn active" data-sort="annualised">Annualised</button>
+      <button class="sort-btn" data-sort="1m">1M</button>
+      <button class="sort-btn" data-sort="3m">3M</button>
+      <button class="sort-btn" data-sort="si">SI</button>
     </div>
 
-    <div class="table-wrap">
-      <table id="compare-table">
-        <thead>
-          <tr>
-            <th data-sort="name">Fund Name</th>
-            <th data-sort="company">Company</th>
-            <th data-sort="nav">NAV</th>
-            <th data-sort="annualised">Annualised</th>
-            <th data-sort="1m">1M</th>
-            <th data-sort="3m">3M</th>
-            <th>Compare</th>
-          </tr>
-        </thead>
-        <tbody id="compare-body"></tbody>
-      </table>
-    </div>
+    <!-- Fund list -->
+    <div id="fund-list" class="fund-list"></div>
 
+    <!-- Compare chart panel -->
     <div id="compare-panel" class="compare-panel" style="display:none;">
       <div class="compare-panel-header">
         <span>📊 Comparison</span>

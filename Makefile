@@ -6,8 +6,6 @@
 
 BINARY   := sanvasify
 DIST     := dist
-PID_FILE := /tmp/$(BINARY).pid
-LOG_FILE := /tmp/$(BINARY).log
 PORT     := 8080
 
 UNAME_S := $(shell uname -s)
@@ -69,36 +67,24 @@ stage:
 	fi
 	@[ -d data ] && cp -R data $(DIST)/ || true
 
-start: build stage stop
-	@echo "Starting $(BINARY)..."
-	@cd $(DIST) && nohup ./$(BINARY) >> $(LOG_FILE) 2>&1 & echo $$! > $(PID_FILE)
-	@echo "PID $$(cat $(PID_FILE)) → $(LOG_FILE)"
+start: build stage
+	@./launchctl.sh start
 
-stop: kill
-	@if [ -f $(PID_FILE) ]; then \
-		pid=$$(cat $(PID_FILE)); \
-		if kill -0 $$pid 2>/dev/null; then \
-			kill $$pid && echo "Stopped PID $$pid"; \
-		fi; \
-		rm -f $(PID_FILE); \
-	fi
+stop:
+	@./launchctl.sh stop
 
-restart: start
+restart: build stage
+	@./launchctl.sh restart
 
 run: build stage stop
 	@echo "Running $(BINARY) (foreground, Ctrl-C to stop)..."
 	cd $(DIST) && ./$(BINARY)
 
 status:
-	@if [ -f $(PID_FILE) ] && kill -0 $$(cat $(PID_FILE)) 2>/dev/null; then \
-		echo "$(BINARY) running (PID $$(cat $(PID_FILE)))"; \
-	else \
-		echo "$(BINARY) not running"; \
-		rm -f $(PID_FILE); \
-	fi
+	@./launchctl.sh status
 
 logs:
-	@tail -f $(LOG_FILE)
+	@./launchctl.sh logs
 
 kill:
 	@echo "Killing stray $(BINARY) processes..."
@@ -149,7 +135,6 @@ run-load: build-load
 
 clean:
 	@rm -rf $(DIST)/
-	@rm -f $(PID_FILE)
 	@echo "Cleaned"
 
 help:

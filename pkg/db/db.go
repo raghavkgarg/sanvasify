@@ -233,15 +233,16 @@ func (d *DB) GetNAVHistory(ctx context.Context, schemeCode string) ([]store.Sche
 
 // SchemeReturn holds a scheme's latest NAV and computed period returns.
 type SchemeReturn struct {
-	Code           string   `json:"scheme_code"`
-	Name           string   `json:"scheme_name"`
-	NAV            *float64 `json:"nav"`
-	Date           string   `json:"date"`
-	FundStrategy   string   `json:"fund_strategy"`
-	FundCompany    string   `json:"fund_company"`
-	Ret1M          *float64 `json:"ret_1m"`
-	Ret3M          *float64 `json:"ret_3m"`
-	RetAnnualised  *float64 `json:"ret_annualised"`
+	Code          string   `json:"scheme_code"`
+	Name          string   `json:"scheme_name"`
+	NAV           *float64 `json:"nav"`
+	Date          string   `json:"date"`
+	FundStrategy  string   `json:"fund_strategy"`
+	FundCompany   string   `json:"fund_company"`
+	Ret1M         *float64 `json:"ret_1m"`
+	Ret3M         *float64 `json:"ret_3m"`
+	RetAnnualised *float64 `json:"ret_annualised"`
+	RetSI         *float64 `json:"ret_si"`
 }
 
 // GetSchemeReturns computes 1M, 3M, and annualised returns for all schemes.
@@ -284,17 +285,26 @@ func (d *DB) GetSchemeReturns(ctx context.Context, strategy string) ([]SchemeRet
 				SELECT MAX(date) FROM sif_schemes
 				WHERE scheme_code = s.scheme_code AND date <= l.max_date - INTERVAL '1 year'
 			)
+		),
+		nav_si AS (
+			SELECT s.scheme_code, s.net_asset_value
+			FROM sif_schemes s
+			WHERE s.date = (
+				SELECT MIN(date) FROM sif_schemes WHERE scheme_code = s.scheme_code
+			)
 		)
 		SELECT
 			c.scheme_code, c.scheme_name, c.net_asset_value, c.date,
 			c.fund_strategy, c.fund_company,
 			CASE WHEN m1.net_asset_value > 0 THEN (c.net_asset_value - m1.net_asset_value) / m1.net_asset_value * 100 END AS ret_1m,
 			CASE WHEN m3.net_asset_value > 0 THEN (c.net_asset_value - m3.net_asset_value) / m3.net_asset_value * 100 END AS ret_3m,
-			CASE WHEN y1.net_asset_value > 0 THEN (c.net_asset_value - y1.net_asset_value) / y1.net_asset_value * 100 END AS ret_annualised
+			CASE WHEN y1.net_asset_value > 0 THEN (c.net_asset_value - y1.net_asset_value) / y1.net_asset_value * 100 END AS ret_annualised,
+			CASE WHEN si.net_asset_value > 0 THEN (c.net_asset_value - si.net_asset_value) / si.net_asset_value * 100 END AS ret_si
 		FROM current_nav c
 		LEFT JOIN nav_1m m1 ON c.scheme_code = m1.scheme_code
 		LEFT JOIN nav_3m m3 ON c.scheme_code = m3.scheme_code
 		LEFT JOIN nav_1y y1 ON c.scheme_code = y1.scheme_code
+		LEFT JOIN nav_si si ON c.scheme_code = si.scheme_code
 		WHERE 1=1
 	`
 	args := []any{}
@@ -315,7 +325,7 @@ func (d *DB) GetSchemeReturns(ctx context.Context, strategy string) ([]SchemeRet
 		var r SchemeReturn
 		if err := rows.Scan(&r.Code, &r.Name, &r.NAV, &r.Date,
 			&r.FundStrategy, &r.FundCompany,
-			&r.Ret1M, &r.Ret3M, &r.RetAnnualised); err != nil {
+			&r.Ret1M, &r.Ret3M, &r.RetAnnualised, &r.RetSI); err != nil {
 			return nil, err
 		}
 		results = append(results, r)

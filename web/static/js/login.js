@@ -6,7 +6,9 @@ function loginWith(provider) {
 
 // Redirect if already logged in
 fetch('/api/auth/me')
-  .then(res => { if (res.ok) window.location.href = '/'; })
+  .then((res) => {
+    if (res.ok) window.location.href = '/';
+  })
   .catch(() => {});
 
 // Expose for onclick handlers

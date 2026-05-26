@@ -47,6 +47,8 @@ make help        # Show all targets
 
 > **Note:** `config/Config.local.toml` is gitignored. Each developer creates their own with machine-specific paths (db_path, etc.). If it doesn't exist, `make start` falls back to `config/Config.toml`.
 
+> **macOS launchctl:** `make start/stop/restart` use `launchctl.sh` + `com.sanvasify.plist`. The plist contains a hardcoded path to the binary. After cloning, update `ProgramArguments` and `WorkingDirectory` in `com.sanvasify.plist` to match your local checkout path.
+
 ## Project Structure
 
 ```

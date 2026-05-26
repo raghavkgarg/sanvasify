@@ -1,5 +1,13 @@
 'use strict';
-import { fetchJSON, initChart, autoResize, plotNAVChart, loadSchemes, computeStats, renderStats } from './common.js';
+import {
+  autoResize,
+  computeStats,
+  fetchJSON,
+  initChart,
+  loadSchemes,
+  plotNAVChart,
+  renderStats,
+} from './common.js';
 
 const schemeSelect = document.getElementById('scheme-select');
 const resultCard = document.getElementById('result-card');
@@ -31,7 +39,10 @@ async function showNAVHistory(code) {
 function hideResults() {
   resultCard.style.display = 'none';
   if (statsCard) statsCard.style.display = 'none';
-  if (chart) { chart.clear(); initChart(chartContainer); }
+  if (chart) {
+    chart.clear();
+    initChart(chartContainer);
+  }
 }
 
 // --- Cascading Filters ---
@@ -44,9 +55,13 @@ const filterOrder = [
 let allSchemes = [];
 
 function initCascadingFilters() {
-  filterOrder.forEach(f => {
+  filterOrder.forEach((f) => {
     const el = document.getElementById(f.id);
-    if (el) { el.innerHTML = `<option value="" disabled selected>Select ${f.label}</option>`; el.value = ''; }
+    if (el) {
+      el.innerHTML =
+        `<option value="" disabled selected>Select ${f.label}</option>`;
+      el.value = '';
+    }
   });
   populateFilterDropdown(0, allSchemes);
 }
@@ -58,22 +73,29 @@ function populateFilterDropdown(index, data) {
 
   let values;
   if (filter.field === 'dist_mode') {
-    values = [...new Set(data.map(s => {
-      const dist = s.distribution_option || '';
-      const mode = (s.purchase_mode || '').replace(' Plan', '');
-      return dist && mode ? `${dist} ${mode}` : '';
-    }))].filter(Boolean).sort();
+    values = [
+      ...new Set(data.map((s) => {
+        const dist = s.distribution_option || '';
+        const mode = (s.purchase_mode || '').replace(' Plan', '');
+        return dist && mode ? `${dist} ${mode}` : '';
+      })),
+    ].filter(Boolean).sort();
   } else {
-    values = [...new Set(data.map(s => s[filter.field]))].filter(Boolean).sort();
+    values = [...new Set(data.map((s) => s[filter.field]))].filter(Boolean)
+      .sort();
   }
 
-  select.innerHTML = `<option value="" disabled selected>Select ${filter.label}</option>`;
+  select.innerHTML =
+    `<option value="" disabled selected>Select ${filter.label}</option>`;
   for (const v of values) {
     const o = document.createElement('option');
-    o.value = v; o.textContent = v;
+    o.value = v;
+    o.textContent = v;
     select.appendChild(o);
   }
-  if (filter.field === 'dist_mode' && values.includes('Growth Direct')) select.value = 'Growth Direct';
+  if (filter.field === 'dist_mode' && values.includes('Growth Direct')) {
+    select.value = 'Growth Direct';
+  }
 }
 
 function getFilteredSchemes(upToIndex) {
@@ -83,9 +105,11 @@ function getFilteredSchemes(upToIndex) {
     if (!val) continue;
     if (filterOrder[i].field === 'dist_mode') {
       const [dist, mode] = val.split(' ');
-      filtered = filtered.filter(s => s.distribution_option === dist && (s.purchase_mode || '').includes(mode));
+      filtered = filtered.filter((s) =>
+        s.distribution_option === dist && (s.purchase_mode || '').includes(mode)
+      );
     } else {
-      filtered = filtered.filter(s => s[filterOrder[i].field] === val);
+      filtered = filtered.filter((s) => s[filterOrder[i].field] === val);
     }
   }
   return filtered;
@@ -94,13 +118,21 @@ function getFilteredSchemes(upToIndex) {
 function handleFilterChange(index) {
   for (let i = index + 1; i < filterOrder.length; i++) {
     const sel = document.getElementById(filterOrder[i].id);
-    if (sel) { sel.innerHTML = `<option value="" disabled selected>Select ${filterOrder[i].label}</option>`; sel.value = ''; }
+    if (sel) {
+      sel.innerHTML = `<option value="" disabled selected>Select ${
+        filterOrder[i].label
+      }</option>`;
+      sel.value = '';
+    }
   }
   if (index < filterOrder.length - 1) {
     const filtered = getFilteredSchemes(index);
     if (filtered.length === 0) {
       const next = document.getElementById(filterOrder[index + 1].id);
-      if (next) next.innerHTML = '<option value="" disabled selected>No options available</option>';
+      if (next) {
+        next.innerHTML =
+          '<option value="" disabled selected>No options available</option>';
+      }
       hideResults();
     } else {
       populateFilterDropdown(index + 1, filtered);
@@ -113,7 +145,10 @@ async function checkAndTriggerSearch() {
   const params = new URLSearchParams();
   for (const filter of filterOrder) {
     const el = document.getElementById(filter.id);
-    if (!el?.value) { hideResults(); return; }
+    if (!el?.value) {
+      hideResults();
+      return;
+    }
     if (filter.field === 'dist_mode') {
       const [dist, mode] = el.value.split(' ');
       params.append('distribution_option', dist);
@@ -139,7 +174,7 @@ async function checkAndTriggerSearch() {
 // --- Init ---
 (async () => {
   const schemes = await loadSchemes(schemeSelect);
-  allSchemes = schemes.filter(s => {
+  allSchemes = schemes.filter((s) => {
     const t = (s.fund_type || '').toUpperCase();
     return t.includes('OPEN ENDED') || t.includes('INTERVAL');
   });
@@ -150,7 +185,7 @@ async function checkAndTriggerSearch() {
   });
   initCascadingFilters();
 
-  schemeSelect.addEventListener('change', async e => {
+  schemeSelect.addEventListener('change', async (e) => {
     const code = e.target.value;
     if (!code) return;
     try {
@@ -167,5 +202,10 @@ async function checkAndTriggerSearch() {
   });
 
   const resetBtn = document.getElementById('btn-reset-filters');
-  if (resetBtn) resetBtn.addEventListener('click', () => { initCascadingFilters(); hideResults(); });
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      initCascadingFilters();
+      hideResults();
+    });
+  }
 })();

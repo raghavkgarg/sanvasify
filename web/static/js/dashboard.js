@@ -1,5 +1,5 @@
 'use strict';
-import { fetchJSON, chartColors } from './common.js';
+import { chartColors, fetchJSON } from './common.js';
 
 const el = document.getElementById('overview-chart');
 if (el) init();
@@ -20,19 +20,46 @@ async function init() {
   }
 
   const strategies = Object.keys(groups);
-  const avg = arr => arr.length ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : 0;
+  const avg = (arr) =>
+    arr.length ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : 0;
 
   const chart = echarts.init(el);
   chart.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     legend: { top: 0, textStyle: { color: c.axis, fontSize: 12 } },
     grid: { top: 36, bottom: 24, left: 50, right: 16 },
-    xAxis: { type: 'category', data: strategies, axisLabel: { color: c.axis, fontSize: 12 } },
-    yAxis: { type: 'value', axisLabel: { color: c.axis, formatter: '{value}%' }, splitLine: { lineStyle: { color: c.grid } } },
+    xAxis: {
+      type: 'category',
+      data: strategies,
+      axisLabel: { color: c.axis, fontSize: 12 },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: c.axis, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: c.grid } },
+    },
     series: [
-      { name: 'Annualised', type: 'bar', data: strategies.map(s => avg(groups[s].ann)), itemStyle: { color: c.bar1 }, barMaxWidth: 32 },
-      { name: '1 Month', type: 'bar', data: strategies.map(s => avg(groups[s].m1)), itemStyle: { color: c.bar2 }, barMaxWidth: 32 },
-      { name: '3 Month', type: 'bar', data: strategies.map(s => avg(groups[s].m3)), itemStyle: { color: c.bar3 }, barMaxWidth: 32 },
+      {
+        name: 'Annualised',
+        type: 'bar',
+        data: strategies.map((s) => avg(groups[s].ann)),
+        itemStyle: { color: c.bar1 },
+        barMaxWidth: 32,
+      },
+      {
+        name: '1 Month',
+        type: 'bar',
+        data: strategies.map((s) => avg(groups[s].m1)),
+        itemStyle: { color: c.bar2 },
+        barMaxWidth: 32,
+      },
+      {
+        name: '3 Month',
+        type: 'bar',
+        data: strategies.map((s) => avg(groups[s].m3)),
+        itemStyle: { color: c.bar3 },
+        barMaxWidth: 32,
+      },
     ],
   });
   window.addEventListener('resize', () => chart.resize());

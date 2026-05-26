@@ -1,19 +1,25 @@
 'use strict';
-import { fetchJSON, chartColors } from './common.js';
+import { chartColors, fetchJSON } from './common.js';
 
 let allData = [], filtered = [], selected = [];
 let sortCol = 'annualised', sortDir = 'desc', searchTerm = '';
 let chartInstance = null;
 
-const tbody = document.getElementById('compare-body');
+const list = document.getElementById('fund-list');
 const panel = document.getElementById('compare-panel');
 const chartEl = document.getElementById('compare-chart');
 const dateEl = document.getElementById('compare-date');
 
 async function loadData(strategy) {
-  const url = strategy ? `/api/schemes/compare?strategy=${encodeURIComponent(strategy)}` : '/api/schemes/compare';
+  list.innerHTML =
+    '<div class="loading-wrap"><div class="spinner"></div><span>Loading funds...</span></div>';
+  const url = strategy
+    ? `/api/schemes/compare?strategy=${encodeURIComponent(strategy)}`
+    : '/api/schemes/compare';
   allData = await fetchJSON(url);
-  if (allData.length > 0) dateEl.textContent = `NAV as of ${allData[0].date.split('T')[0]}`;
+  if (allData.length > 0) {
+    dateEl.textContent = `NAV as of ${allData[0].date.split('T')[0]}`;
+  }
   applyFilter();
 }
 
@@ -21,7 +27,10 @@ function applyFilter() {
   filtered = allData;
   if (searchTerm) {
     const q = searchTerm.toLowerCase();
-    filtered = filtered.filter(f => f.scheme_name.toLowerCase().includes(q) || f.fund_company.toLowerCase().includes(q));
+    filtered = filtered.filter((f) =>
+      f.scheme_name.toLowerCase().includes(q) ||
+      f.fund_company.toLowerCase().includes(q)
+    );
   }
   filtered.sort((a, b) => {
     const av = getVal(a, sortCol), bv = getVal(b, sortCol);
@@ -32,80 +41,140 @@ function applyFilter() {
 }
 
 function getVal(row, col) {
-  if (col === 'name') return row.scheme_name || '';
-  if (col === 'company') return row.fund_company || '';
-  if (col === 'nav') return row.nav ?? -Infinity;
   if (col === 'annualised') return row.ret_annualised ?? -Infinity;
   if (col === '1m') return row.ret_1m ?? -Infinity;
   if (col === '3m') return row.ret_3m ?? -Infinity;
+  if (col === 'si') return row.ret_si ?? -Infinity;
   return 0;
 }
 
 function render() {
-  const best = getBestWorst();
-  tbody.innerHTML = '';
+  list.innerHTML = '';
   for (const fund of filtered) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><div class="fund-name">${fund.scheme_name}</div></td>
-      <td>${fund.fund_company || ''}</td>
-      <td>${fund.nav != null ? fund.nav.toFixed(4) : '—'}</td>
-      ${retCell(fund.ret_annualised, best.annualised)}
-      ${retCell(fund.ret_1m, best.m1)}
-      ${retCell(fund.ret_3m, best.m3)}
-      <td><input type="checkbox" class="compare-chk" data-code="${fund.scheme_code}" ${selected.includes(fund.scheme_code) ? 'checked' : ''}/></td>`;
-    tbody.appendChild(tr);
+    const card = document.createElement('div');
+    card.className = 'fund-card';
+    card.innerHTML = `
+      <div class="fund-card-left">
+        <div class="fund-card-name">${shortName(fund.scheme_name)}</div>
+        <div class="fund-card-meta">
+          <span class="fund-card-company">${fund.fund_company || ''}</span>
+          <span class="fund-card-pill">${
+      strategyLabel(fund.fund_strategy)
+    }</span>
+          <a href="nav.html" class="fund-card-link">View Details →</a>
+        </div>
+      </div>
+      <div class="fund-card-right">
+        <span class="fund-card-nav-value">₹${
+      fund.nav != null ? fund.nav.toFixed(2) : '--'
+    }</span>
+        <span class="fund-card-nav-date">as of ${
+      fund.date ? fund.date.split('T')[0] : ''
+    }</span>
+      </div>
+      ${retBadge('Annualised', fund.ret_annualised)}
+      ${retBadge('1M', fund.ret_1m)}
+      ${retBadge('3M', fund.ret_3m)}
+      ${retBadge('SI', fund.ret_si)}
+      <button class="btn btn-ghost compare-btn" data-code="${fund.scheme_code}">
+        ${selected.includes(fund.scheme_code) ? '✓ Selected' : '⊞ Compare'}
+      </button>`;
+    list.appendChild(card);
   }
-  tbody.querySelectorAll('.compare-chk').forEach(chk => {
-    chk.addEventListener('change', e => {
-      const code = e.target.dataset.code;
-      if (e.target.checked) { if (selected.length >= 4) { e.target.checked = false; return; } selected.push(code); }
-      else { selected = selected.filter(c => c !== code); }
+
+  list.querySelectorAll('.compare-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const code = btn.dataset.code;
+      if (selected.includes(code)) {
+        selected = selected.filter((c) => c !== code);
+      } else if (selected.length < 4) selected.push(code);
+      render();
       updatePanel();
     });
   });
 }
 
-function retCell(val, bestWorst) {
-  if (val == null) return '<td class="neutral">—</td>';
-  const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
-  let extra = '';
-  if (bestWorst && val === bestWorst.best) extra = ' best-cell';
-  if (bestWorst && val === bestWorst.worst) extra = ' worst-cell';
-  return `<td class="${cls}${extra}">${val.toFixed(2)}%</td>`;
+function shortName(name) {
+  // Remove common suffixes for cleaner display
+  return name.replace(/ - (Regular|Direct) Plan.*$/i, '').replace(
+    / - (Growth|IDCW).*$/i,
+    '',
+  );
 }
 
-function getBestWorst() {
-  const vals = key => filtered.map(f => f[key]).filter(v => v != null);
-  const bw = arr => arr.length ? { best: Math.max(...arr), worst: Math.min(...arr) } : null;
-  return { annualised: bw(vals('ret_annualised')), m1: bw(vals('ret_1m')), m3: bw(vals('ret_3m')) };
+function strategyLabel(s) {
+  if (!s) return '';
+  return s.replace(' Fund', '').replace('Long-Short', 'L/S');
+}
+
+function retBadge(label, val) {
+  if (val == null) {
+    return `<div class="ret-badge neutral"><span class="ret-label">${label}</span><span class="ret-value">—</span></div>`;
+  }
+  const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
+  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${
+    val.toFixed(2)
+  }%</span></div>`;
 }
 
 function updatePanel() {
-  if (selected.length === 0) { panel.style.display = 'none'; return; }
+  if (selected.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
   panel.style.display = 'block';
   const c = chartColors();
-  const funds = selected.map(code => allData.find(f => f.scheme_code === code)).filter(Boolean);
+  const funds = selected.map((code) =>
+    allData.find((f) => f.scheme_code === code)
+  ).filter(Boolean);
   if (chartInstance) chartInstance.dispose();
   chartInstance = echarts.init(chartEl);
   chartInstance.setOption({
     tooltip: { trigger: 'axis' },
-    legend: { top: 0, textStyle: { color: c.axis } },
+    legend: { top: 0, textStyle: { color: c.axis, fontSize: 12 } },
     grid: { top: 40, bottom: 30, left: 50, right: 20 },
-    xAxis: { type: 'category', data: funds.map(f => f.scheme_name.split(' ').slice(0, 3).join(' ')), axisLabel: { color: c.axis, rotate: 15 } },
-    yAxis: { type: 'value', axisLabel: { color: c.axis, formatter: '{value}%' }, splitLine: { lineStyle: { color: c.grid } } },
+    xAxis: {
+      type: 'category',
+      data: funds.map((f) => shortName(f.scheme_name)),
+      axisLabel: { color: c.axis, rotate: 15, fontSize: 11 },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: c.axis, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: c.grid } },
+    },
     series: [
-      { name: 'Annualised', type: 'bar', data: funds.map(f => f.ret_annualised ?? 0), itemStyle: { color: c.bar1 } },
-      { name: '1M', type: 'bar', data: funds.map(f => f.ret_1m ?? 0), itemStyle: { color: c.bar2 } },
-      { name: '3M', type: 'bar', data: funds.map(f => f.ret_3m ?? 0), itemStyle: { color: c.bar3 } },
+      {
+        name: 'Annualised',
+        type: 'bar',
+        data: funds.map((f) => f.ret_annualised ?? 0),
+        itemStyle: { color: c.bar1 },
+        barMaxWidth: 28,
+      },
+      {
+        name: '1M',
+        type: 'bar',
+        data: funds.map((f) => f.ret_1m ?? 0),
+        itemStyle: { color: c.bar2 },
+        barMaxWidth: 28,
+      },
+      {
+        name: '3M',
+        type: 'bar',
+        data: funds.map((f) => f.ret_3m ?? 0),
+        itemStyle: { color: c.bar3 },
+        barMaxWidth: 28,
+      },
     ],
   });
 }
 
 // --- Events ---
-document.querySelectorAll('.compare-tab').forEach(tab => {
+document.querySelectorAll('.compare-tab').forEach((tab) => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.compare-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.compare-tab').forEach((t) =>
+      t.classList.remove('active')
+    );
     tab.classList.add('active');
     selected = [];
     updatePanel();
@@ -113,20 +182,34 @@ document.querySelectorAll('.compare-tab').forEach(tab => {
   });
 });
 
-document.getElementById('compare-search').addEventListener('input', e => { searchTerm = e.target.value; applyFilter(); });
-
-document.querySelectorAll('#compare-table th[data-sort]').forEach(th => {
-  th.addEventListener('click', () => {
-    const col = th.dataset.sort;
-    if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-    else { sortCol = col; sortDir = 'desc'; }
-    document.querySelectorAll('#compare-table th[data-sort]').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
-    th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+document.querySelectorAll('.sort-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sort-btn').forEach((b) =>
+      b.classList.remove('active')
+    );
+    btn.classList.add('active');
+    const col = btn.dataset.sort;
+    if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+    else {
+      sortCol = col;
+      sortDir = 'desc';
+    }
     applyFilter();
   });
 });
 
-document.getElementById('close-compare').addEventListener('click', () => { selected = []; updatePanel(); render(); });
-window.addEventListener('resize', () => chartInstance && chartInstance.resize());
+document.getElementById('compare-search').addEventListener('input', (e) => {
+  searchTerm = e.target.value;
+  applyFilter();
+});
+document.getElementById('close-compare').addEventListener('click', () => {
+  selected = [];
+  updatePanel();
+  render();
+});
+window.addEventListener(
+  'resize',
+  () => chartInstance && chartInstance.resize(),
+);
 
 loadData('');

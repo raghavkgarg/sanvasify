@@ -100,9 +100,11 @@
 - Dashboard performance snapshot chart (grouped bar by strategy) ✅
 
 ### Phase 11: Frontend Polish (remaining)
-- Loading skeleton/spinner for async content
-- Empty states with illustrations for charts
-- Mobile hamburger menu for nav on small screens
+- Loading skeleton/spinner for async content ✅
+- Empty states with illustrations for charts ✅
+- Mobile hamburger menu for nav on small screens ✅
+- Compare page redesigned: card-list layout, SI returns, sort bar ✅
+- launchctl-based service management (replaces PID file approach) ✅
 - Embed static assets (`go:embed`) — single binary, no runtime file deps
   - Embed `web/static/` via `//go:embed` in a new `web/embed.go`
   - Embed `config/Config.toml` as default config (override via flag/env)

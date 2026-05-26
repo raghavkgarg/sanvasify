@@ -31,7 +31,12 @@ function volBar(stdDev, maxStdDev, rating) {
 async function loadVolatility() {
   content.innerHTML =
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading...</span></div>';
-  const data = await fetchJSON('/api/analytics/volatility');
+  let data = await fetchJSON('/api/analytics/volatility');
+  // Filter to show only 'Growth - Direct' variants
+  data = data.filter((f) =>
+    f.scheme_name.toLowerCase().includes('growth') &&
+    f.scheme_name.toLowerCase().includes('direct')
+  );
   const maxStd = Math.max(...data.map((r) => r.std_dev || 0));
 
   const header = sectionHeader(
@@ -75,7 +80,12 @@ function trendLine(signal) {
 async function loadTrends() {
   content.innerHTML =
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading...</span></div>';
-  const data = await fetchJSON('/api/analytics/trends');
+  let data = await fetchJSON('/api/analytics/trends');
+  // Filter to show only 'Growth - Direct' variants
+  data = data.filter((f) =>
+    f.scheme_name.toLowerCase().includes('growth') &&
+    f.scheme_name.toLowerCase().includes('direct')
+  );
 
   const header = sectionHeader(
     'Trend Signals',
@@ -110,7 +120,12 @@ async function loadTrends() {
 async function loadAnomalies() {
   content.innerHTML =
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading...</span></div>';
-  const data = await fetchJSON('/api/analytics/anomalies');
+  let data = await fetchJSON('/api/analytics/anomalies');
+  // Filter to show only 'Growth - Direct' variants
+  data = data.filter((f) =>
+    f.scheme_name.toLowerCase().includes('growth') &&
+    f.scheme_name.toLowerCase().includes('direct')
+  );
 
   const header = sectionHeader(
     'Unusual Moves',

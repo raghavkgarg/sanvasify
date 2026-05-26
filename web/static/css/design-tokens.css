@@ -31,6 +31,12 @@
   --color-chart-bar-2: #10b981;
   --color-chart-bar-3: #6366f1;
 
+  /* Brand Logo & Tagline Colors (Dark Theme) */
+  --color-logo-p1: #8ea5d1;
+  --color-logo-p2: #2A8A8C;
+  --color-logo-p3: #E4B45F;
+  --color-logo-stroke: var(--color-surface);
+
   /* --- Spacing --- */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -100,6 +106,12 @@
   --color-chart-bar-1: #92700c;
   --color-chart-bar-2: #059669;
   --color-chart-bar-3: #4f46e5;
+
+  /* Brand Logo & Tagline Colors (Light Theme) */
+  --color-logo-p1: #1C2B4A;
+  --color-logo-p2: #2A8A8C;
+  --color-logo-p3: #E4B45F;
+  --color-logo-stroke: var(--color-surface);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);

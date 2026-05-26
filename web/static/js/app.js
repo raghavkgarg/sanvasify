@@ -164,6 +164,12 @@ async function checkAndTriggerSearch() {
     navDateEl.textContent = data.date ? data.date.split('T')[0] : '';
     schemeCodeEl.textContent = data.scheme_code;
     resultCard.style.display = 'block';
+
+    // Sync Quick Search dropdown with Advanced Search result
+    if (schemeSelect) {
+      schemeSelect.value = data.scheme_code;
+    }
+
     showNAVHistory(data.scheme_code);
   } catch (e) {
     alert(e.message);
@@ -203,12 +209,11 @@ async function checkAndTriggerSearch() {
 
   // Auto-load scheme from URL parameter if present (e.g. from Compare page)
   const urlParams = new URLSearchParams(window.location.search);
-  const codeParam = urlParams.get('code');
-  if (codeParam) {
-    schemeSelect.value = codeParam;
-    if (schemeSelect.value === codeParam) {
-      schemeSelect.dispatchEvent(new Event('change'));
-    }
+  const codeToLoad = urlParams.get('code') || 'SIF-1';
+
+  schemeSelect.value = codeToLoad;
+  if (schemeSelect.value === codeToLoad) {
+    schemeSelect.dispatchEvent(new Event('change'));
   }
 
   const resetBtn = document.getElementById('btn-reset-filters');

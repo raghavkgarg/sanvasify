@@ -221,3 +221,42 @@ export async function loadNAVHistory(chart, schemeCode, statsCard) {
     console.error('Error loading NAV history:', e);
   }
 }
+
+/**
+ * Injects the brand SVG icon into placeholders.
+ * Extracted from logo.html triangles.
+ */
+function injectBrandLogo() {
+    const placeholders = document.querySelectorAll('.brand-logo');
+    if (placeholders.length === 0) return;
+
+    const svgHtml = `
+        <svg viewBox="155 55 650 290" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
+            <polygon points="560,60 800,340 320,340" class="logo-p3"/>
+            <polygon points="440,80 640,340 240,340" class="logo-p2"/>
+            <polygon points="320,100 480,340 160,340" class="logo-p1"/>
+        </svg>`;
+
+    placeholders.forEach(el => {
+        el.innerHTML = svgHtml;
+
+        // Inject the tagline next to/under the brand name if it's missing
+        const brandParent = el.closest('.brand');
+        if (brandParent && !brandParent.querySelector('.brand-tagline')) {
+            const tagline = document.createElement('div');
+            tagline.className = 'brand-tagline';
+            tagline.innerHTML = `
+                <span class="logo-p1">Accumulate.</span>
+                <span class="logo-p2">Invest.</span>
+                <span class="logo-p3">Amplify.</span>`;
+            brandParent.appendChild(tagline);
+        }
+    });
+}
+
+// Run injection when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectBrandLogo);
+} else {
+    injectBrandLogo();
+}

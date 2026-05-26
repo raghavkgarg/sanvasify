@@ -127,56 +127,80 @@ function retBadge(label, val) {
   }%</span></div>`;
 }
 
-function updatePanel() {
+async function updatePanel() {
   if (selected.length === 0) {
     panel.style.display = 'none';
     return;
   }
   panel.style.display = 'block';
   const c = chartColors();
-  const funds = selected.map((code) =>
-    allData.find((f) => f.scheme_code === code)
-  ).filter(Boolean);
+
+  if (chartInstance) chartInstance.showLoading();
+
+  try {
+    // Fetch historical data for all selected schemes in parallel
+    const histories = await Promise.all(
+      selected.map(code => fetchJSON(`/api/nav/history?code=${code}`))
+    );
+
+    const funds = selected.map((code, i) => {
+      const baseInfo = allData.find(f => f.scheme_code === code);
+      return { ...baseInfo, history: histories[i] };
+    }).filter(f => f.history && f.history.length > 0);
+
   if (chartInstance) chartInstance.dispose();
   chartInstance = echarts.init(chartEl);
+
+    // Create a unique set of all dates across all selected funds to use as X-axis
+    const allDates = [...new Set(histories.flat().map(d => d.date))].sort();
+
+    const series = funds.map(f => {
+      const dataMap = new Map(f.history.map(h => [h.date, h.net_asset_value]));
+      const seriesData = allDates.map(date => dataMap.get(date) || null);
+
+      return {
+        name: shortName(f.scheme_name),
+        type: 'line',
+        data: seriesData,
+        smooth: true,
+        showSymbol: false,
+        connectNulls: true,
+        lineStyle: { width: 2 }
+      };
+    });
+
   chartInstance.setOption({
-    tooltip: { trigger: 'axis' },
+      tooltip: { 
+        trigger: 'axis',
+        backgroundColor: 'rgba(31, 41, 55, 0.9)',
+        textStyle: { color: '#fff' }
+      },
     legend: { top: 0, textStyle: { color: c.axis, fontSize: 12 } },
-    grid: { top: 40, bottom: 30, left: 50, right: 20 },
+      grid: { top: 60, bottom: 60, left: 50, right: 20 },
     xAxis: {
       type: 'category',
-      data: funds.map((f) => shortName(f.scheme_name)),
-      axisLabel: { color: c.axis, rotate: 15, fontSize: 11 },
+        data: allDates,
+        axisLabel: { 
+          color: c.axis, 
+          rotate: 30, 
+          fontSize: 10,
+          formatter: (v) => new Date(v).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+        },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: c.axis, formatter: '{value}%' },
+        scale: true,
+        axisLabel: { color: c.axis, formatter: '₹{value}' },
       splitLine: { lineStyle: { color: c.grid } },
     },
-    series: [
-      {
-        name: 'Annualised',
-        type: 'bar',
-        data: funds.map((f) => f.ret_annualised ?? 0),
-        itemStyle: { color: c.bar1 },
-        barMaxWidth: 28,
-      },
-      {
-        name: '1M',
-        type: 'bar',
-        data: funds.map((f) => f.ret_1m ?? 0),
-        itemStyle: { color: c.bar2 },
-        barMaxWidth: 28,
-      },
-      {
-        name: '3M',
-        type: 'bar',
-        data: funds.map((f) => f.ret_3m ?? 0),
-        itemStyle: { color: c.bar3 },
-        barMaxWidth: 28,
-      },
-    ],
+      dataZoom: [{ type: 'inside' }, { type: 'slider', height: 20, bottom: 5 }],
+      series: series
   });
+  } catch (error) {
+    console.error('Error rendering comparison chart:', error);
+  } finally {
+    if (chartInstance) chartInstance.hideLoading();
+  }
 }
 
 // --- Events ---

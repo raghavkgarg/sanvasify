@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIF Guide — Sanvasify</title>
+  <link rel="stylesheet" href="css/design-tokens.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><span class="brand-logo"></span><span>Sanvasify</span></a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">Home</a>
+        <a href="nav.html">NAV Lookup</a>
+        <a href="nav_trends.html">Trends</a>
+        <a href="compare.html">Compare</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="guide.html" class="active">Guide</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-header">
+      <h1>A Complete Guide on SIFs</h1>
+      <p>For experienced investors — understanding SEBI-regulated Specialised Investment Funds</p>
+    </div>
+
+    <!-- Core Features -->
+    <section class="guide-section">
+      <h2>Core Features & Requirements</h2>
+      <div class="stats-row" style="margin-top: var(--space-4);">
+        <div class="stat">
+          <span class="stat-label">Minimum Investment</span>
+          <div class="stat-value">₹10 Lakh</div>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Leverage</span>
+          <div class="stat-value">Not Allowed</div>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Naked Short Cap</span>
+          <div class="stat-value">25%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Long-Short Strategy -->
+    <section class="guide-section">
+      <h2>The Long-Short Advantage</h2>
+      <div class="panel">
+        <p>Fund managers can profit from both <strong>rising markets</strong> and <strong>falling prices</strong> using derivative positions — while maintaining lower volatility than pure long funds.</p>
+        <p style="margin-top: var(--space-4); color: var(--color-text-muted); font-size: var(--text-sm);">
+          SEBI limits naked short positions to 25% to protect the portfolio from extreme volatility. Funds cannot take positions exceeding their capital, preventing destructive speculation and margin calls.
+        </p>
+      </div>
+    </section>
+
+    <!-- Risk-Adjusted Returns -->
+    <section class="guide-section">
+      <h2>Focus on Risk-Adjusted Returns</h2>
+      <div class="panel">
+        <p>SIFs aim for <strong>downside protection and steady income</strong> rather than outsized returns. Consistency over speculation.</p>
+        <ul style="margin-top: var(--space-4); padding-left: var(--space-5); color: var(--color-text-secondary); font-size: var(--text-sm); line-height: 2;">
+          <li>Long-short flexibility — generating absolute returns in all market cycles</li>
+          <li>SEBI-regulated with MF-like taxation benefits</li>
+          <li>No leverage — prevents destructive speculation</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="guide-section">
+      <h2>How SIFs Stack Up</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>SIF</th>
+              <th>Mutual Fund</th>
+              <th>PMS</th>
+              <th>AIF</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fund-name">Target Investors</td>
+              <td>Advanced, tax-efficient strategies</td>
+              <td>First-time to long-term</td>
+              <td>HNIs, personalized portfolios</td>
+              <td>Ultra-HNIs & Institutions</td>
+            </tr>
+            <tr>
+              <td class="fund-name">Minimum Investment</td>
+              <td>₹10 Lakh</td>
+              <td>₹5,000</td>
+              <td>₹50 Lakh</td>
+              <td>₹1 Crore</td>
+            </tr>
+            <tr>
+              <td class="fund-name">Structure</td>
+              <td>Hybrid MF/PMS/AIF, MF-like taxation</td>
+              <td>Pooled, SEBI-regulated</td>
+              <td>Separately managed</td>
+              <td>Pooled, privately placed</td>
+            </tr>
+            <tr>
+              <td class="fund-name">Taxation (Investor)</td>
+              <td>Similar to MF (asset-class based)</td>
+              <td>Tax-efficient per asset class</td>
+              <td>Individual security treatment</td>
+              <td>Nil</td>
+            </tr>
+            <tr>
+              <td class="fund-name">Taxation (Fund)</td>
+              <td>Nil — Section 10(23D)</td>
+              <td>Nil — Section 10(23D)</td>
+              <td>Nil</td>
+              <td>Capital gains @12.5% + Business @30%</td>
+            </tr>
+            <tr>
+              <td class="fund-name">Expense Ratio</td>
+              <td>Max 2.25%</td>
+              <td>Max 2.25%</td>
+              <td>Mgmt + Performance Fee</td>
+              <td>Mgmt + Performance Fee</td>
+            </tr>
+            <tr>
+              <td class="fund-name">Leverage</td>
+              <td>Not allowed</td>
+              <td>Not allowed</td>
+              <td>Not allowed</td>
+              <td>Up to 200% gross</td>
+            </tr>
+            <tr>
+              <td class="fund-name">Derivatives</td>
+              <td>Naked shorts up to 25% + Hedging</td>
+              <td>Hedging only</td>
+              <td>Hedging only</td>
+              <td>Allowed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top: var(--space-4); font-size: var(--text-xs); color: var(--color-text-dim); text-align: center;">
+        As per current Income Tax Laws. Consult your investment/tax adviser before making any investment decision.
+      </p>
+    </section>
+
+    <footer style="margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--color-border); text-align: center;">
+      <p style="font-size: var(--text-xs); color: var(--color-text-dim);">
+        Disclaimer: For educational purposes only. Not financial advice. Consult a qualified professional before investing.
+      </p>
+    </footer>
+  </main>
+
+  <script src="js/theme.js?v=1.0.0"></script>
+  <script type="module" src="js/common.js?v=1.0.0"></script>
+</body>
+</html>

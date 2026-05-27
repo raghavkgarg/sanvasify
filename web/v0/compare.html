@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compare Schemes — Sanvasify</title>
+  <link rel="stylesheet" href="css/design-tokens.css?v=1.0.0" />
+  <link rel="stylesheet" href="css/style.css?v=1.0.1" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><span class="brand-logo"></span><span>Sanvasify</span></a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html">Home</a>
+        <a href="nav.html">NAV Lookup</a>
+        <a href="nav_trends.html">Trends</a>
+        <a href="compare.html" class="active">Compare</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="guide.html">Guide</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page page-wide">
+    <div class="page-header">
+      <h1>Compare Schemes</h1>
+      <p>Side-by-side performance across strategies</p>
+    </div>
+
+    <!-- Filters row -->
+    <div class="compare-controls">
+      <div class="compare-tabs">
+        <button class="compare-tab active" data-strategy="">All</button>
+        <button class="compare-tab" data-strategy="Hybrid">Hybrid L/S</button>
+        <button class="compare-tab" data-strategy="Equity Long-Short">Equity L/S</button>
+        <button class="compare-tab" data-strategy="Equity Ex-Top 100">Ex-Top 100</button>
+        <button class="compare-tab" data-strategy="Active Asset Allocator">Active Alloc.</button>
+        <button class="compare-tab" data-strategy="Sector Rotation">Sector Rot.</button>
+      </div>
+      <div class="compare-meta">
+        <input type="text" id="compare-search" class="compare-search" placeholder="Search fund or company..." />
+        <span class="compare-date" id="compare-date"></span>
+      </div>
+    </div>
+
+    <!-- Sort bar -->
+    <div class="sort-bar">
+      <span class="sort-bar-label">Sort by:</span>
+      <button class="sort-btn active" data-sort="annualised">Annualised</button>
+      <button class="sort-btn" data-sort="1m">1M</button>
+      <button class="sort-btn" data-sort="3m">3M</button>
+      <button class="sort-btn" data-sort="si">SI</button>
+    </div>
+
+    <!-- Compare chart panel -->
+    <div id="compare-panel" class="compare-panel" style="display:none;">
+      <div class="compare-panel-header">
+        <span>📊 Comparison</span>
+        <button id="close-compare" class="btn btn-ghost">✕ Close</button>
+      </div>
+      <div id="compare-chart" style="width:100%; height:280px;"></div>
+    </div>
+
+    <!-- Fund list -->
+    <div id="fund-list" class="fund-list"></div>
+  </main>
+
+  <script src="js/theme.js?v=1.0.0"></script>
+  <script type="module" src="js/common.js?v=1.0.0"></script>
+  <script type="module" src="js/compare.js?v=1.0.0"></script>
+</body>
+</html>

@@ -7,8 +7,15 @@
   <meta name="google-site-verification" content="U2CJZ8nzs6Ctlh2qD1WwDEqRxmTqMrmTj9c8faNzGX8" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f6e9da">
+  <!-- Apple/Safari PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SIF Analytics">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <title>Sanvasify | Indian Specialised Investment Fund (SIF) NAV & Analytics</title>
   <meta name="description" content="Track and analyze SEBI-regulated Specialised Investment Funds (SIFs). Compare NAV trends, volatility, and historical performance for Indian long-short funds." />
+  <link rel="stylesheet" href="css/pwa-prompt.css" />
   <meta name="keywords" content="SIF, Specialised Investment Fund, Indian Mutual Funds, NAV Tracking, Long-Short Funds, SEBI SIF Analytics" />
   <meta property="og:title" content="Sanvasify — SIF Investment Data & Analytics" />
   <meta property="og:description" content="The ultimate dashboard for SIF investors. Track NAV, volatility, and compare schemes side-by-side." />
@@ -114,5 +121,13 @@
   <script src="js/theme.js?v=1.0.0"></script>
   <script type="module" src="js/common.js?v=1.0.0"></script>
   <script type="module" src="js/dashboard.js?v=1.0.0"></script>
+  <script src="js/pwa-prompt.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+  </script>
 </body>
 </html>

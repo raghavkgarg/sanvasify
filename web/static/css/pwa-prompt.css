@@ -1,0 +1,54 @@
+#ios-pwa-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow-md);
+  z-index: 10000;
+  animation: pwa-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.pwa-prompt-content { position: relative; }
+
+.pwa-prompt-close {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: none;
+  border: none;
+  color: var(--color-text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.pwa-prompt-steps {
+  margin-top: 8px;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.pwa-share-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-bottom: 2px;
+  /* By default (dark theme), invert the black icon to white */
+  filter: brightness(0) invert(1);
+}
+
+.theme-light .pwa-share-icon {
+  /* In light theme, keep the icon dark */
+  filter: none;
+}
+
+@keyframes pwa-slide-up {
+  from { transform: translateY(120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

@@ -6,8 +6,10 @@
   <!-- Google Site Verification -->
   <meta name="google-site-verification" content="U2CJZ8nzs6Ctlh2qD1WwDEqRxmTqMrmTj9c8faNzGX8" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="manifest" href="manifest.json">
   <title>Sanvasify | Indian Specialised Investment Fund (SIF) NAV & Analytics</title>
   <meta name="description" content="Track and analyze SEBI-regulated Specialised Investment Funds (SIFs). Compare NAV trends, volatility, and historical performance for Indian long-short funds." />
+  <meta name="keywords" content="SIF, Specialised Investment Fund, Indian Mutual Funds, NAV Tracking, Long-Short Funds, SEBI SIF Analytics" />
   <meta property="og:title" content="Sanvasify — SIF Investment Data & Analytics" />
   <meta property="og:description" content="The ultimate dashboard for SIF investors. Track NAV, volatility, and compare schemes side-by-side." />
   <meta property="og:type" content="website" />
@@ -22,7 +24,15 @@
       "@type": "WebSite",
       "name": "Sanvasify",
       "url": "https://sanvasify.com/",
-      "description": "Analytics for Indian Specialised Investment Funds (SIF)"
+      "description": "Analytics for Indian Specialised Investment Funds (SIF)",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://sanvasify.com/nav.html?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
     }
   </script>
 </head>

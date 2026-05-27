@@ -26,28 +26,34 @@ endif
 # --- Build ---
 
 build:
-	@go build -o $(DIST)/$(BINARY) ./cmd/server/
+	@mkdir -p $(DIST)
+	go build -o $(DIST)/$(BINARY) ./cmd/server/main.go
 
 build-fetch:
-	@go build -o $(DIST)/fetch ./cmd/fetch/
+	@mkdir -p $(DIST)
+	go build -o $(DIST)/fetch ./cmd/fetch/main.go
 
 build-load:
-	@go build -o $(DIST)/load ./cmd/load/
+	@mkdir -p $(DIST)
+	go build -o $(DIST)/load ./cmd/load/main.go
 
 build-gensecret:
-	@go build -o $(DIST)/gensecret ./cmd/gensecret/
+	@mkdir -p $(DIST)
+	go build -o $(DIST)/gensecret ./cmd/gensecret/main.go
 
 build-all: build build-fetch build-load build-gensecret
 
 build-linux-arm64:
+	@mkdir -p $(DIST)
 	@CGO_ENABLED=1 GOOS=linux GOARCH=arm64 \
 	CC=$(ARM64_CC) CXX=$(ARM64_CXX) \
-	go build -ldflags "-s -w" -o $(DIST)/$(BINARY)-arm64 ./cmd/server/
+	go build -ldflags "-s -w" -o $(DIST)/$(BINARY) ./cmd/server/main.go
 
 build-linux-amd64:
+	@mkdir -p $(DIST)
 	@CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
 	CC=$(AMD64_CC) CXX=$(AMD64_CXX) \
-	go build -ldflags "-s -w" -o $(DIST)/$(BINARY)-amd64 ./cmd/server/
+	go build -ldflags "-s -w" -o $(DIST)/$(BINARY) ./cmd/server/main.go
 
 # --- Package (full quality pipeline) ---
 

@@ -35,7 +35,7 @@ echo ">>> [LOCAL] 2. Building for Linux ARM64..."
 make build-linux-arm64
 
 echo ">>> [LOCAL] 3. Uploading Binary to staging area..."
-scp $SSH_OPTS -i "$KEY_FILE" "$PROJECT_ROOT/sanvasify" "$SCP_DEST:~/"
+scp $SSH_OPTS -i "$KEY_FILE" "$PROJECT_ROOT/dist/sanvasify" "$SCP_DEST:~/"
 
 echo ">>> [REMOTE] 4-10. Executing Remote Deployment..."
 ssh $SSH_OPTS -i "$KEY_FILE" "$REMOTE_USER_HOST" << EOF

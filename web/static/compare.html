@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compare Schemes — Sanvasify</title>
-  <link rel="stylesheet" href="css/design-tokens.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/design-tokens.css?v=1.0.0" />
+  <link rel="stylesheet" href="css/style.css?v=1.0.1" />
   <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js"></script>
 </head>
 <body>
@@ -35,11 +35,11 @@
     <div class="compare-controls">
       <div class="compare-tabs">
         <button class="compare-tab active" data-strategy="">All</button>
-        <button class="compare-tab" data-strategy="Hybrid">Hybrid Long-Short</button>
-        <button class="compare-tab" data-strategy="Equity Long-Short">Equity Long-Short</button>
-        <button class="compare-tab" data-strategy="Equity Ex-Top 100">Equity Ex-Top 100</button>
-        <button class="compare-tab" data-strategy="Active Asset Allocator">Active Allocator</button>
-        <button class="compare-tab" data-strategy="Sector Rotation">Sector Rotation</button>
+        <button class="compare-tab" data-strategy="Hybrid">Hybrid L/S</button>
+        <button class="compare-tab" data-strategy="Equity Long-Short">Equity L/S</button>
+        <button class="compare-tab" data-strategy="Equity Ex-Top 100">Ex-Top 100</button>
+        <button class="compare-tab" data-strategy="Active Asset Allocator">Active Alloc.</button>
+        <button class="compare-tab" data-strategy="Sector Rotation">Sector Rot.</button>
       </div>
       <div class="compare-meta">
         <input type="text" id="compare-search" class="compare-search" placeholder="Search fund or company..." />
@@ -69,8 +69,8 @@
     <div id="fund-list" class="fund-list"></div>
   </main>
 
-  <script src="js/theme.js"></script>
-  <script type="module" src="js/common.js"></script>
-  <script type="module" src="js/compare.js"></script>
+  <script src="js/theme.js?v=1.0.0"></script>
+  <script type="module" src="js/common.js?v=1.0.0"></script>
+  <script type="module" src="js/compare.js?v=1.0.0"></script>
 </body>
 </html>

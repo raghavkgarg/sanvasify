@@ -30,10 +30,10 @@ Build a clean, data-driven webpage that allows users to compare **Hybrid Long-Sh
 - Sticky header with column sorting
 
 ### 4.2 Comparison Features
-- [ ] **Select up to 4 funds** to compare side-by-side
+- [x] **Select up to 4 funds** to compare side-by-side
 - [ ] **Highlight best / worst** per metric (color-coded: green = top, red = bottom)
-- [ ] **Sortable columns** (NAV, Annualised, 1M, 3M)
-- [ ] **Search by AMC or fund name**
+- [x] **Sortable columns** (NAV, Annualised, 1M, 3M)
+- [x] **Search by AMC or fund name**
 
 ### 4.3 Visual cues
 - Positive returns → green text/background tint
@@ -85,11 +85,11 @@ Footer
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React / Vue or plain HTML + Tailwind CSS |
-| State | LocalStorage for compare selection |
-| Data | JSON + fetch |
-| Charting (compare) | Chart.js or ApexCharts |
-| Hosting | Vercel / Netlify / GitHub Pages |
+| Frontend | Vanilla JS, HTML, CSS (design-tokens) |
+| State | In-memory / DOM |
+| Data | Go API + DuckDB |
+| Charting (compare) | eCharts |
+| Hosting | AWS EC2 with Caddy |
 
 ## 8. MVP vs Future Enhancements
 
@@ -99,10 +99,10 @@ Footer
 - Highlight best/worst in each column
 
 ### V2
-- Time-series chart (NAV trend)
+- [x] Time-series chart (NAV trend)
 - Download as PDF/CSV
 - Email alerts on NAV change
-- Add more SIF categories (Equity Long-Short, Ex-Top 100)
+- [x] Add more SIF categories (Equity Long-Short, Ex-Top 100)
 
 ## 9. Sample UI Structure (ASCII)
 
@@ -134,8 +134,8 @@ Footer
 | Compare panel complexity | Limit to 4 funds, use simple horizontal bar chart |
 
 ## 12. Immediate Next Steps
-1. Extract all 7 funds’ data from screenshot into JSON
-2. Build static HTML table with sorting
-3. Implement compare checkbox + side-by-side modal
-4. Deploy v0 on GitHub Pages
-5. Replace with Google Sheets JSON endpoint
+- [x] 1. Extract all 7 funds’ data from screenshot into JSON
+- [x] 2. Build HTML page with sorting
+- [x] 3. Implement compare checkbox + side-by-side panel with eCharts
+- [x] 4. Deploy v0
+- [x] 5. Connect UI to Go + DuckDB backend API

@@ -179,3 +179,40 @@ func (s *Server) handleSimilar() http.HandlerFunc {
 		json.NewEncoder(w).Encode(results)
 	}
 }
+
+func (s *Server) handleRecordVisit() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		var payload struct {
+			VisitorID string `json:"visitor_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		if payload.VisitorID == "" {
+			http.Error(w, "visitor_id is required", http.StatusBadRequest)
+			return
+		}
+		
+		if err := s.db.RecordVisit(r.Context(), payload.VisitorID); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (s *Server) handleVisitorCount() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		count, err := s.db.GetUniqueVisitorCount(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]int{"count": count})
+	}
+}

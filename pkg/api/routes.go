@@ -22,6 +22,10 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/api/analytics/trends", jsonMW(s.handleTrends()))
 	s.router.HandleFunc("/api/analytics/anomalies", jsonMW(s.handleAnomalies()))
 	s.router.HandleFunc("/api/analytics/similar", jsonMW(s.handleSimilar()))
+	
+	// Metrics routes
+	s.router.HandleFunc("/api/metrics/visit", jsonMW(s.handleRecordVisit()))
+	s.router.HandleFunc("/api/metrics/visitors/count", jsonMW(s.handleVisitorCount()))
 
 	// Protected API routes (auth required)
 	s.router.HandleFunc("/api/nav", authMW(s, jsonMW(s.handleNAV())))

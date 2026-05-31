@@ -254,9 +254,65 @@ function injectBrandLogo() {
     });
 }
 
+// --- Visitor Tracking ---
+async function trackVisitor() {
+    let visitorId = localStorage.getItem('sanvasify_visitor_id');
+    if (!visitorId) {
+        visitorId = crypto.randomUUID ? crypto.randomUUID() : 'v-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+        localStorage.setItem('sanvasify_visitor_id', visitorId);
+    }
+    
+    // Ping backend once per session
+    if (!sessionStorage.getItem('sanvasify_visit_recorded')) {
+        try {
+            const res = await fetch('/api/metrics/visit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ visitor_id: visitorId })
+            });
+            if (res.ok) {
+                sessionStorage.setItem('sanvasify_visit_recorded', 'true');
+            }
+        } catch(e) {
+            console.error('Failed to record visit', e);
+        }
+    }
+    
+    // Fetch count and update UI if count >= 1000
+    try {
+        const res = await fetch('/api/metrics/visitors/count');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.count >= 1000) {
+                const navLinks = document.getElementById('nav-links');
+                if (navLinks) {
+                    let countEl = document.getElementById('visitor-count-display');
+                    if (!countEl) {
+                        countEl = document.createElement('span');
+                        countEl.id = 'visitor-count-display';
+                        countEl.className = 'visitor-count';
+                        countEl.style.marginLeft = '1rem';
+                        countEl.style.fontSize = '0.85rem';
+                        countEl.style.color = 'var(--color-text-muted)';
+                        countEl.style.opacity = '0.8';
+                        navLinks.appendChild(countEl);
+                    }
+                    countEl.textContent = `Unique Visitors: ${data.count}`;
+                }
+            }
+        }
+    } catch(e) {
+        console.error('Failed to get visitor count', e);
+    }
+}
+
 // Run injection when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectBrandLogo);
+    document.addEventListener('DOMContentLoaded', () => {
+        injectBrandLogo();
+        trackVisitor();
+    });
 } else {
     injectBrandLogo();
+    trackVisitor();
 }

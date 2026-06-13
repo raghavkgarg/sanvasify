@@ -34,7 +34,7 @@
 
   /* Brand Logo & Tagline Colors (Dark Theme) */
   --color-logo-p1: #8ea5d1;
-  --color-logo-p2: #2A8A8C;
+  --color-logo-p2: #3EB4B6;
   --color-logo-p3: #E4B45F;
   --color-logo-stroke: var(--color-surface);
 
@@ -111,7 +111,7 @@
 
   /* Brand Logo & Tagline Colors (Light Theme) */
   --color-logo-p1: #1C2B4A;
-  --color-logo-p2: #2A8A8C;
+  --color-logo-p2: #1A6062;
   --color-logo-p3: #E4B45F;
   --color-logo-stroke: var(--color-surface);
 

@@ -66,7 +66,7 @@ function render() {
           <span class="fund-card-pill">${
       strategyLabel(fund.fund_strategy)
     }</span>
-          <a href="nav.html?code=${
+          <a href="nav_trends.html?code=${
       fund.scheme_code
     }" class="fund-card-link">View Details →</a>
         </div>
@@ -128,7 +128,7 @@ function retBadge(label, val) {
 }
 
 async function updatePanel() {
-  if (selected.length === 0) {
+  if (selected.length < 2) {
     panel.style.display = 'none';
     return;
   }

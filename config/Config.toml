@@ -1,7 +1,9 @@
 input_file = "config/nav_report_2026-01-18.txt"
 use_db = true
-db_path = "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
+##db_path = "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
 ##db_path = "/opt/sanvasify/data/sanvasify.db"
+db_path = "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvas.db"
+##db_path = "/opt/sanvasify/data/sanvas.db"
 log_file = "/tmp/sanvasify.log"
 
 [fetcher]

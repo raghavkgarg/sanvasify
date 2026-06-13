@@ -17,20 +17,23 @@ export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PAT
 # Pre-flight Power Check (macOS specific)
 echo "$(date): Battery check started."
 BATT_INFO=$(pmset -g batt)
-if [[ "$BATT_INFO" != *"Battery Power"* ]]; then
-    echo "$(date): Connected to AC power. No action needed."
-fi
+if [[ "$BATT_INFO" = *"Battery Power"* ]]; then
+    
 
-BATT_PCT=$(echo "$BATT_INFO" | grep -o "[0-9]\{1,3\}%" | tr -d '%')
-RECIPIENT="raghavk.garg@icloud.com" # Replace with your Apple ID or Phone Number
-MSG="Sanvasify Mac Alert: Battery is at ${BATT_PCT}%. Please connect to power."
+        BATT_PCT=$(echo "$BATT_INFO" | grep -o "[0-9]\{1,3\}%" | tr -d '%')
+        RECIPIENT="raghavk.garg@icloud.com" # Replace with your Apple ID or Phone Number
+        MSG="Sanvasify Mac Alert: Battery is at ${BATT_PCT}%. Please connect to power."
 
-echo "$(date): Battery is at ${BATT_PCT}%"
-if [ "$BATT_PCT" -lt 30 ]; then
-    osascript -e "display notification \"$MSG\" with title \"Mac Battery Alert\""
-    osascript -e "tell application \"Messages\" to send \"$MSG\" to buddy \"$RECIPIENT\"" &>/dev/null || true
-    [ "$BATT_PCT" -lt 20 ] && echo "Critical Battery" && exit 1
+        echo "$(date): Battery is at ${BATT_PCT}%"
+        if [ "$BATT_PCT" -lt 30 ]; then
+            osascript -e "display notification \"$MSG\" with title \"Mac Battery Alert\""
+            osascript -e "tell application \"Messages\" to send \"$MSG\" to buddy \"$RECIPIENT\"" &>/dev/null || true
+            [ "$BATT_PCT" -lt 20 ] && echo "Critical Battery" && exit 1
+        fi
+else
+    echo "$(date): Connected to AC power."
 fi
+echo "$(date): Battery check completed."
 
 ########################################
 
@@ -104,9 +107,14 @@ elif [ $FETCH_STATUS -ne 0 ]; then
 fi
 echo -e "${GREEN}>>> [LOCAL] 1.1 Fetcher completed... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
 
-echo -e "${GREEN}>>> [LOCAL] 2. Running Loader... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
-go build -o dist/load ./cmd/load
-./dist/load
+
+# Run loader for sanvasify.db
+echo -e "${GREEN}>>> [LOCAL] Running Loader for sanvasify.db... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
+./dist/load -db "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
+
+# Run loader for sanvas.db
+echo -e "${GREEN}>>> [LOCAL] Running Loader for sanvas.db... $(date '+%Y-%m-%d %H:%M:%S') ...${NC}\n"
+./dist/load -db "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvas.db"
 
 # Resolve Public IP dynamically (prefer IPv4, fallback to IPv6)
 INSTANCE_NAME="sanvasify-prod"

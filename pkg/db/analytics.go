@@ -59,12 +59,12 @@ func (d *DB) GetVolatilityRatings(ctx context.Context) ([]VolatilityRating, erro
 
 // TrendSignal holds MA crossover data for a scheme.
 type TrendSignal struct {
-	Code    string   `json:"scheme_code"`
-	Name    string   `json:"scheme_name"`
-	MA7     *float64 `json:"ma_7"`
-	MA30    *float64 `json:"ma_30"`
-	Signal  string   `json:"signal"` // Uptrend, Downtrend, Sideways
-	Since   string   `json:"since"`
+	Code      string   `json:"scheme_code"`
+	Name      string   `json:"scheme_name"`
+	MA7       *float64 `json:"ma_7"`
+	MA30      *float64 `json:"ma_30"`
+	Signal    string   `json:"signal"` // Uptrend, Downtrend, Sideways
+	Since     string   `json:"since"`
 	LatestNAV *float64 `json:"nav"`
 }
 
@@ -126,12 +126,12 @@ func (d *DB) GetTrendSignals(ctx context.Context) ([]TrendSignal, error) {
 
 // Anomaly holds a detected anomalous daily return.
 type Anomaly struct {
-	Code     string   `json:"scheme_code"`
-	Name     string   `json:"scheme_name"`
-	Date     string   `json:"date"`
-	Return   *float64 `json:"daily_return"`
-	ZScore   *float64 `json:"z_score"`
-	NAV      *float64 `json:"nav"`
+	Code   string   `json:"scheme_code"`
+	Name   string   `json:"scheme_name"`
+	Date   string   `json:"date"`
+	Return *float64 `json:"daily_return"`
+	ZScore *float64 `json:"z_score"`
+	NAV    *float64 `json:"nav"`
 }
 
 // GetAnomalies detects daily returns with |Z-score| > 3.

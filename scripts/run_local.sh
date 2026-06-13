@@ -19,9 +19,18 @@ case "$TASK" in
         ./dist/fetch
         ;;
     load)
+        echo ">>> Checking for running local server to prevent database locks..."
+        if pgrep -f "dist/sanvasify" > /dev/null; then
+            echo ">>> Stopping running local server..."
+            pkill -f "dist/sanvasify" || true
+            sleep 1
+        fi
         echo ">>> Building and Running Loader..."
         go build -o dist/load ./cmd/load
-        ./dist/load
+        echo ">>> Updating sanvasify.db..."
+        ./dist/load -db "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvasify.db"
+        echo ">>> Updating sanvas.db..."
+        ./dist/load -db "/Users/raghavgarg/Projects/duckdb/sanvasify/sanvas.db"
         ;;
     server)
         echo ">>> Building and Running Server..."

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -55,7 +56,7 @@ func main() {
 	var database *db.DB
 
 	if conf.Cfg.UseDB {
-		logger.Info("using database mode")
+		logger.Info(fmt.Sprintf("Database using %s", filepath.Base(conf.Cfg.DBPath)))
 		var err error
 		database, err = db.New(conf.Cfg.DBPath)
 		if err != nil {

@@ -197,7 +197,7 @@ func (s *Server) handleRecordVisit() http.HandlerFunc {
 			http.Error(w, "visitor_id is required", http.StatusBadRequest)
 			return
 		}
-		
+
 		if err := s.db.RecordVisit(r.Context(), payload.VisitorID); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

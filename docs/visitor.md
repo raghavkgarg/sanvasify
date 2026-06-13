@@ -35,21 +35,102 @@ The tracking logic is now fully integrated and actively logging visitors in Duck
 
 ---
 
-## Production Deployment & Database Sync Strategy
+## Local Verification & Testing
 
-Currently, `scripts/sync_db.sh` uploads a fresh `sanvasify.db` from your local machine to AWS, replacing the existing database. Because the `visitors` table previously lived inside this same database, running the sync script would have overwritten and deleted all visitor data collected on AWS.
+Follow these steps to check and verify the unique visitor count tracking on your local machine:
 
-To solve this, we implemented a **Split Databases** strategy.
+### 1. Start the Local Server
+Build the project assets and start the web server in the foreground:
+```bash
+make run
+```
+By default, the server runs on `http://localhost:8080`.
 
-### Implemented Architecture: Split Databases
-DuckDB allows the application to manage multiple database connections seamlessly. We have split the data into two isolated files:
-1. `sanvasify.db`: Contains the mutual fund data (`sif_schemes`). This file gets completely overwritten by your `sync_db.sh` script whenever you pull new data.
-2. `metrics.db`: Contains user-generated data (`visitors`). This file lives permanently on AWS and is **never** overwritten by the sync script.
+### 2. Verify the Database Table Schema
+Confirm that DuckDB automatically initialized the `visitors` table inside your active database:
+```bash
+duckdb /Users/raghavgarg/Projects/duckdb/sanvasify/sanvas.db "DESCRIBE visitors;"
+```
+You should see fields `visitor_id` (VARCHAR), `first_visit_at` (TIMESTAMP), and `last_visit_at` (TIMESTAMP).
 
-### How Isolation is Achieved:
-- **Zero Impact on Existing Code:** The primary `*sql.DB` connection in `pkg/db/db.go` remains untouched. All existing endpoints and queries for mutual fund data still route through `sanvasify.db` exactly as they did before.
-- **Dynamic Path Resolution:** The application dynamically determines where `sanvasify.db` is located (e.g., `/Users/raghavgarg/Projects/duckdb/sanvasify/` locally or `/opt/sanvasify/data/` on AWS) and automatically spawns a secondary connection to a `metrics.db` file in that exact same directory.
-- **Dedicated Metrics Connection:** The new visitor methods (`RecordVisit` and `GetUniqueVisitorCount`) are strictly routed to the secondary `metricsConn`.
-- **Infrastructure Integrity:** Because `metrics.db` is a completely separate file, your `sync_db.sh` script required absolutely zero modifications. It will continue to overwrite `sanvasify.db` without ever touching `metrics.db`.
+* **View the Recorded Rows:**
+  ```bash
+  duckdb /Users/raghavgarg/Projects/duckdb/sanvasify/sanvas.db "SELECT * FROM visitors LIMIT 10;"
+  ```
+* **View the Total Count of Recorded Rows:**
+  ```bash
+  duckdb /Users/raghavgarg/Projects/duckdb/sanvasify/sanvas.db "SELECT COUNT(*) FROM visitors;"
+  ```
 
-When you are ready to analyze the metrics locally, you can safely pull the visitor data from AWS to your local machine using SCP, as the file will be waiting for you right next to your main database file (e.g., `scp ... ec2-user@<AWS_IP>:/opt/sanvasify/data/metrics.db /Users/raghavgarg/Projects/duckdb/sanvasify/metrics.db`).
+### 3. Verify API Endpoints via Curl
+You can directly test the API handlers using standard shell commands:
+* **Record a Visit:**
+  ```bash
+  curl -X POST -H "Content-Type: application/json" -d '{"visitor_id": "test-local-uuid-999"}' http://localhost:8080/api/metrics/visit
+  ```
+* **Retrieve the Total Unique Count:**
+  ```bash
+  curl http://localhost:8080/api/metrics/visitors/count
+  ```
+  This should return a JSON response containing the updated count, e.g. `{"count": 1}`.
+
+### 4. Verify Frontend Integration
+1. Open your browser and access `http://localhost:8080/`.
+2. Open the Developer Tools (**F12** or **Option + Cmd + I** on macOS) and navigate to the **Network** tab.
+3. Reload the page and look for a `POST` request to `/api/metrics/visit`.
+4. Inspect the **Application** -> **Storage** panel:
+   * Under **Local Storage**, verify `sanvasify_visitor_id` is created with a UUID.
+   * Under **Session Storage**, verify `sanvasify_visit_recorded` is set to `true`.
+5. Refresh the page again. Confirm that `/api/metrics/visit` is **not** called a second time (due to the session storage sentinel safeguarding bandwidth).
+
+### 5. Simulating the 1,000+ Milestone UI Display
+The unique visitor count is hidden by default until it reaches 1,000. You can simulate and test the display milestone layout by bulk inserting dummy rows into your local DuckDB database:
+```bash
+duckdb /Users/raghavgarg/Projects/duckdb/sanvasify/sanvas.db "INSERT INTO visitors SELECT 'fake-uuid-' || i, now(), now() FROM range(1, 1005) t(i) ON CONFLICT DO NOTHING;"
+```
+After running this query, refresh the browser page. The navigation menu (`#nav-links`) will now display the visitor indicator: **"Unique Visitors: 1006"**.
+
+---
+
+## Production Deployment & Verification Checklist
+
+When you are ready to deploy and verify these changes on production (AWS), follow these steps:
+
+### 1. Cross-Compile and Deploy Binaries
+Build the server binary for the AWS Graviton (ARM64) architecture and deploy the assets:
+```bash
+# Cross-compile for target architecture
+make build-linux-arm64
+
+# Deploy assets (using your target synchronization scripts)
+# e.g., syncing binaries and web assets
+./sync_bin.sh
+./sync_web.sh
+```
+
+### 2. Verify Database Target Switchover
+Make sure the active production instance config points to the consolidated `sanvas.db` (rather than the legacy `sanvasify.db`):
+```bash
+# Run the switchover script to target the consolidated database
+./scriptsv2/switch_db.sh sanvas
+```
+*Note: This script updates `/opt/sanvasify/config/Config.toml` on AWS, handles DB locks, and restarts the systemd services safely.*
+
+### 3. Verify Live Visitor Counting
+Test the live production endpoint using curl to ensure traffic logging is operational:
+```bash
+curl https://sanvasify.com/api/metrics/visitors/count
+```
+#######http://localhost:8080/api/metrics/visitors/count
+
+Confirm that you get a successful JSON response (e.g., `{"count": 0}` if no visitors have loaded the pages yet).
+
+### 4. Schedule the Table-Level Sync Script
+To continuously load new NAV updates locally and sync them to AWS without overwriting server-side visitor logs, ensure the sync job is scheduled:
+* Set up a cron task or daemon on your local machine to regularly execute `scriptsv2/sync_dbv2.sh`.
+* Confirm that local executions export data to `sif_schemes.parquet`, transfer it to AWS, stop the service, perform the `INSERT ... ON CONFLICT` merge into `sanvas.db` on AWS, and restart the service smoothly.
+
+---
+
+For details on how visitor metrics are preserved during deployment, and the phased roadmap for transitioning from `sanvasify.db` to a consolidated multi-table database (`sanvas.db`), please refer to the consolidated [Database Expansion Strategy](file:///Users/raghavgarg/Projects/myGo/sanvasify/docs/dbexpansion.md).
+

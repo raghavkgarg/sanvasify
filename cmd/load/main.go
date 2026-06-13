@@ -16,6 +16,7 @@ import (
 func main() {
 	// Define command line flags
 	reportPath := flag.String("file", "", "Path to the NAV report text file to load")
+	dbPathOverride := flag.String("db", "", "Path to the database file (overrides config)")
 	flag.Parse()
 
 	// If no file is specified, automatically find the latest report
@@ -36,10 +37,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Initialize database connection using config
-	database, err := db.New(conf.Cfg.DBPath)
+	// Use overridden db path if provided
+	dbPath := conf.Cfg.DBPath
+	if *dbPathOverride != "" {
+		dbPath = *dbPathOverride
+		slog.Info("Overriding database path from command line", "path", dbPath)
+	}
+
+	// Initialize database connection using config or command line override
+	database, err := db.New(dbPath)
 	if err != nil {
-		slog.Error("Failed to open database", "error", err)
+		slog.Error("Failed to open database", "error", err, "path", dbPath)
 		os.Exit(1)
 	}
 	defer database.Close()

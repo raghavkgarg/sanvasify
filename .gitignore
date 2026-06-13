@@ -19,7 +19,7 @@ dist/
 *.err
 
 # Scripts (private)
-scripts/V2/*.sh
+scriptsv2/*.sh
 sync_to_icloud.sh
 sync_cloudflare.sh
 

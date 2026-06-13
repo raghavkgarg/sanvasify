@@ -97,30 +97,59 @@
 - Analytics page (`analytics.html`) with visual-first tabbed UI
 - API: `/api/analytics/{volatility,trends,anomalies,similar}`
 
-## Future
+## Future Roadmap & Strategic Expansion
 
-### Phase 11: Remaining
-- Embed static assets (`go:embed`) — single binary, no runtime file deps
-  - Embed `web/static/` via `//go:embed` in a new `web/embed.go`
-  - Embed `config/Config.toml` as default config (override via flag/env)
-  - Remove `stage` target from Makefile once embedded
+To scale Sanvasify sustainably, we integrate our primary design files into a sequential, dependency-aware roadmap. 
 
-### Phase 12b: Analytics (needs 1+ year of data)
-- **Performance Percentile** — PERCENT_RANK on annualised return (all null with <1yr data)
-- **Auto-clustering** — K-means on [return, volatility, drawdown] (returns null without 1yr)
+### Logical Dependency & Ordering Rationale:
+1. **Foundation First**: We cannot launch user-facing features like Portfolios or track live Visitors without migrating to a multi-table database (`sanvas.db`) where synchronizations do not overwrite production tables. Thus, **Database Consolidation** and **Visitor Tracking** are scheduled first.
+2. **SEO & Core Value**: With a stable multi-table foundation, we expand organic reach via **SEO & Competitive Parity** to attract more traffic.
+3. **User Engagement**: Once traffic flows and the database can isolate user data, we introduce the authenticated **Portfolio Management** system.
+4. **Omnichannel Outreach**: After stabilizing the web application and portfolio REST APIs, we expand into the **Mobile Ecosystem** using a SwiftUI + PWA/TWA hybrid strategy.
 
-### Phase 13: Data Enrichment
-- More AMFI data categories
-- Historical data backfill
-- Fund house analytics
-- Sector/category aggregations
+---
 
-### Phase 14: Mobile
-- Strategy documented in `docs/MOBILE_STRATEGY.md`
-- PWA or native (Swift/Kotlin) — TBD
-- API already mobile-ready (JSON, stateless)
+### Phase 13: Database Consolidation & Visitor Tracking ✅
+*Detailed strategy documented in [dbexpansion.md](file:///Users/raghavgarg/Projects/myGo/sanvasify/docs/dbexpansion.md) & [visitor.md](file:///Users/raghavgarg/Projects/myGo/sanvasify/docs/visitor.md)*
 
-### Phase 15: Cost Optimization
-- IPv6-only to eliminate $3.72/month IPv4 charge
-- Evaluate Cloudflare proxy
-- Consider ARM64 Graviton spot instances
+- **Consolidate to `sanvas.db`**: Retire the proposed `metrics.db` and merge `sif_schemes` and `visitors` into a single, multi-table SQLite/DuckDB schema.
+- **Granular Sync Pipeline**: Replace full-db `scp` replacements with table-level Parquet transfers (`sync_db.sh`). Implement **Strategy B** (Brief Service Suspension) as the initial rollout sync mechanism, and prepare for **Strategy A** (Zero-Downtime Application-Led Merges).
+- **Activate Privacy-Compliant Visitor Analytics**:
+  - Store UUIDs locally (`localStorage`) and track sessions (`sessionStorage`).
+  - Keep the display hidden until the visitor count exceeds 1,000, then render it in the main navigation.
+
+### Phase 14: Web SEO & Competitive Parity 📈
+*Detailed plan documented in [WebPhase3.md](file:///Users/raghavgarg/Projects/myGo/sanvasify/docs/WebPhase3.md)*
+
+- **SIF Returns Scorecard**: Add a dedicated `/sif-returns.html` page featuring 1M, 3M, and Since Inception returns grouped by category.
+- **Benchmark Comparison**: Add standard comparisons (e.g., **Nifty 500 TRI**) and risk-adjusted metrics like the Sharpe Ratio and the custom "Alpha Shield".
+- **Theme-Consistent Logo**: Apply a CSS filter strategy (`filter: invert(1)`) or inline SVG variables to ensure logo assets adapt gracefully to light/dark modes.
+- **Interactive Routing**: Update links in `compare.html` and `analytics.html` to direct to `nav_trends.html` instead of the generic list.
+- **On-Page SEO Optimization**: Update title tags, headers (`<h1>`/`<h2>`), and inject FAQ structured JSON-LD schemas targeting "SIF Investment Returns".
+
+### Phase 15: Portfolio Management System 💼
+*Detailed roadmap documented in [PortfolioFeature.md](file:///Users/raghavgarg/Projects/myGo/sanvasify/docs/PortfolioFeature.md)*
+
+- **Transaction Ledger**: Create the `user_transactions` table in DuckDB to record buy/sell transactions (date, units, price, user_id).
+- **Backend Portfolio API**: Implement Go endpoints for adding transactions (`POST /api/portfolio/transactions`), fetching aggregate holdings, calculating top-level XIRR/drawdown, and compiling net-worth history.
+- **Secure Data Isolation**: Enable OAuth2/JWT middleware to protect all portfolio endpoints, isolating data queries by authenticated `user_id`.
+- **Wealth Dashboard UI**: Build `portfolio.html` featuring asset allocation pie charts and portfolio growth timeline charts powered by ECharts.
+- **Portfolio V2**: Introduce FIFO-based tax harvesting calculations and CAS (Consolidated Account Statement) PDF importing capabilities.
+
+### Phase 16: Mobile Surface Strategy 📱
+*Detailed roadmap documented in [MOBILE_STRATEGY.md](file:///Users/raghavgarg/Projects/myGo/sanvasify/docs/MOBILE_STRATEGY.md)*
+
+- **Backend Mobile Readiness**: Implement API versioning (`/api/v1/`), paginated queries (`?page=1&limit=50`), standardized JSON error responses, CORS configurations, and PKCE-supportive mobile OAuth flows.
+- **Rollout Strategy**:
+  - *Phase 1 (Validation)*: Build a premium native iOS client in SwiftUI using `URLSession` and Swift Charts, while serving Android users via the existing PWA.
+  - *Phase 2 (Store Presence)*: Package the Android PWA as a Google Play Store-compatible Trusted Web Activity (TWA) with minimal code changes.
+  - *Phase 3 (Maturity)*: Port the Android client to Jetpack Compose or Kotlin Multiplatform (KMP) as logic scales.
+
+### Phase 17: Build & Deployment Optimizations 🛠️
+- **Single-Binary Embedding (`go:embed`)**:
+  - Embed `web/static/` via `//go:embed` inside `web/embed.go`.
+  - Embed `config/Config.toml` as default configuration.
+  - Simplify deployment by removing `stage` and static asset replication steps from the Makefile.
+- **Cost Reduction**: Reconfigure AWS instances to utilize IPv6-only settings (saving $3.72/month on IPv4), evaluate Cloudflare proxies, and migrate to Graviton-based ARM64 spot instances.
+- **Advanced Analytics**: Introduce **Performance Percentile** ranking and **K-Means Auto-clustering** once 1+ years of historical market data is logged.
+

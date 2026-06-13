@@ -6,15 +6,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"path/filepath"
-
 	_ "github.com/duckdb/duckdb-go/v2"
 	"github.com/raghavkgarg/sanvasify/pkg/store"
 )
 
 type DB struct {
-	conn        *sql.DB
-	metricsConn *sql.DB
+	conn *sql.DB
 }
 
 func New(dbPath string) (*DB, error) {
@@ -27,16 +24,7 @@ func New(dbPath string) (*DB, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	metricsPath := filepath.Join(filepath.Dir(dbPath), "metrics.db")
-	metricsConn, err := sql.Open("duckdb", metricsPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open metrics database: %w", err)
-	}
-	if err := metricsConn.Ping(); err != nil {
-		return nil, fmt.Errorf("failed to ping metrics database: %w", err)
-	}
-
-	return &DB{conn: conn, metricsConn: metricsConn}, nil
+	return &DB{conn: conn}, nil
 }
 
 func (d *DB) DB() *sql.DB {
@@ -44,17 +32,10 @@ func (d *DB) DB() *sql.DB {
 }
 
 func (d *DB) Close() error {
-	var err1, err2 error
 	if d.conn != nil {
-		err1 = d.conn.Close()
+		return d.conn.Close()
 	}
-	if d.metricsConn != nil {
-		err2 = d.metricsConn.Close()
-	}
-	if err1 != nil {
-		return err1
-	}
-	return err2
+	return nil
 }
 
 func (d *DB) InitSchema(ctx context.Context) error {
@@ -91,7 +72,7 @@ func (d *DB) InitSchema(ctx context.Context) error {
 		last_visit_at TIMESTAMP
 	);
 	`
-	_, err := d.metricsConn.ExecContext(ctx, metricsSchema)
+	_, err := d.conn.ExecContext(ctx, metricsSchema)
 	return err
 }
 
@@ -368,16 +349,16 @@ func (d *DB) GetSchemeReturns(ctx context.Context, strategy string) ([]SchemeRet
 func (d *DB) RecordVisit(ctx context.Context, visitorID string) error {
 	query := `
 		INSERT INTO visitors (visitor_id, first_visit_at, last_visit_at) 
-		VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-		ON CONFLICT (visitor_id) DO UPDATE SET last_visit_at = CURRENT_TIMESTAMP
+		VALUES (?, now(), now())
+		ON CONFLICT (visitor_id) DO UPDATE SET last_visit_at = now()
 	`
-	_, err := d.metricsConn.ExecContext(ctx, query, visitorID)
+	_, err := d.conn.ExecContext(ctx, query, visitorID)
 	return err
 }
 
 func (d *DB) GetUniqueVisitorCount(ctx context.Context) (int, error) {
 	query := `SELECT COUNT(*) FROM visitors`
 	var count int
-	err := d.metricsConn.QueryRowContext(ctx, query).Scan(&count)
+	err := d.conn.QueryRowContext(ctx, query).Scan(&count)
 	return count, err
 }

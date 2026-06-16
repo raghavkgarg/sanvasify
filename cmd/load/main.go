@@ -11,6 +11,7 @@ import (
 
 	"github.com/raghavkgarg/sanvasify/pkg/conf"
 	"github.com/raghavkgarg/sanvasify/pkg/db"
+	"github.com/raghavkgarg/sanvasify/pkg/fetcher"
 )
 
 func main() {
@@ -58,6 +59,14 @@ func main() {
 	if err := database.InitSchema(ctx); err != nil {
 		slog.Error("Failed to initialize schema", "error", err)
 		os.Exit(1)
+	}
+
+	// Load indices seed from CSV
+	slog.Info("Seeding benchmark indices from CSV...")
+	if err := fetcher.SeedIndicesFromCSV(ctx, database, "data/indices/nifty500_tri.csv", "NIFTY_500_TRI", "Nifty 500 TRI"); err != nil {
+		slog.Warn("Failed to seed index from CSV (continuing)", "error", err)
+	} else {
+		slog.Info("Successfully seeded index NIFTY_500_TRI")
 	}
 
 	ext := filepath.Ext(*reportPath)

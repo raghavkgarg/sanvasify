@@ -4,6 +4,7 @@ import { chartColors, fetchJSON } from './common.js';
 let allData = [], filtered = [], selected = [];
 let sortCol = 'annualised', sortDir = 'desc', searchTerm = '';
 let chartInstance = null;
+let compareBenchmark = false;
 
 const list = document.getElementById('fund-list');
 const panel = document.getElementById('compare-panel');
@@ -16,16 +17,44 @@ async function loadData(strategy) {
   const url = strategy
     ? `/api/schemes/compare?strategy=${encodeURIComponent(strategy)}`
     : '/api/schemes/compare';
-  const data = await fetchJSON(url);
-  // Filter to show only 'Growth - Direct' variants
-  allData = data.filter((f) =>
-    f.scheme_name.toLowerCase().includes('growth') &&
-    f.scheme_name.toLowerCase().includes('direct')
-  );
-  if (allData.length > 0) {
-    dateEl.textContent = `NAV as of ${allData[0].date.split('T')[0]}`;
+
+  try {
+    const [data, volatilityData] = await Promise.all([
+      fetchJSON(url),
+      fetchJSON('/api/analytics/volatility'),
+    ]);
+
+    const volMap = new Map(
+      volatilityData.map((v) => [v.scheme_code, v.std_dev]),
+    );
+
+    // Filter to show only 'Growth - Direct' variants
+    allData = data.filter((f) =>
+      f.scheme_name.toLowerCase().includes('growth') &&
+      f.scheme_name.toLowerCase().includes('direct')
+    ).map((f) => {
+      const stdDev = volMap.get(f.scheme_code) ?? null;
+      let sharpe = null;
+      let alphaShield = 'Low 🛡️';
+      if (stdDev !== null && stdDev > 0 && f.ret_annualised !== null) {
+        sharpe = (f.ret_annualised - 6.0) / (stdDev * 15.8745);
+        if (sharpe >= 1.5) alphaShield = 'Excellent 🛡️';
+        else if (sharpe >= 1.0) alphaShield = 'High 🛡️';
+        else if (sharpe >= 0.5) alphaShield = 'Moderate 🛡️';
+        else alphaShield = 'Low 🛡️';
+      }
+      return { ...f, std_dev: stdDev, sharpe, alpha_shield: alphaShield };
+    });
+
+    if (allData.length > 0) {
+      dateEl.textContent = `NAV as of ${allData[0].date.split('T')[0]}`;
+    }
+    applyFilter();
+  } catch (err) {
+    console.error('Error loading compare data:', err);
+    list.innerHTML =
+      '<div class="empty-state"><span class="empty-state-icon">⚠️</span><p>Failed to load comparison data. Please try again later.</p></div>';
   }
-  applyFilter();
 }
 
 function applyFilter() {
@@ -66,9 +95,7 @@ function render() {
           <span class="fund-card-pill">${
       strategyLabel(fund.fund_strategy)
     }</span>
-          <a href="nav_trends.html?code=${
-      fund.scheme_code
-    }" class="fund-card-link">View Details →</a>
+          <a href="nav_trends.html?code=${fund.scheme_code}" class="fund-card-link">View Details →</a>
         </div>
       </div>
       <div class="fund-card-right">
@@ -79,10 +106,14 @@ function render() {
       fund.date ? fund.date.split('T')[0] : ''
     }</span>
       </div>
-      ${retBadge('Annualised', fund.ret_annualised)}
-      ${retBadge('1M', fund.ret_1m)}
-      ${retBadge('3M', fund.ret_3m)}
-      ${retBadge('SI', fund.ret_si)}
+      <div class="fund-card-returns">
+        ${retBadge('Annualised', fund.ret_annualised)}
+        ${retBadge('1M', fund.ret_1m)}
+        ${retBadge('3M', fund.ret_3m)}
+        ${retBadge('SI', fund.ret_si)}
+        ${sharpeBadge('Sharpe', fund.sharpe)}
+        ${shieldBadge('Shield', fund.alpha_shield)}
+      </div>
       <button class="btn btn-ghost compare-btn" data-code="${fund.scheme_code}">
         ${selected.includes(fund.scheme_code) ? '✓ Selected' : '⊞ Compare'}
       </button>`;
@@ -127,8 +158,27 @@ function retBadge(label, val) {
   }%</span></div>`;
 }
 
+function sharpeBadge(label, val) {
+  if (val == null) {
+    return `<div class="ret-badge neutral"><span class="ret-label">${label}</span><span class="ret-value">—</span></div>`;
+  }
+  const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
+  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${
+    val.toFixed(2)
+  }</span></div>`;
+}
+
+function shieldBadge(label, rating) {
+  let cls = 'shield-low';
+  if (rating.startsWith('Excellent')) cls = 'shield-excellent';
+  else if (rating.startsWith('High')) cls = 'shield-high';
+  else if (rating.startsWith('Moderate')) cls = 'shield-moderate';
+  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value" style="font-size: 10px;">${rating}</span></div>`;
+}
+
 async function updatePanel() {
-  if (selected.length < 2) {
+  const totalCompared = selected.length + (compareBenchmark ? 1 : 0);
+  if (totalCompared < 2 || selected.length === 0) {
     panel.style.display = 'none';
     return;
   }
@@ -139,24 +189,74 @@ async function updatePanel() {
 
   try {
     // Fetch historical data for all selected schemes in parallel
-    const histories = await Promise.all(
-      selected.map(code => fetchJSON(`/api/nav/history?code=${code}`))
+    const fetchPromises = selected.map((code) =>
+      fetchJSON(`/api/nav/history?code=${code}`)
     );
+    if (compareBenchmark) {
+      fetchPromises.push(fetchJSON('/api/indices/history?code=NIFTY_500_TRI'));
+    }
+
+    const results = await Promise.all(fetchPromises);
+
+    // Normalize all date strings to YYYY-MM-DD to ensure exact alignment
+    results.forEach((history) => {
+      if (Array.isArray(history)) {
+        history.forEach((item) => {
+          if (item && item.date) {
+            item.date = item.date.slice(0, 10);
+          }
+        });
+      }
+    });
+
+    let histories = [];
+    let benchmarkHistory = null;
+    if (compareBenchmark) {
+      histories = results.slice(0, -1);
+      benchmarkHistory = results[results.length - 1];
+    } else {
+      histories = results;
+    }
 
     const funds = selected.map((code, i) => {
-      const baseInfo = allData.find(f => f.scheme_code === code);
+      const baseInfo = allData.find((f) => f.scheme_code === code);
       return { ...baseInfo, history: histories[i] };
-    }).filter(f => f.history && f.history.length > 0);
+    }).filter((f) => f.history && f.history.length > 0);
 
-  if (chartInstance) chartInstance.dispose();
-  chartInstance = echarts.init(chartEl);
+    if (chartInstance) chartInstance.dispose();
+    chartInstance = echarts.init(chartEl);
 
-    // Create a unique set of all dates across all selected funds to use as X-axis
-    const allDates = [...new Set(histories.flat().map(d => d.date))].sort();
+    // Create a unique set of all dates across all selected funds (and benchmark) to use as X-axis
+    const allHistories = [...histories];
+    if (benchmarkHistory) {
+      allHistories.push(benchmarkHistory);
+    }
+    const allDates = [...new Set(allHistories.flat().map((d) => d.date))]
+      .sort();
 
-    const series = funds.map(f => {
-      const dataMap = new Map(f.history.map(h => [h.date, h.net_asset_value]));
-      const seriesData = allDates.map(date => dataMap.get(date) || null);
+    const series = funds.map((f) => {
+      const dataMap = new Map(
+        f.history.map((h) => [h.date, h.net_asset_value]),
+      );
+
+      // Find base NAV on the first day this fund has data in this range
+      let baseNAV = null;
+      for (const d of allDates) {
+        if (dataMap.has(d)) {
+          baseNAV = dataMap.get(d);
+          break;
+        }
+      }
+
+      const seriesData = allDates.map((date) => {
+        const val = dataMap.get(date);
+        if (val == null) return null;
+        if (compareBenchmark) {
+          if (baseNAV === null || baseNAV === 0) return null;
+          return (val / baseNAV) * 100;
+        }
+        return val;
+      });
 
       return {
         name: shortName(f.scheme_name),
@@ -165,37 +265,70 @@ async function updatePanel() {
         smooth: true,
         showSymbol: false,
         connectNulls: true,
-        lineStyle: { width: 2 }
+        lineStyle: { width: 2 },
       };
     });
 
-  chartInstance.setOption({
-      tooltip: { 
+    if (compareBenchmark && benchmarkHistory && allDates.length > 0) {
+      const dataMap = new Map(benchmarkHistory.map((h) => [h.date, h.value]));
+
+      // Find base value on the first day index has data in this range
+      let baseVal = null;
+      for (const d of allDates) {
+        if (dataMap.has(d)) {
+          baseVal = dataMap.get(d);
+          break;
+        }
+      }
+
+      const benchmarkSeriesData = allDates.map((date) => {
+        const val = dataMap.get(date);
+        if (val == null || baseVal === null || baseVal === 0) return null;
+        return (val / baseVal) * 100;
+      });
+
+      series.push({
+        name: 'Nifty 500 TRI (Benchmark)',
+        type: 'line',
+        data: benchmarkSeriesData,
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        itemStyle: { color: '#ef4444' },
+      });
+    }
+
+    chartInstance.setOption({
+      tooltip: {
         trigger: 'axis',
         backgroundColor: 'rgba(31, 41, 55, 0.9)',
-        textStyle: { color: '#fff' }
+        textStyle: { color: '#fff' },
       },
-    legend: { top: 0, textStyle: { color: c.axis, fontSize: 12 } },
+      legend: { top: 0, textStyle: { color: c.axis, fontSize: 12 } },
       grid: { top: 60, bottom: 60, left: 50, right: 20 },
-    xAxis: {
-      type: 'category',
+      xAxis: {
+        type: 'category',
         data: allDates,
-        axisLabel: { 
-          color: c.axis, 
-          rotate: 30, 
+        axisLabel: {
+          color: c.axis,
+          rotate: 30,
           fontSize: 10,
-          formatter: (v) => new Date(v).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+          formatter: (v) =>
+            new Date(v).toLocaleDateString('en-IN', {
+              month: 'short',
+              day: 'numeric',
+            }),
         },
-    },
-    yAxis: {
-      type: 'value',
+      },
+      yAxis: {
+        type: 'value',
         scale: true,
-        axisLabel: { color: c.axis, formatter: '₹{value}' },
-      splitLine: { lineStyle: { color: c.grid } },
-    },
+        axisLabel: { color: c.axis, formatter: '{value}' },
+        splitLine: { lineStyle: { color: c.grid } },
+      },
       dataZoom: [{ type: 'inside' }, { type: 'slider', height: 20, bottom: 5 }],
-      series: series
-  });
+      series: series,
+    });
   } catch (error) {
     console.error('Error rendering comparison chart:', error);
   } finally {
@@ -236,14 +369,116 @@ document.getElementById('compare-search').addEventListener('input', (e) => {
   searchTerm = e.target.value;
   applyFilter();
 });
+
 document.getElementById('close-compare').addEventListener('click', () => {
   selected = [];
   updatePanel();
   render();
 });
+const benchCompareBtn = document.getElementById('benchmark-compare-btn');
+if (benchCompareBtn) {
+  benchCompareBtn.addEventListener('click', () => {
+    compareBenchmark = !compareBenchmark;
+    benchCompareBtn.textContent = compareBenchmark ? '✓ Selected' : '⊞ Compare';
+    updatePanel();
+  });
+}
 window.addEventListener(
   'resize',
   () => chartInstance && chartInstance.resize(),
 );
 
+function updateBenchmarkBadge(prefix, val, isPercentage) {
+  const badge = document.getElementById(`${prefix}-badge`);
+  const valEl = document.getElementById(`${prefix}-val`);
+  if (!badge || !valEl) return;
+
+  if (val == null) {
+    badge.className = 'ret-badge neutral';
+    valEl.textContent = '—';
+    return;
+  }
+
+  const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
+  badge.className = `ret-badge ${cls}`;
+  valEl.textContent = `${val > 0 ? '+' : ''}${val.toFixed(2)}${
+    isPercentage ? '%' : ''
+  }`;
+}
+
+async function loadBenchmarkMetrics() {
+  try {
+    const returnData = await fetchJSON(
+      '/api/indices/compare?code=NIFTY_500_TRI',
+    );
+    const historyData = await fetchJSON(
+      '/api/indices/history?code=NIFTY_500_TRI',
+    );
+
+    if (returnData) {
+      updateBenchmarkBadge('bench-annualised', returnData.ret_annualised, true);
+      updateBenchmarkBadge('bench-1m', returnData.ret_1m, true);
+      updateBenchmarkBadge('bench-3m', returnData.ret_3m, true);
+      updateBenchmarkBadge('bench-si', returnData.ret_si, true);
+    }
+
+    if (historyData && historyData.length > 1) {
+      // Calculate Daily Standard Deviation from history
+      const dailyReturns = [];
+      for (let i = 1; i < historyData.length; i++) {
+        const prev = historyData[i - 1].value;
+        const curr = historyData[i].value;
+        if (prev > 0) {
+          dailyReturns.push((curr - prev) / prev * 100);
+        }
+      }
+
+      if (dailyReturns.length > 0) {
+        const mean = dailyReturns.reduce((sum, r) => sum + r, 0) /
+          dailyReturns.length;
+        const variance = dailyReturns.reduce((sum, r) =>
+          sum + Math.pow(r - mean, 2), 0) / dailyReturns.length;
+        const stdDev = Math.sqrt(variance);
+
+        if (stdDev > 0 && returnData && returnData.ret_annualised != null) {
+          const annualised = returnData.ret_annualised;
+          const sharpe = (annualised - 6.0) / (stdDev * 15.8745);
+
+          let shield = 'Low 🛡️';
+          let shieldCls = 'shield-low';
+          if (sharpe >= 1.5) {
+            shield = 'Excellent 🛡️';
+            shieldCls = 'shield-excellent';
+          } else if (sharpe >= 1.0) {
+            shield = 'High 🛡️';
+            shieldCls = 'shield-high';
+          } else if (sharpe >= 0.5) {
+            shield = 'Moderate 🛡️';
+            shieldCls = 'shield-moderate';
+          }
+
+          const sharpeVal = document.getElementById('bench-sharpe-val');
+          const sharpeBadge = document.getElementById('bench-sharpe-badge');
+          if (sharpeVal && sharpeBadge) {
+            sharpeVal.textContent = sharpe.toFixed(2);
+            sharpeBadge.className = `ret-badge ${
+              sharpe > 0 ? 'positive' : 'negative'
+            }`;
+          }
+
+          const shieldVal = document.getElementById('bench-shield-val');
+          const shieldBadge = document.getElementById('bench-shield-badge');
+          if (shieldVal && shieldBadge) {
+            shieldVal.textContent = shield;
+            shieldBadge.className = `ret-badge ${shieldCls}`;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error loading benchmark metrics:', err);
+  }
+}
+
+loadBenchmarkMetrics();
 loadData('');

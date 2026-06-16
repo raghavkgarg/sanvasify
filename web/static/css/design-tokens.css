@@ -34,8 +34,8 @@
 
   /* Brand Logo & Tagline Colors (Dark Theme) */
   --color-logo-p1: #8ea5d1;
-  --color-logo-p2: #3EB4B6;
-  --color-logo-p3: #E4B45F;
+  --color-logo-p2: #3eb4b6;
+  --color-logo-p3: #e4b45f;
   --color-logo-stroke: var(--color-surface);
 
   /* --- Spacing --- */
@@ -86,7 +86,7 @@
   --color-border-dim: #f2e7d9;
 
   --color-text: #111827;
-  --color-text-accent: #6B2D3A;
+  --color-text-accent: #6b2d3a;
   --color-text-secondary: #374151;
   --color-text-muted: #6b7280;
   --color-text-dim: #9ca3af;
@@ -110,9 +110,9 @@
   --color-chart-bar-3: #4f46e5;
 
   /* Brand Logo & Tagline Colors (Light Theme) */
-  --color-logo-p1: #1C2B4A;
-  --color-logo-p2: #1A6062;
-  --color-logo-p3: #E4B45F;
+  --color-logo-p1: #1c2b4a;
+  --color-logo-p2: #1a6062;
+  --color-logo-p3: #e4b45f;
   --color-logo-stroke: var(--color-surface);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);

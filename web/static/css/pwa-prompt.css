@@ -14,7 +14,9 @@
   font-family: inherit;
 }
 
-.pwa-prompt-content { position: relative; }
+.pwa-prompt-content {
+  position: relative;
+}
 
 .pwa-prompt-close {
   position: absolute;
@@ -49,6 +51,12 @@
 }
 
 @keyframes pwa-slide-up {
-  from { transform: translateY(120%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

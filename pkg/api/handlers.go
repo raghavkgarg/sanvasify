@@ -180,25 +180,25 @@ func (s *Server) handleSimilar() http.HandlerFunc {
 	}
 }
 
-func (s *Server) handleRecordVisit() http.HandlerFunc {
+func (s *Server) handleSessionInit() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
 		var payload struct {
-			VisitorID string `json:"visitor_id"`
+			SessionToken string `json:"session_token"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		if payload.VisitorID == "" {
-			http.Error(w, "visitor_id is required", http.StatusBadRequest)
+		if payload.SessionToken == "" {
+			http.Error(w, "session_token is required", http.StatusBadRequest)
 			return
 		}
 
-		if err := s.db.RecordVisit(r.Context(), payload.VisitorID); err != nil {
+		if err := s.db.RecordVisit(r.Context(), payload.SessionToken); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -206,7 +206,7 @@ func (s *Server) handleRecordVisit() http.HandlerFunc {
 	}
 }
 
-func (s *Server) handleVisitorCount() http.HandlerFunc {
+func (s *Server) handleSessionCount() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		count, err := s.db.GetUniqueVisitorCount(r.Context())
 		if err != nil {
@@ -214,5 +214,47 @@ func (s *Server) handleVisitorCount() http.HandlerFunc {
 			return
 		}
 		json.NewEncoder(w).Encode(map[string]int{"count": count})
+	}
+}
+
+func (s *Server) handleIndexCompare() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		code := r.URL.Query().Get("code")
+		if code == "" {
+			code = "NIFTY_500_TRI"
+		}
+		result, err := s.db.GetIndexReturns(r.Context(), code)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if result == nil {
+			http.Error(w, "Index not found", http.StatusNotFound)
+			return
+		}
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
+func (s *Server) handleIndexHistory() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		code := r.URL.Query().Get("code")
+		if code == "" {
+			code = "NIFTY_500_TRI"
+		}
+		history, err := s.db.GetIndexHistory(r.Context(), code)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if len(history) == 0 {
+			http.Error(w, "No history found for index", http.StatusNotFound)
+			return
+		}
+		if err := json.NewEncoder(w).Encode(history); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }

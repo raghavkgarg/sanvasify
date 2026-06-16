@@ -23,9 +23,13 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/api/analytics/anomalies", jsonMW(s.handleAnomalies()))
 	s.router.HandleFunc("/api/analytics/similar", jsonMW(s.handleSimilar()))
 
-	// Metrics routes
-	s.router.HandleFunc("/api/metrics/visit", jsonMW(s.handleRecordVisit()))
-	s.router.HandleFunc("/api/metrics/visitors/count", jsonMW(s.handleVisitorCount()))
+	// Index routes
+	s.router.HandleFunc("/api/indices/compare", jsonMW(s.handleIndexCompare()))
+	s.router.HandleFunc("/api/indices/history", jsonMW(s.handleIndexHistory()))
+
+	// Session/Stats routes
+	s.router.HandleFunc("/api/session/init", jsonMW(s.handleSessionInit()))
+	s.router.HandleFunc("/api/session/count", jsonMW(s.handleSessionCount()))
 
 	// Protected API routes (auth required)
 	s.router.HandleFunc("/api/nav", authMW(s, jsonMW(s.handleNAV())))

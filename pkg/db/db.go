@@ -72,7 +72,20 @@ func (d *DB) InitSchema(ctx context.Context) error {
 		last_visit_at TIMESTAMP
 	);
 	`
-	_, err := d.conn.ExecContext(ctx, metricsSchema)
+	if _, err := d.conn.ExecContext(ctx, metricsSchema); err != nil {
+		return err
+	}
+
+	indicesSchema := `
+	CREATE TABLE IF NOT EXISTS sif_indices (
+		index_code VARCHAR NOT NULL,
+		index_name VARCHAR NOT NULL,
+		value DOUBLE,
+		date DATE NOT NULL,
+		PRIMARY KEY (index_code, date)
+	);
+	`
+	_, err := d.conn.ExecContext(ctx, indicesSchema)
 	return err
 }
 
@@ -361,4 +374,135 @@ func (d *DB) GetUniqueVisitorCount(ctx context.Context) (int, error) {
 	var count int
 	err := d.conn.QueryRowContext(ctx, query).Scan(&count)
 	return count, err
+}
+
+// IndexValue represents a single historical index value.
+type IndexValue struct {
+	Code  string   `json:"index_code"`
+	Name  string   `json:"index_name"`
+	Value *float64 `json:"value"`
+	Date  string   `json:"date"`
+}
+
+// IndexReturn holds an index's latest value and calculated period returns.
+type IndexReturn struct {
+	Code          string   `json:"index_code"`
+	Name          string   `json:"index_name"`
+	Value         *float64 `json:"value"`
+	Date          string   `json:"date"`
+	Ret1M         *float64 `json:"ret_1m"`
+	Ret3M         *float64 `json:"ret_3m"`
+	RetAnnualised *float64 `json:"ret_annualised"`
+	RetSI         *float64 `json:"ret_si"`
+}
+
+func (d *DB) GetIndexHistory(ctx context.Context, code string) ([]IndexValue, error) {
+	query := `SELECT index_code, index_name, value, date FROM sif_indices WHERE index_code = ? ORDER BY date ASC`
+	rows, err := d.conn.QueryContext(ctx, query, code)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var history []IndexValue
+	for rows.Next() {
+		var v IndexValue
+		var dateStr string
+		err := rows.Scan(&v.Code, &v.Name, &v.Value, &dateStr)
+		if err != nil {
+			return nil, err
+		}
+		if len(dateStr) > 10 {
+			dateStr = dateStr[:10]
+		}
+		v.Date = dateStr
+		history = append(history, v)
+	}
+	return history, rows.Err()
+}
+
+func (d *DB) GetIndexReturns(ctx context.Context, code string) (*IndexReturn, error) {
+	query := `
+		WITH latest AS (
+			SELECT index_code, MAX(date) AS max_date
+			FROM sif_indices
+			WHERE index_code = ?
+			GROUP BY index_code
+		),
+		current_val AS (
+			SELECT s.index_code, s.index_name, s.value, s.date
+			FROM sif_indices s
+			JOIN latest l ON s.index_code = l.index_code AND s.date = l.max_date
+		),
+		val_1m AS (
+			SELECT s.index_code, s.value
+			FROM sif_indices s
+			JOIN latest l ON s.index_code = l.index_code
+			WHERE s.date = (
+				SELECT MAX(date) FROM sif_indices
+				WHERE index_code = s.index_code AND date <= l.max_date - INTERVAL '1 month'
+			)
+		),
+		val_3m AS (
+			SELECT s.index_code, s.value
+			FROM sif_indices s
+			JOIN latest l ON s.index_code = l.index_code
+			WHERE s.date = (
+				SELECT MAX(date) FROM sif_indices
+				WHERE index_code = s.index_code AND date <= l.max_date - INTERVAL '3 months'
+			)
+		),
+		val_1y AS (
+			SELECT s.index_code, s.value
+			FROM sif_indices s
+			JOIN latest l ON s.index_code = l.index_code
+			WHERE s.date = (
+				SELECT MAX(date) FROM sif_indices
+				WHERE index_code = s.index_code AND date <= l.max_date - INTERVAL '1 year'
+			)
+		),
+		val_si AS (
+			SELECT s.index_code, s.value
+			FROM sif_indices s
+			WHERE s.date = (
+				SELECT MIN(date) FROM sif_indices WHERE index_code = s.index_code
+			)
+		)
+		SELECT
+			c.index_code, c.index_name, c.value, c.date,
+			CASE WHEN m1.value > 0 THEN (c.value - m1.value) / m1.value * 100 END AS ret_1m,
+			CASE WHEN m3.value > 0 THEN (c.value - m3.value) / m3.value * 100 END AS ret_3m,
+			CASE WHEN y1.value > 0 THEN (c.value - y1.value) / y1.value * 100 END AS ret_annualised,
+			CASE WHEN si.value > 0 THEN (c.value - si.value) / si.value * 100 END AS ret_si
+		FROM current_val c
+		LEFT JOIN val_1m m1 ON c.index_code = m1.index_code
+		LEFT JOIN val_3m m3 ON c.index_code = m3.index_code
+		LEFT JOIN val_1y y1 ON c.index_code = y1.index_code
+		LEFT JOIN val_si si ON c.index_code = si.index_code
+	`
+	row := d.conn.QueryRowContext(ctx, query, code)
+	var r IndexReturn
+	var dateStr string
+	err := row.Scan(&r.Code, &r.Name, &r.Value, &dateStr, &r.Ret1M, &r.Ret3M, &r.RetAnnualised, &r.RetSI)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	if len(dateStr) > 10 {
+		dateStr = dateStr[:10]
+	}
+	r.Date = dateStr
+	return &r, nil
+}
+
+func (d *DB) UpsertIndexValue(ctx context.Context, code, name string, value float64, date string) error {
+	query := `
+		INSERT INTO sif_indices (index_code, index_name, value, date)
+		VALUES (?, ?, ?, ?)
+		ON CONFLICT (index_code, date) DO UPDATE SET value = excluded.value, index_name = excluded.index_name
+	`
+	_, err := d.conn.ExecContext(ctx, query, code, name, value, date)
+	return err
 }

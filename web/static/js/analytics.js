@@ -49,7 +49,9 @@ async function loadVolatility() {
 
   const rows = data.map((r) => `
     <div class="vol-row">
-      <a href="nav_trends.html?code=${r.scheme_code}" class="vol-name" style="text-decoration: none; color: inherit; cursor: pointer;">${shortName(r.scheme_name)}</a>
+      <a href="nav_trends.html?code=${r.scheme_code}" class="vol-name" style="text-decoration: none; color: inherit; cursor: pointer;">${
+    shortName(r.scheme_name)
+  }</a>
       <div class="vol-bar-wrap">
         ${volBar(r.std_dev, maxStd, r.volatility_rating)}
         <span class="vol-value">±${(r.std_dev || 0).toFixed(2)}%</span>
@@ -101,7 +103,9 @@ async function loadTrends() {
     return `
     <div class="trend-row">
       <div class="trend-info">
-        <a href="nav_trends.html?code=${r.scheme_code}" class="trend-name" style="text-decoration: none; color: inherit; cursor: pointer;">${shortName(r.scheme_name)}</a>
+        <a href="nav_trends.html?code=${r.scheme_code}" class="trend-name" style="text-decoration: none; color: inherit; cursor: pointer;">${
+      shortName(r.scheme_name)
+    }</a>
         <div class="trend-meta">
           ${since ? `<span class="trend-since">since ${since}</span>` : ''}
           <span class="trend-nav">₹${(r.nav || 0).toFixed(2)}</span>
@@ -149,7 +153,9 @@ async function loadAnomalies() {
     <div class="anomaly-row">
       <div class="anomaly-dot" style="width:${size}px;height:${size}px;background:${color}"></div>
       <div class="anomaly-info">
-        <a href="nav_trends.html?code=${r.scheme_code}" class="anomaly-name" style="text-decoration: none; color: inherit; cursor: pointer;">${shortName(r.scheme_name)}</a>
+        <a href="nav_trends.html?code=${r.scheme_code}" class="anomaly-name" style="text-decoration: none; color: inherit; cursor: pointer;">${
+      shortName(r.scheme_name)
+    }</a>
         <div class="anomaly-meta">${r.date.split('T')[0]}</div>
       </div>
       <div class="anomaly-change" style="color:${color}">${arrow} ${

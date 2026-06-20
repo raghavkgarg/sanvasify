@@ -528,5 +528,22 @@ if (shareBtn) {
   });
 }
 
+const urlParams = new URLSearchParams(window.location.search);
+const strategyParam = urlParams.get('strategy');
+let initialStrategy = '';
+
+if (strategyParam) {
+  const targetTab = Array.from(document.querySelectorAll('.compare-tab')).find(
+    (tab) => tab.dataset.strategy === strategyParam
+  );
+  if (targetTab) {
+    document.querySelectorAll('.compare-tab').forEach((t) =>
+      t.classList.remove('active')
+    );
+    targetTab.classList.add('active');
+    initialStrategy = strategyParam;
+  }
+}
+
 loadBenchmarkMetrics();
-loadData('');
+loadData(initialStrategy);

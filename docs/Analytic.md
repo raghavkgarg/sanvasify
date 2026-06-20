@@ -67,3 +67,18 @@ The absolute positioning of category banners (`top: -10px`) caused them to be cu
 
 ## 5. Trust & Contact Footer
 * Added support contact links to the footer across all HTML templates, using the official email `info@sanvasify.com` and the official X/Twitter handle `@sanvasify` (styled with the official `𝕏` icon).
+
+
+Search all HTML files in the `web/static/` directory and increment the version query parameters (`?v=X.Y.Z`) for the following assets: and increment version by 0.0.1
+- Bump `css/style.css` from `v=1.0.2` to `v=1.0.3`
+- Bump `js/compare.js` from `v=1.0.6` to `v=1.0.7`
+- Bump `js/dashboard.js` from `v=1.0.5` to `v=1.0.6`
+- Bump `js/analytics.js` from `v=1.0.0` to `v=1.0.1`
+
+
+Search all HTML files in the `web/static/` directory and increment the version query parameters (`?v=X.Y.Z`) for the following assets and increment version by 0.0.1
+- Bump `css/style.css` 
+- Bump `js/compare.js`
+- Bump `js/dashboard.js`
+- Bump `js/analytics.js`
+Ensure only these specific files' query strings are modified, and do not touch other library imports (like ECharts).

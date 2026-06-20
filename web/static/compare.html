@@ -13,13 +13,28 @@
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
   <meta name="description"
-    content="Compare SIF investment returns, Sharpe ratios, and volatility profile ratings side-by-side with the Nifty 500 TRI index." />
+    content="Compare SIF performance, investment returns, Sharpe ratios, and volatility profile ratings side-by-side with the Nifty 500 TRI index." />
   <meta name="keywords"
-    content="SIF investment returns, compare SIF, Specialised Investment Fund, long-short funds performance, Sharpe ratio, Alpha Shield" />
-  <title>Compare SIF Investment Returns & Performance | Sanvasify</title>
+    content="SIF performance, compare SIF, SIF compare, best SIF, SIF returns, SIF NAV, SIF investment returns, Specialised Investment Fund, long-short funds performance, Sharpe ratio, Alpha Shield" />
+  <title>Compare SIF Performance & Investment Returns | Sanvasify</title>
   <link rel="canonical" href="https://sanvasify.com/compare.html" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sanvasify.com/compare.html" />
+  <meta property="og:title" content="Compare SIF Performance & Investment Returns | Sanvasify" />
+  <meta property="og:description"
+    content="Compare SIF performance, investment returns, Sharpe ratios, and volatility profile ratings side-by-side with the Nifty 500 TRI index." />
+  <meta property="og:image" content="https://sanvasify.com/images/og-preview.png" />
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@Sanvasify" />
+  <meta name="twitter:url" content="https://sanvasify.com/compare.html" />
+  <meta name="twitter:title" content="Compare SIF Performance & Investment Returns | Sanvasify" />
+  <meta name="twitter:description"
+    content="Compare SIF performance, investment returns, Sharpe ratios, and volatility profile ratings side-by-side with the Nifty 500 TRI index." />
+  <meta name="twitter:image" content="https://sanvasify.com/images/og-preview.png" />
   <link rel="stylesheet" href="css/design-tokens.css?v=1.0.2" />
-  <link rel="stylesheet" href="css/style.css?v=1.0.2" />
+  <link rel="stylesheet" href="css/style.css?v=1.0.4" />
   <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js" defer></script>
   <script type="application/ld+json">
     {
@@ -85,20 +100,27 @@
   </nav>
 
   <main class="page page-wide">
+    <div class="breadcrumbs">
+      <a href="index.html">Home</a>
+      <span>/</span>
+      <a href="compare.html">Compare</a>
+    </div>
     <div class="page-header">
-      <h1>Compare SIF Investment Returns</h1>
-      <p>Side-by-side performance and returns across strategies</p>
+      <h1>Compare SIF Performance & Returns</h1>
+      <p>Side-by-side SIF performance, volatility, and returns across strategies</p>
     </div>
 
     <!-- Filters row -->
     <div class="compare-controls">
       <div class="compare-tabs">
         <button class="compare-tab active" data-strategy="">All</button>
-        <button class="compare-tab" data-strategy="Hybrid">Hybrid L/S</button>
         <button class="compare-tab" data-strategy="Equity Long-Short">Equity L/S</button>
         <button class="compare-tab" data-strategy="Equity Ex-Top 100">Ex-Top 100</button>
-        <button class="compare-tab" data-strategy="Active Asset Allocator">Active Alloc.</button>
         <button class="compare-tab" data-strategy="Sector Rotation">Sector Rot.</button>
+        <button class="compare-tab" data-strategy="Active Asset Allocator">Active Allocator</button>
+        <button class="compare-tab" data-strategy="Hybrid Long-Short">Hybrid L/S</button>
+        <button class="compare-tab" data-strategy="Debt Long-Short">Debt L/S</button>
+        <button class="compare-tab" data-strategy="Sectoral Debt Long-Short">Sectoral Debt L/S</button>
       </div>
       <div class="compare-meta">
         <input type="text" id="compare-search" class="compare-search" placeholder="Search fund or company..." />
@@ -173,6 +195,15 @@
     <!-- Fund list -->
     <div id="fund-list" class="fund-list"></div>
 
+    <section style="margin-top: var(--space-8);">
+      <div class="panel">
+        <h2 style="font-size: var(--text-sm); font-weight: 600; color: var(--color-accent); margin-bottom: var(--space-2);">Why Compare SIF Performance & Returns?</h2>
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); line-height: 1.6;">
+          When selecting a Specialised Investment Fund (SIF), it's vital to <strong>compare SIF returns</strong> alongside risk-adjusted metrics like the Sharpe Ratio and maximum drawdowns. Since these funds employ long-short strategies, comparing SIF options side-by-side helps identify the <strong>best SIF returns</strong> that fit your capital-protection and alpha-generation goals without taking excessive volatility.
+        </p>
+      </div>
+    </section>
+
     <footer
       style="margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--color-border); text-align: center;">
       <p style="font-size: var(--text-xs); color: var(--color-text-muted);">
@@ -196,7 +227,7 @@
 
   <script src="js/theme.js?v=1.0.2"></script>
   <script type="module" src="js/common.js?v=1.0.5"></script>
-  <script type="module" src="js/compare.js?v=1.0.6"></script>
+  <script type="module" src="js/compare.js?v=1.0.9"></script>
 </body>
 
 </html>

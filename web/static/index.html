@@ -14,13 +14,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="SIF Analytics">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-  <title>Sanvasify | SIF Investment Returns, NAV & Analytics</title>
+  <title>Sanvasify | SIF Performance, Investment Returns & NAV</title>
   <meta name="description"
-    content="Track and analyze SIF investment returns, NAV trends, and volatility for SEBI-regulated Specialised Investment Funds (SIFs) and Indian long-short funds." />
+    content="Track and analyze SIF performance, investment returns, NAV trends, and volatility for SEBI-regulated Specialised Investment Funds (SIFs) and Indian long-short funds." />
   <link rel="stylesheet" href="css/pwa-prompt.css?v=1.0.5" />
   <meta name="keywords"
-    content="SIF investment returns, SIF, Specialised Investment Fund, Indian Mutual Funds, NAV Tracking, Long-Short Funds, SEBI SIF Analytics" />
-  <meta property="og:title" content="Sanvasify — SIF Investment Returns & Analytics" />
+    content="SIF performance, SIF investment returns, SIF NAV, compare SIF, SIF compare, is SIF good, best SIF, SIF requirement, is SIF good than MF, SIF returns, Specialised Investment Fund, SEBI SIF Analytics, SIF vs PMS, SIF vs AIF" />
+  <meta property="og:title" content="Sanvasify — SIF Performance & Analytics" />
   <meta property="og:description"
     content="The ultimate dashboard for tracking SIF investment returns. Compare NAV, volatility, and historical performance side-by-side." />
   <meta property="og:type" content="website" />
@@ -28,7 +28,7 @@
   <meta name="twitter:site" content="@Sanvasify" />
   <link rel="canonical" href="https://sanvasify.com/" />
   <link rel="stylesheet" href="css/design-tokens.css?v=1.0.2" />
-  <link rel="stylesheet" href="css/style.css?v=1.0.2" />
+  <link rel="stylesheet" href="css/style.css?v=1.0.4" />
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -113,8 +113,8 @@
 
   <main class="page">
     <div class="page-header">
-      <h1>Sanvasify: SIF Investment Returns & Analytics</h1>
-      <p>Track SIF investment returns, NAV trends, and compare SEBI-regulated schemes</p>
+      <h1>SIF Performance, Investment Returns & Analytics</h1>
+      <p>Track SIF performance, NAV trends, and compare SEBI-regulated schemes</p>
     </div>
 
     <div class="dash-grid">
@@ -140,14 +140,19 @@
       </a>
       <a href="analytics.html" class="dash-card">
         <h2>🧠 Analytics</h2>
-        <p>Volatility ratings, trend signals, anomaly detection, performance percentiles, and clustering.</p>
+        <p>Top performers composite scores, risk & capture metrics, volatility ratings, trend signals, and anomalies.</p>
         <span class="dash-link">Open →</span>
       </a>
     </div>
 
     <section style="margin-top: var(--space-7);">
-      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">Top
-        Performers (Best 3M SIF Investment Returns)</h2>
+      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">
+        <a href="compare.html"
+          style="color: inherit; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <span>Top Performers (Best 3M SIF Investment Returns)</span>
+          <span style="font-size: var(--text-sm); opacity: 0.7;">→</span>
+        </a>
+      </h2>
       <div id="top-performers-container" class="top-performers-grid">
         <div class="loading-wrap">
           <div class="spinner"></div><span>Loading top performers...</span>
@@ -156,8 +161,13 @@
     </section>
 
     <section style="margin-top: var(--space-7);">
-      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">Category
-        Champions (Multi-Factor Composite Score)</h2>
+      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">
+        <a href="analytics.html"
+          style="color: inherit; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <span>Category Champions (Multi-Factor Composite Score)</span>
+          <span style="font-size: var(--text-sm); opacity: 0.7;">→</span>
+        </a>
+      </h2>
       <div id="composite-leaders-container" class="top-performers-grid">
         <div class="loading-wrap">
           <div class="spinner"></div><span>Loading category champions...</span>
@@ -221,14 +231,14 @@
           style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
           <span>𝕏</span> @sanvasify
         </a>
-      </div>ß
+      </div>
     </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js" defer></script>
   <script src="js/theme.js?v=1.0.2"></script>
   <script type="module" src="js/common.js?v=1.0.5"></script>
-  <script type="module" src="js/dashboard.js?v=1.0.5"></script>
+  <script type="module" src="js/dashboard.js?v=1.0.7"></script>
   <script src="js/pwa-prompt.js?v=1.0.5" defer></script>
   <script>
     if ('serviceWorker' in navigator) {

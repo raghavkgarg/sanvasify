@@ -249,8 +249,6 @@ async function loadRiskMetrics() {
       // Capture spread rating (Asymmetry)
       let captureHtml = '—';
       if (r.upside_capture != null && r.downside_capture != null) {
-        const spread = r.upside_capture - r.downside_capture;
-        const color = spread > 40 ? 'var(--color-positive)' : spread > 15 ? 'var(--color-accent)' : 'var(--color-text-muted)';
         captureHtml = `
           <div style="font-size: var(--text-xs); line-height: 1.2;">
             <div>Up: <strong style="color:var(--color-positive);">${upCap}</strong></div>

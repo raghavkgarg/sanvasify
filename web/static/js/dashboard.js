@@ -235,9 +235,11 @@ function renderCompositeLeaders(topPerformers) {
     const score = fund.composite_score != null ? fund.composite_score.toFixed(1) : '—';
 
     card.innerHTML = `
-      <div style="align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 700; background: var(--color-surface-alt); border: 1px solid var(--color-border); box-shadow: var(--shadow-xs); margin-bottom: var(--space-3);">
-        <span>${cat.icon}</span> <span class="${cat.badgeClass}" style="color: inherit; background: transparent; padding: 0; font-weight: 700;">${cat.title}</span>
-      </div>
+      <a href="guide.html#composite-model" style="text-decoration: none; color: inherit; align-self: flex-start;">
+        <div style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 700; background: var(--color-surface-alt); border: 1px solid var(--color-border); box-shadow: var(--shadow-xs); margin-bottom: var(--space-3); cursor: pointer; transition: transform var(--transition);">
+          <span>${cat.icon}</span> <span class="${cat.badgeClass}" style="color: inherit; background: transparent; padding: 0; font-weight: 700;">${cat.title}</span>
+        </div>
+      </a>
       
       <div class="top-performer-header">
         <div class="top-performer-title" title="${fund.scheme_name || ''}">${shortName(fund.scheme_name)}</div>

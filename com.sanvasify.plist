@@ -7,11 +7,11 @@
     
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/P2163431/Projects/gomod/sanvasify/dist/sanvasify</string>
+        <string>/Users/raghavgarg/Projects/myGo/sanvasify/dist/sanvasify</string>
     </array>
     
     <key>WorkingDirectory</key>
-    <string>/Users/P2163431/Projects/gomod/sanvasify/dist</string>
+    <string>/Users/raghavgarg/Projects/myGo/sanvasify/dist</string>
     
     <key>StandardOutPath</key>
     <string>/tmp/sanvasify.log</string>

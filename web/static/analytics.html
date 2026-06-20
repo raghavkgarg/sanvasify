@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,10 +12,27 @@
   <meta name="apple-mobile-web-app-title" content="SIF Analytics">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
-  <meta name="description" content="View SIF performance analytics, volatility risk profiles, trend signals, and anomaly analysis for Indian Specialized Investment Funds." />
-  <meta name="keywords" content="SIF investment returns, SIF analytics, Specialized Investment Funds, volatility ratings, Sharpe ratio, long-short funds performance" />
+  <meta name="description"
+    content="View SIF performance analytics, volatility risk profiles, trend signals, and anomaly analysis for Indian Specialized Investment Funds." />
+  <meta name="keywords"
+    content="SIF investment returns, SIF analytics, Specialized Investment Funds, volatility ratings, Sharpe ratio, long-short funds performance" />
   <title>SIF Performance Analytics & Volatility Ratings | Sanvasify</title>
   <link rel="canonical" href="https://sanvasify.com/analytics.html" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sanvasify.com/analytics.html" />
+  <meta property="og:title" content="Category Champions & SIF Performance Analytics | Sanvasify" />
+  <meta property="og:description"
+    content="Track and compare Indian Specialized Investment Funds (SIF) / AIF Category III schemes. View risk metrics, rolling standard deviation, alphas, and drawdowns." />
+  <meta property="og:image" content="https://sanvasify.com/images/og-preview.png" />
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@Sanvasify" />
+  <meta name="twitter:url" content="https://sanvasify.com/analytics.html" />
+  <meta name="twitter:title" content="Category Champions & SIF Performance Analytics | Sanvasify" />
+  <meta name="twitter:description"
+    content="Track and compare Indian Specialized Investment Funds (SIF) / AIF Category III schemes. View risk metrics, rolling standard deviation, alphas, and drawdowns." />
+  <meta name="twitter:image" content="https://sanvasify.com/images/og-preview.png" />
   <link rel="stylesheet" href="css/design-tokens.css" />
   <link rel="stylesheet" href="css/style.css" />
   <script type="application/ld+json">
@@ -38,6 +56,7 @@
     }
   </script>
 </head>
+
 <body>
   <nav class="site-nav">
     <div class="nav-inner">
@@ -63,17 +82,40 @@
 
     <!-- Tab navigation -->
     <div class="compare-tabs" id="analytics-tabs">
-      <button class="compare-tab active" data-tab="volatility">Volatility</button>
+      <button class="compare-tab active" data-tab="topPerformers">Top Performers</button>
+      <button class="compare-tab" data-tab="riskMetrics">Risk & Capture</button>
+      <button class="compare-tab" data-tab="volatility">Volatility</button>
       <button class="compare-tab" data-tab="trends">Trend Signals</button>
       <button class="compare-tab" data-tab="anomalies">Anomalies</button>
-      <button class="compare-tab" data-tab="riskMetrics">Risk & Capture</button>
+
     </div>
 
     <!-- Content panels -->
     <div id="tab-content" class="fund-list"></div>
+
+    <footer
+      style="margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--color-border); text-align: center;">
+      <p style="font-size: var(--text-xs); color: var(--color-text-muted);">
+        Disclaimer: For educational purposes only. NAV data sourced from AMFI. Not financial advice. Consult a qualified
+        professional before investing.
+      </p>
+      <div
+        style="margin-top: var(--space-4); display: flex; justify-content: center; gap: var(--space-5); font-size: var(--text-xs); color: var(--color-text-muted);">
+        <a href="mailto:info@sanvasify.com"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>✉</span> info@sanvasify.com
+        </a>
+        <span>•</span>
+        <a href="https://x.com/sanvasify" target="_blank" rel="noopener"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>𝕏</span> @sanvasify
+        </a>
+      </div>
+    </footer>
   </main>
 
   <script src="js/theme.js?v=1.0.0"></script>
   <script type="module" src="js/analytics.js?v=1.0.0"></script>
 </body>
+
 </html>

@@ -1,6 +1,10 @@
 package db
 
-import "context"
+import (
+	"context"
+	"sort"
+	"strings"
+)
 
 // VolatilityRating holds a scheme's volatility metrics.
 type VolatilityRating struct {
@@ -245,19 +249,21 @@ func (d *DB) GetSimilarFunds(ctx context.Context, schemeCode string) ([]SimilarF
 	return results, rows.Err()
 }
 
-// RiskMetrics holds Beta, Alpha, Sortino, Max Drawdown, and Capture Ratios for a scheme.
+// RiskMetrics holds Beta, Alpha, Sharpe, Sortino, Max Drawdown, and Capture Ratios for a scheme.
 type RiskMetrics struct {
 	Code            string   `json:"scheme_code"`
 	Name            string   `json:"scheme_name"`
 	Strategy        string   `json:"fund_strategy"`
 	Company         string   `json:"fund_company"`
-	RetAnnualised    *float64 `json:"ret_annualised"`
+	RetAnnualised   *float64 `json:"ret_annualised"`
 	Beta            *float64 `json:"beta"`
-	Alpha            *float64 `json:"alpha"`
+	Alpha           *float64 `json:"alpha"`
+	Sharpe          *float64 `json:"sharpe"`
 	Sortino         *float64 `json:"sortino"`
-	MaxDrawdown      *float64 `json:"max_drawdown"`
-	UpsideCapture    *float64 `json:"upside_capture"`
-	DownsideCapture  *float64 `json:"downside_capture"`
+	MaxDrawdown     *float64 `json:"max_drawdown"`
+	UpsideCapture   *float64 `json:"upside_capture"`
+	DownsideCapture *float64 `json:"downside_capture"`
+	CompositeScore  *float64 `json:"composite_score"`
 }
 
 // GetRiskMetrics calculates advanced risk metrics relative to Nifty 500 TRI.
@@ -304,6 +310,13 @@ func (d *DB) GetRiskMetrics(ctx context.Context) ([]RiskMetrics, error) {
 			SELECT scheme_code,
 				COVAR_SAMP(fund_ret, index_ret) / NULLIF(VAR_SAMP(index_ret), 0) AS beta
 			FROM joined_returns
+			GROUP BY scheme_code
+		),
+		vol_calc AS (
+			SELECT scheme_code,
+				STDDEV(fund_ret) AS std_dev
+			FROM fund_returns
+			WHERE fund_ret IS NOT NULL
 			GROUP BY scheme_code
 		),
 		benchmark_ann_return AS (
@@ -360,6 +373,11 @@ func (d *DB) GetRiskMetrics(ctx context.Context) ([]RiskMetrics, error) {
 				     - (6.0 + b.beta * (COALESCE((SELECT bench_ann_ret FROM benchmark_ann_return), 0.0) - 6.0))
 			END AS alpha,
 			CASE
+				WHEN si.net_asset_value > 0 AND c.date - si.date >= 90 AND v.std_dev > 0
+				THEN ((pow(c.net_asset_value / si.net_asset_value, 365.0 / (c.date - si.date)) - 1.0) * 100.0 - 6.0)
+				     / (v.std_dev * 15.8745)
+			END AS sharpe,
+			CASE
 				WHEN si.net_asset_value > 0 AND c.date - si.date >= 90 AND dv.down_var > 0
 				THEN ((pow(c.net_asset_value / si.net_asset_value, 365.0 / (c.date - si.date)) - 1.0) * 100.0 - 6.0)
 				     / (sqrt(dv.down_var) * 15.8745)
@@ -370,6 +388,7 @@ func (d *DB) GetRiskMetrics(ctx context.Context) ([]RiskMetrics, error) {
 		FROM current_nav c
 		LEFT JOIN nav_si si ON c.scheme_code = si.scheme_code
 		LEFT JOIN beta_calc b ON c.scheme_code = b.scheme_code
+		LEFT JOIN vol_calc v ON c.scheme_code = v.scheme_code
 		LEFT JOIN downside_variance dv ON c.scheme_code = dv.scheme_code
 		LEFT JOIN max_dd_calc mdd ON c.scheme_code = mdd.scheme_code
 		LEFT JOIN capture_calc cap ON c.scheme_code = cap.scheme_code
@@ -384,10 +403,158 @@ func (d *DB) GetRiskMetrics(ctx context.Context) ([]RiskMetrics, error) {
 	var results []RiskMetrics
 	for rows.Next() {
 		var r RiskMetrics
-		if err := rows.Scan(&r.Code, &r.Name, &r.Strategy, &r.Company, &r.RetAnnualised, &r.Beta, &r.Alpha, &r.Sortino, &r.MaxDrawdown, &r.UpsideCapture, &r.DownsideCapture); err != nil {
+		if err := rows.Scan(&r.Code, &r.Name, &r.Strategy, &r.Company, &r.RetAnnualised, &r.Beta, &r.Alpha, &r.Sharpe, &r.Sortino, &r.MaxDrawdown, &r.UpsideCapture, &r.DownsideCapture); err != nil {
 			return nil, err
 		}
 		results = append(results, r)
 	}
 	return results, rows.Err()
+}
+
+// TopPerformersResponse segments SIFs into Category Champions.
+type TopPerformersResponse struct {
+	AlphaKings        []RiskMetrics `json:"alpha_king"`
+	ShieldGuardians   []RiskMetrics `json:"shield_guardian"`
+	AsymmetricRunners []RiskMetrics `json:"asymmetric_runner"`
+}
+
+// GetTopPerformers groups and ranks schemes using the multi-factor scoring model.
+func (d *DB) GetTopPerformers(ctx context.Context) (*TopPerformersResponse, error) {
+	metrics, err := d.GetRiskMetrics(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var valid []RiskMetrics
+	for _, m := range metrics {
+		nameLower := strings.ToLower(m.Name)
+		if strings.Contains(nameLower, "direct") && strings.Contains(nameLower, "growth") {
+			if m.RetAnnualised != nil && m.Beta != nil && m.Alpha != nil && m.Sharpe != nil && m.Sortino != nil && m.MaxDrawdown != nil && m.UpsideCapture != nil && m.DownsideCapture != nil {
+				valid = append(valid, m)
+			}
+		}
+	}
+
+	if len(valid) == 0 {
+		return &TopPerformersResponse{
+			AlphaKings:        []RiskMetrics{},
+			ShieldGuardians:   []RiskMetrics{},
+			AsymmetricRunners: []RiskMetrics{},
+		}, nil
+	}
+
+	// Min-Max limits
+	first := valid[0]
+	minAnn, maxAnn := *first.RetAnnualised, *first.RetAnnualised
+	minBeta, maxBeta := *first.Beta, *first.Beta
+	minAlpha, maxAlpha := *first.Alpha, *first.Alpha
+	minSortino, maxSortino := *first.Sortino, *first.Sortino
+	minSharpe, maxSharpe := *first.Sharpe, *first.Sharpe
+	minDD, maxDD := *first.MaxDrawdown, *first.MaxDrawdown
+	minSpread, maxSpread := *first.UpsideCapture-*first.DownsideCapture, *first.UpsideCapture-*first.DownsideCapture
+
+	for _, m := range valid {
+		if *m.RetAnnualised < minAnn {
+			minAnn = *m.RetAnnualised
+		}
+		if *m.RetAnnualised > maxAnn {
+			maxAnn = *m.RetAnnualised
+		}
+		if *m.Beta < minBeta {
+			minBeta = *m.Beta
+		}
+		if *m.Beta > maxBeta {
+			maxBeta = *m.Beta
+		}
+		if *m.Alpha < minAlpha {
+			minAlpha = *m.Alpha
+		}
+		if *m.Alpha > maxAlpha {
+			maxAlpha = *m.Alpha
+		}
+		if *m.Sortino < minSortino {
+			minSortino = *m.Sortino
+		}
+		if *m.Sortino > maxSortino {
+			maxSortino = *m.Sortino
+		}
+		if *m.Sharpe < minSharpe {
+			minSharpe = *m.Sharpe
+		}
+		if *m.Sharpe > maxSharpe {
+			maxSharpe = *m.Sharpe
+		}
+		if *m.MaxDrawdown < minDD {
+			minDD = *m.MaxDrawdown
+		}
+		if *m.MaxDrawdown > maxDD {
+			maxDD = *m.MaxDrawdown
+		}
+		spread := *m.UpsideCapture - *m.DownsideCapture
+		if spread < minSpread {
+			minSpread = spread
+		}
+		if spread > maxSpread {
+			maxSpread = spread
+		}
+	}
+
+	norm := func(val, min, max float64, invert bool) float64 {
+		if max == min {
+			return 50.0
+		}
+		if invert {
+			return (max - val) / (max - min) * 100.0
+		}
+		return (val - min) / (max - min) * 100.0
+	}
+
+	for i := range valid {
+		m := &valid[i]
+		nAnn := norm(*m.RetAnnualised, minAnn, maxAnn, false)
+		nBeta := norm(*m.Beta, minBeta, maxBeta, true)
+		nAlpha := norm(*m.Alpha, minAlpha, maxAlpha, false)
+		nSortino := norm(*m.Sortino, minSortino, maxSortino, false)
+		nSharpe := norm(*m.Sharpe, minSharpe, maxSharpe, false)
+		nDD := norm(*m.MaxDrawdown, minDD, maxDD, true)
+		nSpread := norm(*m.UpsideCapture-*m.DownsideCapture, minSpread, maxSpread, false)
+
+		score := 0.25*nAlpha + 0.10*nAnn + 0.20*nSortino + 0.15*nSharpe + 0.10*nDD + 0.10*nBeta + 0.10*nSpread
+		m.CompositeScore = &score
+	}
+
+	limit := func(arr []RiskMetrics, n int) []RiskMetrics {
+		if len(arr) < n {
+			return arr
+		}
+		return arr[:n]
+	}
+
+	// 1. Alpha Kings: sorted by Alpha desc (pure active return)
+	alphaKings := make([]RiskMetrics, len(valid))
+	copy(alphaKings, valid)
+	sort.Slice(alphaKings, func(i, j int) bool {
+		return *alphaKings[i].Alpha > *alphaKings[j].Alpha
+	})
+
+	// 2. Shield Guardians: sorted by lowest Max Drawdown desc (closest to 0, preservation-focused)
+	guardians := make([]RiskMetrics, len(valid))
+	copy(guardians, valid)
+	sort.Slice(guardians, func(i, j int) bool {
+		// Drawdowns are negative numbers (e.g., -0.23% vs -5.0%), so > sorts closest to 0
+		return *guardians[i].MaxDrawdown > *guardians[j].MaxDrawdown
+	})
+
+	// 3. Asymmetric Runners: sorted by Sortino Ratio desc (asymmetric risk-adjusted return)
+	runners := make([]RiskMetrics, len(valid))
+	copy(runners, valid)
+	sort.Slice(runners, func(i, j int) bool {
+		return *runners[i].Sortino > *runners[j].Sortino
+	})
+
+	return &TopPerformersResponse{
+		AlphaKings:        limit(alphaKings, 3),
+		ShieldGuardians:   limit(guardians, 3),
+		AsymmetricRunners: limit(runners, 3),
+	}, nil
 }

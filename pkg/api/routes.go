@@ -26,6 +26,7 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/api/analysis/anomalies", jsonMW(s.handleAnomalies()))
 	s.router.HandleFunc("/api/analysis/similar", jsonMW(s.handleSimilar()))
 	s.router.HandleFunc("/api/analysis/risk-metrics", jsonMW(s.handleRiskMetrics()))
+	s.router.HandleFunc("/api/analysis/top-performers", jsonMW(s.handleTopPerformers()))
 
 	// Index routes
 	s.router.HandleFunc("/api/indices/compare", jsonMW(s.handleIndexCompare()))

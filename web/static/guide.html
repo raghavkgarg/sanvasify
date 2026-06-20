@@ -68,6 +68,22 @@
             "@type": "Answer",
             "text": "No, SEBI does not permit leverage in SIFs. SIFs can only use derivatives for hedging and taking capped short positions up to 25% of portfolio value, avoiding risk magnification."
           }
+        },
+        {
+          "@type": "Question",
+          "name": "How is the Multi-Factor Composite Score calculated?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Multi-Factor Composite Score evaluates funds out of 100 based on seven normalized factors: Alpha (25%), Sortino Ratio (20%), Sharpe Ratio (15%), Annualised Return (10%), Maximum Drawdown (10%), Beta (10%), and Capture Spread (10%)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between an Alpha King and a Shield Guardian?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Alpha Kings are aggressive growth leaders with the highest excess return (Alpha) over the benchmark. Shield Guardians focus on preservation, filtering for funds with a Beta less than 0.5 and sorting by Sortino ratio and drawdown protection."
+          }
         }
       ]
     }
@@ -165,6 +181,65 @@
       </div>
     </section>
 
+    <!-- SIF Leaderboard & Composite Scoring Model -->
+    <section class="guide-section" id="composite-model">
+      <h2>Top Performers Composite Scoring Model</h2>
+      <div class="panel">
+        <p>To identify the absolute top-performing funds without ignoring the risks they take, Sanvasify calculates a
+          unified <strong>Multi-Factor Composite Score</strong> (scaled from 0 to 100) using min-max normalization
+          across all active schemes in our database. Here is how the score is calculated:</p>
+
+        <h3
+          style="font-size: var(--text-sm); font-weight: 600; margin-top: var(--space-4); color: var(--color-accent);">
+          1. The Formula &amp; Weightings</h3>
+        <ul
+          style="margin-top: var(--space-2); padding-left: var(--space-5); color: var(--color-text-secondary); font-size: var(--text-sm); line-height: 1.8;">
+          <li><strong><a href="analytics.html?tab=riskMetrics" style="color: inherit; text-decoration: underline;">Alpha
+                (&alpha;) — 25%</a></strong>: The excess return generated over the risk-adjusted benchmark. Higher alpha
+            shows stronger manager skill.</li>
+          <li><strong><a href="analytics.html?tab=riskMetrics"
+                style="color: inherit; text-decoration: underline;">Sortino Ratio — 20%</a></strong>: Measures returns
+            relative to downside volatility (only penalizing drops, not positive swings).</li>
+          <li><strong><a href="analytics.html?tab=riskMetrics"
+                style="color: inherit; text-decoration: underline;">Sharpe Ratio — 15%</a></strong>: Measures returns
+            relative to total volatility (standard deviation).</li>
+          <li><strong><a href="analytics.html?tab=riskMetrics"
+                style="color: inherit; text-decoration: underline;">Annualised Return — 10%</a></strong>: The absolute
+            compounded growth.</li>
+          <li><strong><a href="analytics.html?tab=riskMetrics"
+                style="color: inherit; text-decoration: underline;">Maximum Drawdown — 10%</a></strong>: The largest
+            peak-to-trough drop in historical NAV. Smaller drops receive higher scores.</li>
+          <li><strong><a href="analytics.html?tab=riskMetrics" style="color: inherit; text-decoration: underline;">Beta
+                (&beta;) — 10%</a></strong>: Sensitivity to market movements. Lower beta (higher insulation) gets a
+            higher score.</li>
+          <li><strong><a href="analytics.html?tab=riskMetrics"
+                style="color: inherit; text-decoration: underline;">Capture Spread — 10%</a></strong>: The difference
+            between Upside Capture and Downside Capture ratios.</li>
+        </ul>
+
+        <h3
+          style="font-size: var(--text-sm); font-weight: 600; margin-top: var(--space-4); color: var(--color-accent);">
+          2. Category Champions Definitions</h3>
+        <p
+          style="margin-top: var(--space-2); color: var(--color-text-secondary); font-size: var(--text-sm); line-height: 1.6;">
+          Using these factors, we rank and group the funds into three specialized leaderboards:
+        </p>
+        <ul
+          style="margin-top: var(--space-2); padding-left: var(--space-5); color: var(--color-text-secondary); font-size: var(--text-sm); line-height: 1.8;">
+          <li><strong>👑 The <a href="analytics.html?tab=topPerformers"
+                style="color: inherit; text-decoration: underline;">"Alpha King"</a></strong>: Funds that generate the
+            highest active risk-adjusted returns (highest Alpha values). Ideal for aggressive growth.</li>
+          <li><strong>🛡️ The <a href="analytics.html?tab=topPerformers"
+                style="color: inherit; text-decoration: underline;">"Shield Guardian"</a></strong>: Insulated funds
+            (market Beta &lt; 0.5) that deliver the highest Sortino ratios. Ideal for capital preservation.</li>
+          <li><strong>⚡ The <a href="analytics.html?tab=topPerformers"
+                style="color: inherit; text-decoration: underline;">"Asymmetric Runner"</a></strong>: Tactical hedge
+            leaders with the widest spread between Upside Capture and Downside Capture ratios (gaining on positive
+            market days, protecting on down days).</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- Comparison Table -->
     <section class="guide-section">
       <h2>How SIFs Stack Up</h2>
@@ -251,6 +326,18 @@
         Disclaimer: For educational purposes only. Not financial advice. Consult a qualified professional before
         investing.
       </p>
+      <div
+        style="margin-top: var(--space-4); display: flex; justify-content: center; gap: var(--space-5); font-size: var(--text-xs); color: var(--color-text-dim);">
+        <a href="mailto:info@sanvasify.com"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>📧</span> info@sanvasify.com
+        </a>
+        <span>•</span>
+        <a href="https://x.com/sanvasify" target="_blank" rel="noopener"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>𝕏</span> @sanvasify
+        </a>
+      </div>
     </footer>
   </main>
 

@@ -191,6 +191,17 @@ func (s *Server) handleRiskMetrics() http.HandlerFunc {
 	}
 }
 
+func (s *Server) handleTopPerformers() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		results, err := s.db.GetTopPerformers(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(results)
+	}
+}
+
 func (s *Server) handleSessionInit() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {

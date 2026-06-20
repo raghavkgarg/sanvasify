@@ -156,6 +156,16 @@
     </section>
 
     <section style="margin-top: var(--space-7);">
+      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">Category
+        Champions (Multi-Factor Composite Score)</h2>
+      <div id="composite-leaders-container" class="top-performers-grid">
+        <div class="loading-wrap">
+          <div class="spinner"></div><span>Loading category champions...</span>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top: var(--space-7);">
       <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">Performance
         Snapshot</h2>
       <div id="overview-chart" class="chart-container" style="height: 260px;"></div>
@@ -174,12 +184,44 @@
       </div>
     </section>
 
+    <section style="margin-top: var(--space-9);">
+      <h2 style="font-size: var(--text-lg); margin-bottom: var(--space-4); color: var(--color-text-muted);">SIF &amp;
+        AIF Glossary</h2>
+      <div class="panel" style="font-size: var(--text-xs); color: var(--color-text-secondary); line-height: 1.6;">
+        <p style="margin-bottom: var(--space-2);">
+          <strong>Alternative Investment Funds (AIF) Category III</strong>: Pooled investment vehicles that employ
+          diverse trading strategies, including hedging, leverage, arbitrage, and long-short equity models to generate
+          risk-adjusted returns.
+        </p>
+        <p style="margin-bottom: var(--space-2);">
+          <strong>Active Alpha (&alpha;)</strong>: Measures the value added by the fund manager relative to the
+          benchmark index (Nifty 500 TRI). Positive alpha indicates outperformance.
+        </p>
+        <p>
+          <strong>Sortino &amp; Sharpe Ratios</strong>: Risk-adjusted indicators representing return yields per unit of
+          volatility, where the Sortino ratio focuses specifically on penalizing downside risks (negative returns).
+        </p>
+      </div>
+    </section>
+
     <footer
       style="margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--color-border); text-align: center;">
       <p style="font-size: var(--text-xs); color: var(--color-text-muted);">
         Disclaimer: For educational purposes only. NAV data sourced from AMFI. Not financial advice. Consult a qualified
         professional before investing.
       </p>
+      <div
+        style="margin-top: var(--space-4); display: flex; justify-content: center; gap: var(--space-5); font-size: var(--text-xs); color: var(--color-text-muted);">
+        <a href="mailto:info@sanvasify.com"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>✉</span> info@sanvasify.com
+        </a>
+        <span>•</span>
+        <a href="https://x.com/sanvasify" target="_blank" rel="noopener"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>𝕏</span> @sanvasify
+        </a>
+      </div>ß
     </footer>
   </main>
 

@@ -119,7 +119,13 @@
     <div id="compare-panel" class="compare-panel" style="display:none;">
       <div class="compare-panel-header">
         <span>📊 Comparison</span>
-        <button id="close-compare" class="btn btn-ghost">✕ Close</button>
+        <div style="display: flex; gap: 8px;">
+          <button id="share-comparison" class="btn btn-ghost"
+            style="display: inline-flex; align-items: center; gap: 4px;">
+            <span>🔗</span> Share
+          </button>
+          <button id="close-compare" class="btn btn-ghost">✕ Close</button>
+        </div>
       </div>
       <div id="compare-chart" style="width:100%; height:280px;"></div>
     </div>
@@ -166,6 +172,26 @@
 
     <!-- Fund list -->
     <div id="fund-list" class="fund-list"></div>
+
+    <footer
+      style="margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--color-border); text-align: center;">
+      <p style="font-size: var(--text-xs); color: var(--color-text-muted);">
+        Disclaimer: For educational purposes only. NAV data sourced from AMFI. Not financial advice. Consult a qualified
+        professional before investing.
+      </p>
+      <div
+        style="margin-top: var(--space-4); display: flex; justify-content: center; gap: var(--space-5); font-size: var(--text-xs); color: var(--color-text-muted);">
+        <a href="mailto:info@sanvasify.com"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>✉</span> info@sanvasify.com
+        </a>
+        <span>•</span>
+        <a href="https://x.com/sanvasify" target="_blank" rel="noopener"
+          style="color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          <span>𝕏</span> @sanvasify
+        </a>
+      </div>
+    </footer>
   </main>
 
   <script src="js/theme.js?v=1.0.2"></script>

@@ -50,6 +50,18 @@ async function loadData(strategy) {
       dateEl.textContent = `NAV as of ${allData[0].date.split('T')[0]}`;
     }
     applyFilter();
+
+    // Auto-select funds from URL params if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const codesParam = urlParams.get('codes');
+    if (codesParam) {
+      const parsedCodes = codesParam.split(',');
+      selected = parsedCodes.filter(code => allData.some(f => f.scheme_code === code));
+      if (selected.length > 0) {
+        updatePanel();
+        render();
+      }
+    }
   } catch (err) {
     console.error('Error loading compare data:', err);
     list.innerHTML =
@@ -496,6 +508,24 @@ async function loadBenchmarkMetrics() {
   } catch (err) {
     console.error('Error loading benchmark metrics:', err);
   }
+}
+
+const shareBtn = document.getElementById('share-comparison');
+if (shareBtn) {
+  shareBtn.addEventListener('click', () => {
+    if (selected.length === 0) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('codes', selected.join(','));
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      const originalText = shareBtn.innerHTML;
+      shareBtn.innerHTML = '<span>✓</span> Copied!';
+      setTimeout(() => {
+        shareBtn.innerHTML = originalText;
+      }, 2000);
+    }).catch(err => {
+      console.error('Error copying to clipboard:', err);
+    });
+  });
 }
 
 loadBenchmarkMetrics();

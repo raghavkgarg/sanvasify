@@ -303,17 +303,8 @@ func (d *DB) GetSchemeReturns(ctx context.Context, strategy string) ([]SchemeRet
 				WHERE scheme_code = s.scheme_code AND date <= l.max_date - INTERVAL '3 months'
 			)
 		),
-		nav_1y AS (
-			SELECT s.scheme_code, s.net_asset_value
-			FROM sif_schemes s
-			JOIN latest l ON s.scheme_code = l.scheme_code
-			WHERE s.date = (
-				SELECT MAX(date) FROM sif_schemes
-				WHERE scheme_code = s.scheme_code AND date <= l.max_date - INTERVAL '1 year'
-			)
-		),
 		nav_si AS (
-			SELECT s.scheme_code, s.net_asset_value
+			SELECT s.scheme_code, s.net_asset_value, s.date
 			FROM sif_schemes s
 			WHERE s.date = (
 				SELECT MIN(date) FROM sif_schemes WHERE scheme_code = s.scheme_code
@@ -324,12 +315,11 @@ func (d *DB) GetSchemeReturns(ctx context.Context, strategy string) ([]SchemeRet
 			c.fund_strategy, c.fund_company,
 			CASE WHEN m1.net_asset_value > 0 THEN (c.net_asset_value - m1.net_asset_value) / m1.net_asset_value * 100 END AS ret_1m,
 			CASE WHEN m3.net_asset_value > 0 THEN (c.net_asset_value - m3.net_asset_value) / m3.net_asset_value * 100 END AS ret_3m,
-			CASE WHEN y1.net_asset_value > 0 THEN (c.net_asset_value - y1.net_asset_value) / y1.net_asset_value * 100 END AS ret_annualised,
+			CASE WHEN si.net_asset_value > 0 AND c.date - si.date >= 90 THEN (pow(c.net_asset_value / si.net_asset_value, 365.0 / (c.date - si.date)) - 1.0) * 100.0 END AS ret_annualised,
 			CASE WHEN si.net_asset_value > 0 THEN (c.net_asset_value - si.net_asset_value) / si.net_asset_value * 100 END AS ret_si
 		FROM current_nav c
 		LEFT JOIN nav_1m m1 ON c.scheme_code = m1.scheme_code
 		LEFT JOIN nav_3m m3 ON c.scheme_code = m3.scheme_code
-		LEFT JOIN nav_1y y1 ON c.scheme_code = y1.scheme_code
 		LEFT JOIN nav_si si ON c.scheme_code = si.scheme_code
 		WHERE 1=1
 	`
@@ -452,17 +442,8 @@ func (d *DB) GetIndexReturns(ctx context.Context, code string) (*IndexReturn, er
 				WHERE index_code = s.index_code AND date <= l.max_date - INTERVAL '3 months'
 			)
 		),
-		val_1y AS (
-			SELECT s.index_code, s.value
-			FROM sif_indices s
-			JOIN latest l ON s.index_code = l.index_code
-			WHERE s.date = (
-				SELECT MAX(date) FROM sif_indices
-				WHERE index_code = s.index_code AND date <= l.max_date - INTERVAL '1 year'
-			)
-		),
 		val_si AS (
-			SELECT s.index_code, s.value
+			SELECT s.index_code, s.value, s.date
 			FROM sif_indices s
 			WHERE s.date = (
 				SELECT MIN(date) FROM sif_indices WHERE index_code = s.index_code
@@ -472,12 +453,11 @@ func (d *DB) GetIndexReturns(ctx context.Context, code string) (*IndexReturn, er
 			c.index_code, c.index_name, c.value, c.date,
 			CASE WHEN m1.value > 0 THEN (c.value - m1.value) / m1.value * 100 END AS ret_1m,
 			CASE WHEN m3.value > 0 THEN (c.value - m3.value) / m3.value * 100 END AS ret_3m,
-			CASE WHEN y1.value > 0 THEN (c.value - y1.value) / y1.value * 100 END AS ret_annualised,
+			CASE WHEN si.value > 0 AND c.date - si.date >= 90 THEN (pow(c.value / si.value, 365.0 / (c.date - si.date)) - 1.0) * 100.0 END AS ret_annualised,
 			CASE WHEN si.value > 0 THEN (c.value - si.value) / si.value * 100 END AS ret_si
 		FROM current_val c
 		LEFT JOIN val_1m m1 ON c.index_code = m1.index_code
 		LEFT JOIN val_3m m3 ON c.index_code = m3.index_code
-		LEFT JOIN val_1y y1 ON c.index_code = y1.index_code
 		LEFT JOIN val_si si ON c.index_code = si.index_code
 	`
 	row := d.conn.QueryRowContext(ctx, query, code)

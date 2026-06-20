@@ -31,7 +31,7 @@ function volBar(stdDev, maxStdDev, rating) {
 async function loadVolatility() {
   content.innerHTML =
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading...</span></div>';
-  let data = await fetchJSON('/api/analytics/volatility');
+  let data = await fetchJSON('/api/analysis/volatility');
   // Filter to show only 'Growth - Direct' variants
   data = data.filter((f) =>
     f.scheme_name.toLowerCase().includes('growth') &&
@@ -43,6 +43,13 @@ async function loadVolatility() {
     'Volatility Rating',
     'How much each fund swings day-to-day. Longer bar = bigger daily moves = higher risk.',
   );
+
+  const explanation = `
+    <div class="panel" style="margin: 0 var(--space-4) var(--space-6) var(--space-4); font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-secondary);">
+      <p><strong>Volatility</strong> measures the dispersion of daily returns for each fund. A higher standard deviation indicates greater daily price fluctuations and higher risk.</p>
+      <p style="margin-top: 6px;">Funds are categorized into <strong>Low</strong> (std dev &le; 0.5%), <strong>Medium</strong> (std dev &le; 1.5%), and <strong>High</strong> (std dev &gt; 1.5%) volatility bands based on their daily movement profiles.</p>
+    </div>
+  `;
 
   const legend =
     `<div class="vol-legend"><span class="vol-legend-item"><span class="vol-dot" style="background:var(--color-positive)"></span>Low</span><span class="vol-legend-item"><span class="vol-dot" style="background:var(--color-accent)"></span>Medium</span><span class="vol-legend-item"><span class="vol-dot" style="background:var(--color-negative)"></span>High</span></div>`;
@@ -58,7 +65,7 @@ async function loadVolatility() {
       </div>
     </div>`).join('');
 
-  content.innerHTML = header + legend +
+  content.innerHTML = header + explanation + legend +
     `<div class="vol-chart">${rows}</div>`;
 }
 
@@ -82,7 +89,7 @@ function trendLine(signal) {
 async function loadTrends() {
   content.innerHTML =
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading...</span></div>';
-  let data = await fetchJSON('/api/analytics/trends');
+  let data = await fetchJSON('/api/analysis/trends');
   // Filter to show only 'Growth - Direct' variants
   data = data.filter((f) =>
     f.scheme_name.toLowerCase().includes('growth') &&
@@ -93,6 +100,13 @@ async function loadTrends() {
     'Trend Signals',
     '7-day vs 30-day moving average crossover. Green rising = gaining momentum. Red falling = losing ground.',
   );
+
+  const explanation = `
+    <div class="panel" style="margin: 0 var(--space-4) var(--space-6) var(--space-4); font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-secondary);">
+      <p><strong>Trend Signals</strong> are generated using a 7-day and 30-day Simple Moving Average (SMA) crossover system to detect shifts in NAV momentum.</p>
+      <p style="margin-top: 6px;">An <strong>Uptrend</strong> indicates the short-term average has crossed above the long-term average (bullish momentum), while a <strong>Downtrend</strong> indicates it has crossed below (bearish momentum).</p>
+    </div>
+  `;
 
   const rows = data.map((r) => {
     const since = r.since ? r.since.split('T')[0] : '';
@@ -118,13 +132,13 @@ async function loadTrends() {
     </div>`;
   }).join('');
 
-  content.innerHTML = header + `<div class="trend-list">${rows}</div>`;
+  content.innerHTML = header + explanation + `<div class="trend-list">${rows}</div>`;
 }
 
 async function loadAnomalies() {
   content.innerHTML =
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading...</span></div>';
-  let data = await fetchJSON('/api/analytics/anomalies');
+  let data = await fetchJSON('/api/analysis/anomalies');
   // Filter to show only 'Growth - Direct' variants
   data = data.filter((f) =>
     f.scheme_name.toLowerCase().includes('growth') &&
@@ -136,8 +150,15 @@ async function loadAnomalies() {
     'Days when a fund moved far outside its normal range. Bigger circle = more extreme.',
   );
 
+  const explanation = `
+    <div class="panel" style="margin: 0 var(--space-4) var(--space-6) var(--space-4); font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-secondary);">
+      <p><strong>Anomalies</strong> are single-day NAV movements that are statistically unusual compared to a fund's historical performance.</p>
+      <p style="margin-top: 6px;">We flag returns with a <strong>Z-score</strong> greater than 3.0 or less than -3.0, meaning the daily return was more than 3 standard deviations away from the fund's historical mean daily return.</p>
+    </div>
+  `;
+
   if (!data || data.length === 0) {
-    content.innerHTML = header +
+    content.innerHTML = header + explanation +
       '<p class="analytics-desc">No unusual moves detected.</p>';
     return;
   }
@@ -165,13 +186,142 @@ async function loadAnomalies() {
     </div>`;
   }).join('');
 
-  content.innerHTML = header + `<div class="anomaly-list">${rows}</div>`;
+  content.innerHTML = header + explanation + `<div class="anomaly-list">${rows}</div>`;
+}
+
+async function loadRiskMetrics() {
+  content.innerHTML =
+    '<div class="loading-wrap"><div class="spinner"></div><span>Loading risk & capture metrics...</span></div>';
+  const header = sectionHeader(
+    'Risk & Capture Metrics vs. Benchmark',
+    'Evaluate capital preservation, downside risk-adjusted performance, and market capture ratios relative to the Nifty 500 TRI.'
+  );
+  try {
+    let data = await fetchJSON('/api/analysis/risk-metrics');
+    // Filter to show only 'Growth - Direct' variants
+    data = data.filter((f) =>
+      f.scheme_name.toLowerCase().includes('growth') &&
+      f.scheme_name.toLowerCase().includes('direct')
+    );
+
+    const explanation = `
+      <div class="panel" style="margin: 0 var(--space-4) var(--space-6) var(--space-4); font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-secondary);">
+        <p><strong>Beta (&beta;) / Alpha (&alpha;)</strong>: Beta measures market sensitivity (lower = insulated). Alpha is the excess risk-adjusted return relative to the benchmark (higher is better).</p>
+        <p style="margin-top: 6px;"><strong>Sortino Ratio</strong>: Measures return per unit of <em>downside</em> risk. Unlike Sharpe, it does not penalize upside volatility. A Sortino &gt; 1.0 is considered good.</p>
+        <p style="margin-top: 6px;"><strong>Max Drawdown</strong>: The largest peak-to-trough drop in NAV. Shows the maximum historical paper loss a fund suffered.</p>
+        <p style="margin-top: 6px;"><strong>Capture Ratios</strong>: Upside Capture measures how much of index gains the fund captured during market rises. Downside Capture measures how much index loss the fund captured during drops. (Ideal: High Upside, Low Downside).</p>
+      </div>
+    `;
+
+    const tableRows = data.map((r) => {
+      const ann = r.ret_annualised != null ? `${r.ret_annualised.toFixed(2)}%` : '—';
+      const beta = r.beta != null ? r.beta.toFixed(2) : '—';
+      const alpha = r.alpha != null ? `${r.alpha > 0 ? '+' : ''}${r.alpha.toFixed(2)}%` : '—';
+      const sortino = r.sortino != null ? r.sortino.toFixed(2) : '—';
+      const maxDd = r.max_drawdown != null ? `${r.max_drawdown.toFixed(2)}%` : '—';
+      const upCap = r.upside_capture != null ? `${r.upside_capture.toFixed(0)}%` : '—';
+      const downCap = r.downside_capture != null ? `${r.downside_capture.toFixed(0)}%` : '—';
+
+      // Beta coloring class
+      let betaCls = 'ret-badge neutral';
+      if (r.beta != null) {
+        if (r.beta < 0.5) betaCls = 'ret-badge positive';
+        else if (r.beta < 1.0) betaCls = 'ret-badge neutral';
+        else betaCls = 'ret-badge negative';
+      }
+
+      // Alpha coloring class
+      let alphaCls = 'ret-badge neutral';
+      if (r.alpha != null) {
+        if (r.alpha > 0) alphaCls = 'ret-badge positive';
+        else if (r.alpha < 0) alphaCls = 'ret-badge negative';
+      }
+
+      // Sortino coloring class
+      let sortinoCls = 'ret-badge neutral';
+      if (r.sortino != null) {
+        if (r.sortino > 1.0) sortinoCls = 'ret-badge positive';
+        else if (r.sortino < 0) sortinoCls = 'ret-badge negative';
+      }
+
+      // Max Drawdown coloring class (smaller absolute drawdown is positive/green)
+      let ddCls = 'ret-badge neutral';
+      if (r.max_drawdown != null) {
+        if (Math.abs(r.max_drawdown) < 8.0) ddCls = 'ret-badge positive';
+        else if (Math.abs(r.max_drawdown) > 15.0) ddCls = 'ret-badge negative';
+      }
+
+      // Capture spread rating (Asymmetry)
+      let captureHtml = '—';
+      if (r.upside_capture != null && r.downside_capture != null) {
+        const spread = r.upside_capture - r.downside_capture;
+        const color = spread > 40 ? 'var(--color-positive)' : spread > 15 ? 'var(--color-accent)' : 'var(--color-text-muted)';
+        captureHtml = `
+          <div style="font-size: var(--text-xs); line-height: 1.2;">
+            <div>Up: <strong style="color:var(--color-positive);">${upCap}</strong></div>
+            <div style="margin-top: 1px;">Down: <strong style="color:var(--color-negative);">${downCap}</strong></div>
+          </div>
+        `;
+      }
+
+      return `
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="font-weight: 500; font-size: var(--text-sm); padding: var(--space-3) var(--space-4); text-align: left;">
+            <a href="nav_trends.html?code=${r.scheme_code}" style="text-decoration: none; color: inherit; font-weight: 600;">${shortName(r.scheme_name)}</a>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;">${r.fund_company || ''}</div>
+          </td>
+          <td style="font-weight: 600; text-align: right; vertical-align: middle; padding: var(--space-3) var(--space-4);">${ann}</td>
+          <td style="text-align: center; vertical-align: middle; padding: var(--space-3) var(--space-4);">
+            <span class="${betaCls}" style="padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600;">${beta}</span>
+          </td>
+          <td style="text-align: right; vertical-align: middle; padding: var(--space-3) var(--space-4);">
+            <span class="${alphaCls}" style="padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600;">${alpha}</span>
+          </td>
+          <td style="text-align: center; vertical-align: middle; padding: var(--space-3) var(--space-4);">
+            <span class="${sortinoCls}" style="padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600;">${sortino}</span>
+          </td>
+          <td style="text-align: right; vertical-align: middle; padding: var(--space-3) var(--space-4);">
+            <span class="${ddCls}" style="padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600;">${maxDd}</span>
+          </td>
+          <td style="text-align: center; vertical-align: middle; padding: var(--space-3) var(--space-4);">${captureHtml}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const table = `
+      <div style="overflow-x: auto; width: 100%;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: var(--space-4);">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--color-border); color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.5px;">
+              <th style="text-align: left; padding: var(--space-3) var(--space-4);">Scheme / Fund House</th>
+              <th style="text-align: right; padding: var(--space-3) var(--space-4);">Ann. Return</th>
+              <th style="text-align: center; padding: var(--space-3) var(--space-4);">Beta (&beta;)</th>
+              <th style="text-align: right; padding: var(--space-3) var(--space-4);">Alpha (&alpha;)</th>
+              <th style="text-align: center; padding: var(--space-3) var(--space-4);">Sortino</th>
+              <th style="text-align: right; padding: var(--space-3) var(--space-4);">Max DD</th>
+              <th style="text-align: center; padding: var(--space-3) var(--space-4);">Capture (Up/Down)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    content.innerHTML = header + explanation + table;
+  } catch (err) {
+    console.error('Error loading risk metrics:', err);
+    content.innerHTML = header +
+      '<div class="empty-state"><span class="empty-state-icon">⚠️</span><p>Failed to load risk metrics. Please try again later.</p></div>';
+  }
 }
 
 const loaders = {
   volatility: loadVolatility,
   trends: loadTrends,
   anomalies: loadAnomalies,
+  riskMetrics: loadRiskMetrics,
 };
 
 document.getElementById('analytics-tabs').addEventListener('click', (e) => {

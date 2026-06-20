@@ -180,6 +180,17 @@ func (s *Server) handleSimilar() http.HandlerFunc {
 	}
 }
 
+func (s *Server) handleRiskMetrics() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		results, err := s.db.GetRiskMetrics(r.Context())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(results)
+	}
+}
+
 func (s *Server) handleSessionInit() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {

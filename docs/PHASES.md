@@ -134,6 +134,7 @@ To scale Sanvasify sustainably, we integrate our primary design files into a seq
 - **Transaction Ledger**: Create the `user_transactions` table in DuckDB to record buy/sell transactions (date, units, price, user_id).
 - **Backend Portfolio API**: Implement Go endpoints for adding transactions (`POST /api/portfolio/transactions`), fetching aggregate holdings, calculating top-level XIRR/drawdown, and compiling net-worth history.
 - **Secure Data Isolation**: Enable OAuth2/JWT middleware to protect all portfolio endpoints, isolating data queries by authenticated `user_id`.
+- **API Security & Cache Tuning**: Implement API rate limiting on public endpoints (e.g. `/api/schemes` and `/api/analytics`) and configure HTTP `Cache-Control` headers for slow-changing public data to prevent scraping abuse and optimize database CPU cycles.
 - **Wealth Dashboard UI**: Build `portfolio.html` featuring asset allocation pie charts and portfolio growth timeline charts powered by ECharts.
 - **Portfolio V2**: Introduce FIFO-based tax harvesting calculations and CAS (Consolidated Account Statement) PDF importing capabilities.
 

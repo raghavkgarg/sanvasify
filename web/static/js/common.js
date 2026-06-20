@@ -249,56 +249,68 @@ function injectBrandLogo() {
 }
 
 // --- Session Analytics ---
+export function isBot() {
+  const userAgent = navigator.userAgent;
+  if (!userAgent) return false;
+  return /bot|googlebot|crawler|spider|robot|crawling/i.test(userAgent);
+}
+
 async function initializeSession() {
-  let sessionToken = localStorage.getItem('sanvas_session_token');
-  if (!sessionToken) {
-    sessionToken = crypto.randomUUID
-      ? crypto.randomUUID()
-      : 's-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
-    localStorage.setItem('sanvas_session_token', sessionToken);
-  }
+  if (isBot()) return;
 
-  // Ping backend once per session
-  if (!sessionStorage.getItem('sanvas_session_active')) {
-    try {
-      const res = await fetch('/api/session/init', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_token: sessionToken }),
-      });
-      if (res.ok) {
-        sessionStorage.setItem('sanvas_session_active', 'true');
-      }
-    } catch (e) {
-      console.error('Failed to initialize session', e);
-    }
-  }
-
-  // Fetch count and update UI if count >= 1000
   try {
-    const res = await fetch('/api/session/count');
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.count >= 1000) {
-        const navLinks = document.getElementById('nav-links');
-        if (navLinks) {
-          let countEl = document.getElementById('session-count-display');
-          if (!countEl) {
-            countEl = document.createElement('span');
-            countEl.id = 'session-count-display';
-            countEl.className = 'session-count';
-            countEl.style.marginLeft = '1rem';
-            countEl.style.fontSize = '0.85rem';
-            countEl.style.color = 'var(--color-text-muted)';
-            countEl.style.opacity = '0.8';
-            navLinks.appendChild(countEl);
+    let sessionToken = localStorage.getItem('sanvas_session_token');
+    if (!sessionToken) {
+      sessionToken = crypto.randomUUID
+        ? crypto.randomUUID()
+        : 's-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+      localStorage.setItem('sanvas_session_token', sessionToken);
+    }
+
+    // Ping backend once per session
+    if (!sessionStorage.getItem('sanvas_session_active')) {
+      try {
+        const res = await fetch('/api/session/init', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_token: sessionToken }),
+        });
+        if (res.ok) {
+          sessionStorage.setItem('sanvas_session_active', 'true');
+        }
+      } catch (e) {
+        console.error('Failed to initialize session', e);
+      }
+    }
+
+    // Fetch count and update UI if count >= 1000
+    try {
+      const res = await fetch('/api/session/count');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.count >= 1000) {
+          const navLinks = document.getElementById('nav-links');
+          if (navLinks) {
+            let countEl = document.getElementById('session-count-display');
+            if (!countEl) {
+              countEl = document.createElement('span');
+              countEl.id = 'session-count-display';
+              countEl.className = 'session-count';
+              countEl.style.marginLeft = '1rem';
+              countEl.style.fontSize = '0.85rem';
+              countEl.style.color = 'var(--color-text-muted)';
+              countEl.style.opacity = '0.8';
+              navLinks.appendChild(countEl);
+            }
+            countEl.textContent = `Unique Visitors: ${data.count}`;
           }
-          countEl.textContent = `Unique Visitors: ${data.count}`;
         }
       }
+    } catch (e) {
+      console.error('Failed to get session stats', e);
     }
   } catch (e) {
-    console.error('Failed to get session stats', e);
+    console.warn('Session tracking skipped (storage is disabled or unavailable):', e.message);
   }
 }
 

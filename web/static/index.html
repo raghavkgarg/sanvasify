@@ -185,13 +185,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js" defer></script>
   <script src="js/theme.js?v=1.0.2"></script>
-  <script type="module" src="js/common.js?v=1.0.3"></script>
-  <script type="module" src="js/dashboard.js?v=1.0.4"></script>
+  <script type="module" src="js/common.js?v=1.0.5"></script>
+  <script type="module" src="js/dashboard.js?v=1.0.5"></script>
   <script src="js/pwa-prompt.js?v=1.0.5" defer></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js');
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // Silently ignore registration failures in sandboxed/restricted environments (like bots or security software)
+        });
       });
     }
   </script>

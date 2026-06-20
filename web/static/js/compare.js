@@ -1,5 +1,5 @@
 'use strict';
-import { chartColors, fetchJSON } from './common.js';
+import { chartColors, fetchJSON, isBot } from './common.js?v=1.0.5';
 
 let allData = [], filtered = [], selected = [];
 let sortCol = 'annualised', sortDir = 'desc', searchTerm = '';
@@ -21,7 +21,7 @@ async function loadData(strategy) {
   try {
     const [data, volatilityData] = await Promise.all([
       fetchJSON(url),
-      fetchJSON('/api/analytics/volatility'),
+      fetchJSON('/api/analysis/volatility'),
     ]);
 
     const volMap = new Map(
@@ -35,13 +35,13 @@ async function loadData(strategy) {
     ).map((f) => {
       const stdDev = volMap.get(f.scheme_code) ?? null;
       let sharpe = null;
-      let alphaShield = 'Low 🛡️';
+      let alphaShield = { text: 'LOW', shields: 1, class: 'shield-low' };
       if (stdDev !== null && stdDev > 0 && f.ret_annualised !== null) {
         sharpe = (f.ret_annualised - 6.0) / (stdDev * 15.8745);
-        if (sharpe >= 1.5) alphaShield = 'Excellent 🛡️';
-        else if (sharpe >= 1.0) alphaShield = 'High 🛡️';
-        else if (sharpe >= 0.5) alphaShield = 'Moderate 🛡️';
-        else alphaShield = 'Low 🛡️';
+        if (sharpe >= 3) alphaShield = { text: 'EXC', shields: 4, class: 'shield-excellent' };
+        else if (sharpe >= 2) alphaShield = { text: 'HIGH', shields: 3, class: 'shield-high' };
+        else if (sharpe >= 1) alphaShield = { text: 'MOD', shields: 2, class: 'shield-moderate' };
+        else alphaShield = { text: 'LOW', shields: 1, class: 'shield-low' };
       }
       return { ...f, std_dev: stdDev, sharpe, alpha_shield: alphaShield };
     });
@@ -92,19 +92,16 @@ function render() {
         <div class="fund-card-name">${shortName(fund.scheme_name)}</div>
         <div class="fund-card-meta">
           <span class="fund-card-company">${fund.fund_company || ''}</span>
-          <span class="fund-card-pill">${
-      strategyLabel(fund.fund_strategy)
-    }</span>
+          <span class="fund-card-pill">${strategyLabel(fund.fund_strategy)
+      }</span>
           <a href="nav_trends.html?code=${fund.scheme_code}" class="fund-card-link">View Details →</a>
         </div>
       </div>
       <div class="fund-card-right">
-        <span class="fund-card-nav-value">₹${
-      fund.nav != null ? fund.nav.toFixed(2) : '--'
-    }</span>
-        <span class="fund-card-nav-date">as of ${
-      fund.date ? fund.date.split('T')[0] : ''
-    }</span>
+        <span class="fund-card-nav-value">₹${fund.nav != null ? fund.nav.toFixed(2) : '--'
+      }</span>
+        <span class="fund-card-nav-date">as of ${fund.date ? fund.date.split('T')[0] : ''
+      }</span>
       </div>
       <div class="fund-card-returns">
         ${retBadge('Annualised', fund.ret_annualised)}
@@ -153,9 +150,8 @@ function retBadge(label, val) {
     return `<div class="ret-badge neutral"><span class="ret-label">${label}</span><span class="ret-value">—</span></div>`;
   }
   const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
-  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${
-    val.toFixed(2)
-  }%</span></div>`;
+  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${val.toFixed(2)
+    }%</span></div>`;
 }
 
 function sharpeBadge(label, val) {
@@ -163,17 +159,42 @@ function sharpeBadge(label, val) {
     return `<div class="ret-badge neutral"><span class="ret-label">${label}</span><span class="ret-value">—</span></div>`;
   }
   const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
-  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${
-    val.toFixed(2)
-  }</span></div>`;
+  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${val.toFixed(2)
+    }</span></div>`;
 }
 
 function shieldBadge(label, rating) {
+  if (!rating) {
+    return `<div class="ret-badge neutral"><span class="ret-label">${label}</span><span class="ret-value">—</span></div>`;
+  }
+  let text = 'LOW';
+  let shields = 1;
   let cls = 'shield-low';
-  if (rating.startsWith('Excellent')) cls = 'shield-excellent';
-  else if (rating.startsWith('High')) cls = 'shield-high';
-  else if (rating.startsWith('Moderate')) cls = 'shield-moderate';
-  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value" style="font-size: 10px;">${rating}</span></div>`;
+
+  if (typeof rating === 'object') {
+    text = rating.text;
+    shields = rating.shields;
+    cls = rating.class;
+  } else {
+    if (rating.includes('EXC') || rating.includes('Excellent')) {
+      text = 'EXC'; shields = 4; cls = 'shield-excellent';
+    } else if (rating.includes('HIGH') || rating.includes('High')) {
+      text = 'HIGH'; shields = 3; cls = 'shield-high';
+    } else if (rating.includes('MOD') || rating.includes('Moderate')) {
+      text = 'MOD'; shields = 2; cls = 'shield-moderate';
+    }
+  }
+
+  const shieldsHtml = '🛡️'.repeat(shields);
+  return `
+    <div class="ret-badge ${cls}">
+      <span class="ret-label">${label}</span>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 1px; width: 100%;">
+        <span class="shield-badge-text" style="font-size: 11px; font-weight: 600; font-family: var(--font-mono);">${text}</span>
+        <span class="shield-badge-icons" style="font-size: 8px; letter-spacing: -0.5px; line-height: 1;">${shieldsHtml}</span>
+      </div>
+    </div>
+  `;
 }
 
 async function updatePanel() {
@@ -401,12 +422,12 @@ function updateBenchmarkBadge(prefix, val, isPercentage) {
 
   const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
   badge.className = `ret-badge ${cls}`;
-  valEl.textContent = `${val > 0 ? '+' : ''}${val.toFixed(2)}${
-    isPercentage ? '%' : ''
-  }`;
+  valEl.textContent = `${val > 0 ? '+' : ''}${val.toFixed(2)}${isPercentage ? '%' : ''
+    }`;
 }
 
 async function loadBenchmarkMetrics() {
+  if (isBot()) return;
   try {
     const returnData = await fetchJSON(
       '/api/indices/compare?code=NIFTY_500_TRI',
@@ -444,33 +465,30 @@ async function loadBenchmarkMetrics() {
           const annualised = returnData.ret_annualised;
           const sharpe = (annualised - 6.0) / (stdDev * 15.8745);
 
-          let shield = 'Low 🛡️';
-          let shieldCls = 'shield-low';
-          if (sharpe >= 1.5) {
-            shield = 'Excellent 🛡️';
-            shieldCls = 'shield-excellent';
-          } else if (sharpe >= 1.0) {
-            shield = 'High 🛡️';
-            shieldCls = 'shield-high';
-          } else if (sharpe >= 0.5) {
-            shield = 'Moderate 🛡️';
-            shieldCls = 'shield-moderate';
+          let shield = { text: 'LOW', shields: 1, class: 'shield-low' };
+          if (sharpe >= 3) {
+            shield = { text: 'EXC', shields: 4, class: 'shield-excellent' };
+          } else if (sharpe >= 2) {
+            shield = { text: 'HIGH', shields: 3, class: 'shield-high' };
+          } else if (sharpe >= 1) {
+            shield = { text: 'MOD', shields: 2, class: 'shield-moderate' };
           }
 
           const sharpeVal = document.getElementById('bench-sharpe-val');
           const sharpeBadge = document.getElementById('bench-sharpe-badge');
           if (sharpeVal && sharpeBadge) {
             sharpeVal.textContent = sharpe.toFixed(2);
-            sharpeBadge.className = `ret-badge ${
-              sharpe > 0 ? 'positive' : 'negative'
-            }`;
+            sharpeBadge.className = `ret-badge ${sharpe > 0 ? 'positive' : 'negative'
+              }`;
           }
 
-          const shieldVal = document.getElementById('bench-shield-val');
+          const shieldText = document.getElementById('bench-shield-text');
+          const shieldIcons = document.getElementById('bench-shield-icons');
           const shieldBadge = document.getElementById('bench-shield-badge');
-          if (shieldVal && shieldBadge) {
-            shieldVal.textContent = shield;
-            shieldBadge.className = `ret-badge ${shieldCls}`;
+          if (shieldText && shieldIcons && shieldBadge) {
+            shieldText.textContent = shield.text;
+            shieldIcons.textContent = '🛡️'.repeat(shield.shields);
+            shieldBadge.className = `ret-badge ${shield.class}`;
           }
         }
       }

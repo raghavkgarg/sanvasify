@@ -1,10 +1,11 @@
 'use strict';
-import { chartColors, fetchJSON } from './common.js';
+import { chartColors, fetchJSON, isBot } from './common.js?v=1.0.5';
 
 const el = document.getElementById('overview-chart');
 if (el) init();
 
 async function init() {
+  if (isBot()) return;
   const c = chartColors();
   try {
     const data = await fetchJSON('/api/schemes/compare');

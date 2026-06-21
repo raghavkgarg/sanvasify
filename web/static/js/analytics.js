@@ -23,8 +23,8 @@ function volBar(stdDev, maxStdDev, rating) {
   const color = rating === 'Low'
     ? 'var(--color-positive)'
     : rating === 'High'
-      ? 'var(--color-negative)'
-      : 'var(--color-accent)';
+    ? 'var(--color-negative)'
+    : 'var(--color-accent)';
   return `<div class="vol-bar-track"><div class="vol-bar-fill" style="width:${pct}%;background:${color}"></div></div>`;
 }
 
@@ -56,8 +56,9 @@ async function loadVolatility() {
 
   const rows = data.map((r) => `
     <div class="vol-row">
-      <a href="nav_trends.html?code=${r.scheme_code}" class="vol-name" style="text-decoration: none; color: inherit; cursor: pointer;">${shortName(r.scheme_name)
-    }</a>
+      <a href="nav_trends.html?code=${r.scheme_code}" class="vol-name" style="text-decoration: none; color: inherit; cursor: pointer;">${
+    shortName(r.scheme_name)
+  }</a>
       <div class="vol-bar-wrap">
         ${volBar(r.std_dev, maxStd, r.volatility_rating)}
         <span class="vol-value">±${(r.std_dev || 0).toFixed(2)}%</span>
@@ -73,13 +74,13 @@ function trendLine(signal) {
   const color = signal === 'Uptrend'
     ? 'var(--color-positive)'
     : signal === 'Downtrend'
-      ? 'var(--color-negative)'
-      : 'var(--color-text-muted)';
+    ? 'var(--color-negative)'
+    : 'var(--color-text-muted)';
   const path = signal === 'Uptrend'
     ? 'M2 22 C8 20, 12 16, 18 14 S28 10, 34 7 S42 4, 48 2'
     : signal === 'Downtrend'
-      ? 'M2 2 C8 4, 12 8, 18 10 S28 14, 34 17 S42 20, 48 22'
-      : 'M2 12 C8 11, 12 13, 18 12 S28 11, 34 13 S42 12, 48 12';
+    ? 'M2 2 C8 4, 12 8, 18 10 S28 14, 34 17 S42 20, 48 22'
+    : 'M2 12 C8 11, 12 13, 18 12 S28 11, 34 13 S42 12, 48 12';
   return `<svg class="trend-spark" viewBox="0 0 50 24" preserveAspectRatio="none">
     <path d="${path}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
   </svg>`;
@@ -116,20 +117,23 @@ async function loadTrends() {
     return `
     <div class="trend-row">
       <div class="trend-info">
-        <a href="nav_trends.html?code=${r.scheme_code}" class="trend-name" style="text-decoration: none; color: inherit; cursor: pointer;">${shortName(r.scheme_name)
-      }</a>
+        <a href="nav_trends.html?code=${r.scheme_code}" class="trend-name" style="text-decoration: none; color: inherit; cursor: pointer;">${
+      shortName(r.scheme_name)
+    }</a>
         <div class="trend-meta">
           ${since ? `<span class="trend-since">since ${since}</span>` : ''}
           <span class="trend-nav">₹${(r.nav || 0).toFixed(2)}</span>
         </div>
       </div>
       <div class="trend-spark-wrap">${trendLine(r.signal)}</div>
-      <div class="trend-diff ${diffCls}">${diff > 0 ? '+' : ''}${diff || '—'
-      }%</div>
+      <div class="trend-diff ${diffCls}">${diff > 0 ? '+' : ''}${
+      diff || '—'
+    }%</div>
     </div>`;
   }).join('');
 
-  content.innerHTML = header + explanation + `<div class="trend-list">${rows}</div>`;
+  content.innerHTML = header + explanation +
+    `<div class="trend-list">${rows}</div>`;
 }
 
 async function loadAnomalies() {
@@ -171,17 +175,20 @@ async function loadAnomalies() {
     <div class="anomaly-row">
       <div class="anomaly-dot" style="width:${size}px;height:${size}px;background:${color}"></div>
       <div class="anomaly-info">
-        <a href="nav_trends.html?code=${r.scheme_code}" class="anomaly-name" style="text-decoration: none; color: inherit; cursor: pointer;">${shortName(r.scheme_name)
-      }</a>
+        <a href="nav_trends.html?code=${r.scheme_code}" class="anomaly-name" style="text-decoration: none; color: inherit; cursor: pointer;">${
+      shortName(r.scheme_name)
+    }</a>
         <div class="anomaly-meta">${r.date.split('T')[0]}</div>
       </div>
-      <div class="anomaly-change" style="color:${color}">${arrow} ${Math.abs(r.daily_return).toFixed(2)
-      }%</div>
+      <div class="anomaly-change" style="color:${color}">${arrow} ${
+      Math.abs(r.daily_return).toFixed(2)
+    }%</div>
       <div class="anomaly-z">${Math.abs(r.z_score).toFixed(1)}× normal</div>
     </div>`;
   }).join('');
 
-  content.innerHTML = header + explanation + `<div class="anomaly-list">${rows}</div>`;
+  content.innerHTML = header + explanation +
+    `<div class="anomaly-list">${rows}</div>`;
 }
 
 async function loadRiskMetrics() {
@@ -189,7 +196,7 @@ async function loadRiskMetrics() {
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading risk & capture metrics...</span></div>';
   const header = sectionHeader(
     'Risk & Capture Metrics vs. Benchmark',
-    'Evaluate capital preservation, downside risk-adjusted performance, and market capture ratios relative to the Nifty 500 TRI.'
+    'Evaluate capital preservation, downside risk-adjusted performance, and market capture ratios relative to the Nifty 500 TRI.',
   );
   try {
     let data = await fetchJSON('/api/analysis/risk-metrics');
@@ -209,13 +216,23 @@ async function loadRiskMetrics() {
     `;
 
     const tableRows = data.map((r) => {
-      const ann = r.ret_annualised != null ? `${r.ret_annualised.toFixed(2)}%` : '—';
+      const ann = r.ret_annualised != null
+        ? `${r.ret_annualised.toFixed(2)}%`
+        : '—';
       const beta = r.beta != null ? r.beta.toFixed(2) : '—';
-      const alpha = r.alpha != null ? `${r.alpha > 0 ? '+' : ''}${r.alpha.toFixed(2)}%` : '—';
+      const alpha = r.alpha != null
+        ? `${r.alpha > 0 ? '+' : ''}${r.alpha.toFixed(2)}%`
+        : '—';
       const sortino = r.sortino != null ? r.sortino.toFixed(2) : '—';
-      const maxDd = r.max_drawdown != null ? `${r.max_drawdown.toFixed(2)}%` : '—';
-      const upCap = r.upside_capture != null ? `${r.upside_capture.toFixed(0)}%` : '—';
-      const downCap = r.downside_capture != null ? `${r.downside_capture.toFixed(0)}%` : '—';
+      const maxDd = r.max_drawdown != null
+        ? `${r.max_drawdown.toFixed(2)}%`
+        : '—';
+      const upCap = r.upside_capture != null
+        ? `${r.upside_capture.toFixed(0)}%`
+        : '—';
+      const downCap = r.downside_capture != null
+        ? `${r.downside_capture.toFixed(0)}%`
+        : '—';
 
       // Beta coloring class
       let betaCls = 'ret-badge neutral';
@@ -260,8 +277,12 @@ async function loadRiskMetrics() {
       return `
         <tr style="border-bottom: 1px solid var(--color-border);">
           <td style="font-weight: 500; font-size: var(--text-sm); padding: var(--space-3) var(--space-4); text-align: left;">
-            <a href="nav_trends.html?code=${r.scheme_code}" style="text-decoration: none; color: inherit; font-weight: 600;">${shortName(r.scheme_name)}</a>
-            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;">${r.fund_company || ''}</div>
+            <a href="nav_trends.html?code=${r.scheme_code}" style="text-decoration: none; color: inherit; font-weight: 600;">${
+        shortName(r.scheme_name)
+      }</a>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;">${
+        r.fund_company || ''
+      }</div>
           </td>
           <td style="font-weight: 600; text-align: right; vertical-align: middle; padding: var(--space-3) var(--space-4);">${ann}</td>
           <td style="text-align: center; vertical-align: middle; padding: var(--space-3) var(--space-4);">
@@ -315,13 +336,22 @@ async function loadTopPerformers() {
     '<div class="loading-wrap"><div class="spinner"></div><span>Loading leaders...</span></div>';
   const header = sectionHeader(
     'Top SIF Performers',
-    'The category champions of the Specialised Investment Fund space, ranked dynamically using our <a href="guide.html#composite-model" style="color: var(--color-accent); text-decoration: none; font-weight: 600; border-bottom: 1px dashed var(--color-accent);">Multi-Factor Composite Score model</a>.'
+    'The category champions of the Specialised Investment Fund space, ranked dynamically using our <a href="guide.html#composite-model" style="color: var(--color-accent); text-decoration: none; font-weight: 600; border-bottom: 1px dashed var(--color-accent);">Multi-Factor Composite Score model</a>.',
   );
   try {
     const data = await fetchJSON('/api/analysis/top-performers');
 
-    const renderCard = (fund, rank, badgeText, badgeClass, metricLabel, metricVal) => {
-      const score = fund.composite_score != null ? fund.composite_score.toFixed(1) : '—';
+    const renderCard = (
+      fund,
+      rank,
+      badgeText,
+      badgeClass,
+      metricLabel,
+      metricVal,
+    ) => {
+      const score = fund.composite_score != null
+        ? fund.composite_score.toFixed(1)
+        : '—';
       return `
         <div class="top-performer-card" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); display: flex; flex-direction: column; justify-content: space-between;">
           <div style="align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 10px; font-weight: 700; background: var(--color-surface-alt); border: 1px solid var(--color-border); box-shadow: var(--shadow-xs); margin-bottom: var(--space-2);">
@@ -329,28 +359,50 @@ async function loadTopPerformers() {
           </div>
           
           <div>
-            <div style="font-weight: 600; font-size: var(--text-sm); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${fund.scheme_name || ''}">
-              <a href="nav_trends.html?code=${fund.scheme_code}" style="text-decoration: none; color: inherit; font-weight: 600;">${shortName(fund.scheme_name)}</a>
+            <div style="font-weight: 600; font-size: var(--text-sm); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${
+        fund.scheme_name || ''
+      }">
+              <a href="nav_trends.html?code=${fund.scheme_code}" style="text-decoration: none; color: inherit; font-weight: 600;">${
+        shortName(fund.scheme_name)
+      }</a>
             </div>
-            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;">${fund.fund_company || ''}</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 2px;">${
+        fund.fund_company || ''
+      }</div>
           </div>
           
           <div style="margin: var(--space-4) 0; display: flex; gap: var(--space-2); flex-wrap: wrap;">
             <div class="ret-badge positive" style="flex: 1; min-width: 70px; padding: 4px 6px;"><span class="ret-label">${metricLabel}</span><span class="ret-value" style="font-weight: 700; font-size: 11px;">${metricVal}</span></div>
-            <div class="ret-badge positive" style="flex: 1; min-width: 70px; padding: 4px 6px;"><span class="ret-label">Ann. Ret</span><span class="ret-value" style="font-size: 11px;">${fund.ret_annualised != null ? fund.ret_annualised.toFixed(1) : '—'}%</span></div>
-            <div class="ret-badge neutral" style="flex: 1; min-width: 70px; padding: 4px 6px;"><span class="ret-label">Beta</span><span class="ret-value" style="font-size: 11px;">${fund.beta != null ? fund.beta.toFixed(2) : '—'}</span></div>
+            <div class="ret-badge positive" style="flex: 1; min-width: 70px; padding: 4px 6px;"><span class="ret-label">Ann. Ret</span><span class="ret-value" style="font-size: 11px;">${
+        fund.ret_annualised != null ? fund.ret_annualised.toFixed(1) : '—'
+      }%</span></div>
+            <div class="ret-badge neutral" style="flex: 1; min-width: 70px; padding: 4px 6px;"><span class="ret-label">Beta</span><span class="ret-value" style="font-size: 11px;">${
+        fund.beta != null ? fund.beta.toFixed(2) : '—'
+      }</span></div>
           </div>
           
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--color-border); padding-top: var(--space-3); font-size: var(--text-xs);">
             <span style="color: var(--color-text-secondary); font-weight: 600; background: var(--color-accent-dim); color: var(--color-accent); padding: 2px 6px; border-radius: var(--radius-sm);">Score: ${score}/100</span>
-            <a href="nav_trends.html?code=${fund.scheme_code || ''}" style="text-decoration: none; color: var(--color-accent); font-weight: 600;">Details →</a>
+            <a href="nav_trends.html?code=${
+        fund.scheme_code || ''
+      }" style="text-decoration: none; color: var(--color-accent); font-weight: 600;">Details →</a>
           </div>
         </div>
       `;
     };
 
-    const renderColumn = (title, subtitle, icon, badgeClass, funds, metricLabel, metricValFn) => {
-      const cardsHtml = funds.map((f, idx) => renderCard(f, idx + 1, title, badgeClass, metricLabel, metricValFn(f))).join('');
+    const renderColumn = (
+      title,
+      subtitle,
+      icon,
+      badgeClass,
+      funds,
+      metricLabel,
+      metricValFn,
+    ) => {
+      const cardsHtml = funds.map((f, idx) =>
+        renderCard(f, idx + 1, title, badgeClass, metricLabel, metricValFn(f))
+      ).join('');
       return `
         <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: var(--space-5);">
           <div style="border-bottom: 2px solid var(--color-border); padding-bottom: var(--space-2); margin-bottom: var(--space-2);">
@@ -366,9 +418,39 @@ async function loadTopPerformers() {
 
     const grid = `
       <div style="display: flex; gap: var(--space-6); flex-wrap: wrap; margin-top: var(--space-4); padding: 0 var(--space-4);">
-        ${renderColumn('Alpha King', 'Aggressive Growth Leaders', '👑', 'shield-excellent', data.alpha_king || [], 'Alpha', (f) => f.alpha != null ? `+${f.alpha.toFixed(2)}%` : '—')}
-        ${renderColumn('Shield Guardian', 'Preservation & Defense', '🛡️', 'shield-high', data.shield_guardian || [], 'Max DD', (f) => f.max_drawdown != null ? `${f.max_drawdown.toFixed(1)}%` : '—')}
-        ${renderColumn('Asymmetric Runner', 'Tactical Capture', '⚡', 'shield-moderate', data.asymmetric_runner || [], 'Sortino', (f) => f.sortino != null ? f.sortino.toFixed(2) : '—')}
+        ${
+      renderColumn(
+        'Alpha King',
+        'Aggressive Growth Leaders',
+        '👑',
+        'shield-excellent',
+        data.alpha_king || [],
+        'Alpha',
+        (f) => f.alpha != null ? `+${f.alpha.toFixed(2)}%` : '—',
+      )
+    }
+        ${
+      renderColumn(
+        'Shield Guardian',
+        'Preservation & Defense',
+        '🛡️',
+        'shield-high',
+        data.shield_guardian || [],
+        'Max DD',
+        (f) => f.max_drawdown != null ? `${f.max_drawdown.toFixed(1)}%` : '—',
+      )
+    }
+        ${
+      renderColumn(
+        'Asymmetric Runner',
+        'Tactical Capture',
+        '⚡',
+        'shield-moderate',
+        data.asymmetric_runner || [],
+        'Sortino',
+        (f) => f.sortino != null ? f.sortino.toFixed(2) : '—',
+      )
+    }
       </div>
     `;
 

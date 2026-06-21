@@ -33,10 +33,18 @@
   --color-chart-bar-3: #6366f1;
 
   /* Brand Logo & Tagline Colors (Dark Theme) */
-  --color-logo-p1: #8ea5d1;
-  --color-logo-p2: #3eb4b6;
+  --color-logo-p1: #1c2b4a;
+  --color-logo-p2: #1a6062;
   --color-logo-p3: #e4b45f;
-  --color-logo-stroke: var(--color-surface);
+  --color-logo-stroke: #ffffff;
+  --color-tagline-p1: #a5c0f3;
+  --color-tagline-p2: #61d5d7;
+  --color-tagline-p3: #f5c46b;
+
+  /* Navbar — restore older surface/border colors */
+  --color-nav-bg: var(--color-surface);
+  --color-nav-border: var(--color-border);
+  --color-brand-tagline-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 
   /* --- Spacing --- */
   --space-1: 0.25rem;
@@ -114,6 +122,14 @@
   --color-logo-p2: #1a6062;
   --color-logo-p3: #e4b45f;
   --color-logo-stroke: var(--color-surface);
+  --color-tagline-p1: var(--color-logo-p1);
+  --color-tagline-p2: var(--color-logo-p2);
+  --color-tagline-p3: var(--color-logo-p3);
+
+  /* Navbar — same warm sand as surface */
+  --color-nav-bg: var(--color-surface);
+  --color-nav-border: var(--color-border);
+  --color-brand-tagline-shadow: none;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);

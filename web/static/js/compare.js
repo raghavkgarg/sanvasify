@@ -38,10 +38,13 @@ async function loadData(strategy) {
       let alphaShield = { text: 'LOW', shields: 1, class: 'shield-low' };
       if (stdDev !== null && stdDev > 0 && f.ret_annualised !== null) {
         sharpe = (f.ret_annualised - 6.0) / (stdDev * 15.8745);
-        if (sharpe >= 3) alphaShield = { text: 'EXC', shields: 4, class: 'shield-excellent' };
-        else if (sharpe >= 2) alphaShield = { text: 'HIGH', shields: 3, class: 'shield-high' };
-        else if (sharpe >= 1) alphaShield = { text: 'MOD', shields: 2, class: 'shield-moderate' };
-        else alphaShield = { text: 'LOW', shields: 1, class: 'shield-low' };
+        if (sharpe >= 3) {
+          alphaShield = { text: 'EXC', shields: 4, class: 'shield-excellent' };
+        } else if (sharpe >= 2) {
+          alphaShield = { text: 'HIGH', shields: 3, class: 'shield-high' };
+        } else if (sharpe >= 1) {
+          alphaShield = { text: 'MOD', shields: 2, class: 'shield-moderate' };
+        } else alphaShield = { text: 'LOW', shields: 1, class: 'shield-low' };
       }
       return { ...f, std_dev: stdDev, sharpe, alpha_shield: alphaShield };
     });
@@ -56,7 +59,9 @@ async function loadData(strategy) {
     const codesParam = urlParams.get('codes');
     if (codesParam) {
       const parsedCodes = codesParam.split(',');
-      selected = parsedCodes.filter(code => allData.some(f => f.scheme_code === code));
+      selected = parsedCodes.filter((code) =>
+        allData.some((f) => f.scheme_code === code)
+      );
       if (selected.length > 0) {
         updatePanel();
         render();
@@ -104,16 +109,19 @@ function render() {
         <div class="fund-card-name">${shortName(fund.scheme_name)}</div>
         <div class="fund-card-meta">
           <span class="fund-card-company">${fund.fund_company || ''}</span>
-          <span class="fund-card-pill">${strategyLabel(fund.fund_strategy)
-      }</span>
+          <span class="fund-card-pill">${
+      strategyLabel(fund.fund_strategy)
+    }</span>
           <a href="nav_trends.html?code=${fund.scheme_code}" class="fund-card-link">View Details →</a>
         </div>
       </div>
       <div class="fund-card-right">
-        <span class="fund-card-nav-value">₹${fund.nav != null ? fund.nav.toFixed(2) : '--'
-      }</span>
-        <span class="fund-card-nav-date">as of ${fund.date ? fund.date.split('T')[0] : ''
-      }</span>
+        <span class="fund-card-nav-value">₹${
+      fund.nav != null ? fund.nav.toFixed(2) : '--'
+    }</span>
+        <span class="fund-card-nav-date">as of ${
+      fund.date ? fund.date.split('T')[0] : ''
+    }</span>
       </div>
       <div class="fund-card-returns">
         ${retBadge('Annualised', fund.ret_annualised)}
@@ -162,8 +170,9 @@ function retBadge(label, val) {
     return `<div class="ret-badge neutral"><span class="ret-label">${label}</span><span class="ret-value">—</span></div>`;
   }
   const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
-  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${val.toFixed(2)
-    }%</span></div>`;
+  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${
+    val.toFixed(2)
+  }%</span></div>`;
 }
 
 function sharpeBadge(label, val) {
@@ -171,8 +180,9 @@ function sharpeBadge(label, val) {
     return `<div class="ret-badge neutral"><span class="ret-label">${label}</span><span class="ret-value">—</span></div>`;
   }
   const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
-  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${val.toFixed(2)
-    }</span></div>`;
+  return `<div class="ret-badge ${cls}"><span class="ret-label">${label}</span><span class="ret-value">${
+    val.toFixed(2)
+  }</span></div>`;
 }
 
 function shieldBadge(label, rating) {
@@ -189,11 +199,17 @@ function shieldBadge(label, rating) {
     cls = rating.class;
   } else {
     if (rating.includes('EXC') || rating.includes('Excellent')) {
-      text = 'EXC'; shields = 4; cls = 'shield-excellent';
+      text = 'EXC';
+      shields = 4;
+      cls = 'shield-excellent';
     } else if (rating.includes('HIGH') || rating.includes('High')) {
-      text = 'HIGH'; shields = 3; cls = 'shield-high';
+      text = 'HIGH';
+      shields = 3;
+      cls = 'shield-high';
     } else if (rating.includes('MOD') || rating.includes('Moderate')) {
-      text = 'MOD'; shields = 2; cls = 'shield-moderate';
+      text = 'MOD';
+      shields = 2;
+      cls = 'shield-moderate';
     }
   }
 
@@ -434,8 +450,9 @@ function updateBenchmarkBadge(prefix, val, isPercentage) {
 
   const cls = val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
   badge.className = `ret-badge ${cls}`;
-  valEl.textContent = `${val > 0 ? '+' : ''}${val.toFixed(2)}${isPercentage ? '%' : ''
-    }`;
+  valEl.textContent = `${val > 0 ? '+' : ''}${val.toFixed(2)}${
+    isPercentage ? '%' : ''
+  }`;
 }
 
 async function loadBenchmarkMetrics() {
@@ -490,8 +507,9 @@ async function loadBenchmarkMetrics() {
           const sharpeBadge = document.getElementById('bench-sharpe-badge');
           if (sharpeVal && sharpeBadge) {
             sharpeVal.textContent = sharpe.toFixed(2);
-            sharpeBadge.className = `ret-badge ${sharpe > 0 ? 'positive' : 'negative'
-              }`;
+            sharpeBadge.className = `ret-badge ${
+              sharpe > 0 ? 'positive' : 'negative'
+            }`;
           }
 
           const shieldText = document.getElementById('bench-shield-text');
@@ -522,7 +540,7 @@ if (shareBtn) {
       setTimeout(() => {
         shareBtn.innerHTML = originalText;
       }, 2000);
-    }).catch(err => {
+    }).catch((err) => {
       console.error('Error copying to clipboard:', err);
     });
   });
@@ -534,7 +552,7 @@ let initialStrategy = '';
 
 if (strategyParam) {
   const targetTab = Array.from(document.querySelectorAll('.compare-tab')).find(
-    (tab) => tab.dataset.strategy === strategyParam
+    (tab) => tab.dataset.strategy === strategyParam,
   );
   if (targetTab) {
     document.querySelectorAll('.compare-tab').forEach((t) =>

@@ -85,8 +85,10 @@ export function plotNAVChart(chart, data) {
       borderColor: c.line,
       textStyle: { color: '#fff' },
       formatter: (p) =>
-        `${(p[0].axisValue || '').split('T')[0]
-        }<br/>NAV: <strong style="color:${c.line}">₹${p[0].data.toFixed(4)
+        `${
+          (p[0].axisValue || '').split('T')[0]
+        }<br/>NAV: <strong style="color:${c.line}">₹${
+          p[0].data.toFixed(4)
         }</strong>`,
     },
     xAxis: {
@@ -188,15 +190,19 @@ export function computeStats(data) {
 export function renderStats(statsCard, stats) {
   if (!stats) return;
   const c = chartColors();
-  document.getElementById('current-nav').textContent = `₹${stats.current.toFixed(4)
-    }`;
-  document.getElementById('highest-nav').textContent = `₹${stats.highest.toFixed(4)
-    }`;
-  document.getElementById('lowest-nav').textContent = `₹${stats.lowest.toFixed(4)
-    }`;
+  document.getElementById('current-nav').textContent = `₹${
+    stats.current.toFixed(4)
+  }`;
+  document.getElementById('highest-nav').textContent = `₹${
+    stats.highest.toFixed(4)
+  }`;
+  document.getElementById('lowest-nav').textContent = `₹${
+    stats.lowest.toFixed(4)
+  }`;
   const el = document.getElementById('nav-change');
-  el.textContent = `${stats.isPositive ? '+' : ''}₹${Math.abs(stats.change).toFixed(4)
-    } (${stats.changePercent}%)`;
+  el.textContent = `${stats.isPositive ? '+' : ''}₹${
+    Math.abs(stats.change).toFixed(4)
+  } (${stats.changePercent}%)`;
   el.style.color = stats.isPositive ? c.positive : c.negative;
   statsCard.style.display = 'block';
 }
@@ -310,7 +316,10 @@ async function initializeSession() {
       console.error('Failed to get session stats', e);
     }
   } catch (e) {
-    console.warn('Session tracking skipped (storage is disabled or unavailable):', e.message);
+    console.warn(
+      'Session tracking skipped (storage is disabled or unavailable):',
+      e.message,
+    );
   }
 }
 

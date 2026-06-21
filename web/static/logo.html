@@ -6,19 +6,28 @@
       --color-logo-p3: #E4B45F;
       --color-logo-stroke: #ffffff;
       --color-logo-text: #1C2B4A;
+      --color-tagline-p1: var(--color-logo-p1);
+      --color-tagline-p2: var(--color-logo-p2);
+      --color-tagline-p3: var(--color-logo-p3);
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --color-logo-p1: #8ea5d1;
-        --color-logo-p2: #3EB4B6;
+        --color-logo-p1: #1c2b4a;
+        --color-logo-p2: #1a6062;
         --color-logo-p3: #E4B45F;
-        --color-logo-stroke: #1f2937;
+        --color-logo-stroke: #ffffff;
         --color-logo-text: #f9fafb;
+        --color-tagline-p1: #a5c0f3;
+        --color-tagline-p2: #61d5d7;
+        --color-tagline-p3: #f5c46b;
       }
     }
     .logo-p1 { fill: var(--color-logo-p1); color: var(--color-logo-p1); }
     .logo-p2 { fill: var(--color-logo-p2); color: var(--color-logo-p2); }
     .logo-p3 { fill: var(--color-logo-p3); color: var(--color-logo-p3); }
+    text tspan.logo-p1 { fill: var(--color-tagline-p1); }
+    text tspan.logo-p2 { fill: var(--color-tagline-p2); }
+    text tspan.logo-p3 { fill: var(--color-tagline-p3); }
     .logo-poly {
       stroke: var(--color-logo-stroke);
       stroke-width: 8px;

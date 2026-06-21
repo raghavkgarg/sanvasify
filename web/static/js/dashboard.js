@@ -143,8 +143,12 @@ function renderTopPerformers(data) {
   const topFunds = [...growthDirect]
     .filter((f) => f.ret_3m != null)
     .sort((a, b) => {
-      const valA = typeof a.ret_3m === 'number' ? a.ret_3m : parseFloat(a.ret_3m);
-      const valB = typeof b.ret_3m === 'number' ? b.ret_3m : parseFloat(b.ret_3m);
+      const valA = typeof a.ret_3m === 'number'
+        ? a.ret_3m
+        : parseFloat(a.ret_3m);
+      const valB = typeof b.ret_3m === 'number'
+        ? b.ret_3m
+        : parseFloat(b.ret_3m);
       return valB - valA;
     })
     .slice(0, 3);
@@ -159,15 +163,23 @@ function renderTopPerformers(data) {
   for (const fund of topFunds) {
     const card = document.createElement('div');
     card.className = 'top-performer-card';
-    const navVal = fund.nav != null ? (typeof fund.nav === 'number' ? fund.nav : parseFloat(fund.nav)) : null;
-    const navText = navVal != null && !isNaN(navVal) ? `₹${navVal.toFixed(2)}` : '--';
+    const navVal = fund.nav != null
+      ? (typeof fund.nav === 'number' ? fund.nav : parseFloat(fund.nav))
+      : null;
+    const navText = navVal != null && !isNaN(navVal)
+      ? `₹${navVal.toFixed(2)}`
+      : '--';
 
     card.innerHTML = `
       <div class="top-performer-header">
-        <div class="top-performer-title" title="${fund.scheme_name || ''}">${shortName(fund.scheme_name)}</div>
+        <div class="top-performer-title" title="${fund.scheme_name || ''}">${
+      shortName(fund.scheme_name)
+    }</div>
         <div class="top-performer-meta">
           <span class="top-performer-company">${fund.fund_company || ''}</span>
-          <span class="top-performer-badge">${strategyLabel(fund.fund_strategy)}</span>
+          <span class="top-performer-badge">${
+      strategyLabel(fund.fund_strategy)
+    }</span>
         </div>
       </div>
       <div class="top-performer-returns">
@@ -177,7 +189,9 @@ function renderTopPerformers(data) {
       </div>
       <div class="top-performer-footer">
         <div class="top-performer-nav">${navText}</div>
-        <a href="nav_trends.html?code=${fund.scheme_code || ''}" class="top-performer-link">View Details →</a>
+        <a href="nav_trends.html?code=${
+      fund.scheme_code || ''
+    }" class="top-performer-link">View Details →</a>
       </div>
     `;
     container.appendChild(card);
@@ -188,7 +202,12 @@ function renderCompositeLeaders(topPerformers) {
   const container = document.getElementById('composite-leaders-container');
   if (!container) return;
 
-  if (!topPerformers || (!topPerformers.alpha_king?.length && !topPerformers.shield_guardian?.length && !topPerformers.asymmetric_runner?.length)) {
+  if (
+    !topPerformers ||
+    (!topPerformers.alpha_king?.length &&
+      !topPerformers.shield_guardian?.length &&
+      !topPerformers.asymmetric_runner?.length)
+  ) {
     container.innerHTML =
       '<div class="empty-state"><p>No top performing funds found.</p></div>';
     return;
@@ -211,7 +230,8 @@ function renderCompositeLeaders(topPerformers) {
       badgeClass: 'shield-high',
       fund: topPerformers.shield_guardian?.[0],
       metricLabel: 'Max Drawdown',
-      metricVal: (f) => f.max_drawdown != null ? `${f.max_drawdown.toFixed(1)}%` : '—',
+      metricVal: (f) =>
+        f.max_drawdown != null ? `${f.max_drawdown.toFixed(1)}%` : '—',
     },
     {
       title: 'Asymmetric Runner',
@@ -232,7 +252,9 @@ function renderCompositeLeaders(topPerformers) {
     const card = document.createElement('div');
     card.className = 'top-performer-card';
 
-    const score = fund.composite_score != null ? fund.composite_score.toFixed(1) : '—';
+    const score = fund.composite_score != null
+      ? fund.composite_score.toFixed(1)
+      : '—';
 
     card.innerHTML = `
       <a href="guide.html#composite-model" style="text-decoration: none; color: inherit; align-self: flex-start;">
@@ -242,7 +264,9 @@ function renderCompositeLeaders(topPerformers) {
       </a>
       
       <div class="top-performer-header">
-        <div class="top-performer-title" title="${fund.scheme_name || ''}">${shortName(fund.scheme_name)}</div>
+        <div class="top-performer-title" title="${fund.scheme_name || ''}">${
+      shortName(fund.scheme_name)
+    }</div>
         <div class="top-performer-meta">
           <span class="top-performer-company">${fund.fund_company || ''}</span>
           <span class="top-performer-badge" style="font-weight: 600; background: var(--color-accent-dim); color: var(--color-accent); border: 1px solid var(--color-accent-dim);">Score: ${score}/100</span>
@@ -250,14 +274,22 @@ function renderCompositeLeaders(topPerformers) {
       </div>
       
       <div class="top-performer-returns" style="margin: var(--space-4) 0;">
-        <div class="ret-badge positive" style="flex: 1; min-width: 80px;"><span class="ret-label">${cat.metricLabel}</span><span class="ret-value" style="font-weight:700;">${cat.metricVal(fund)}</span></div>
+        <div class="ret-badge positive" style="flex: 1; min-width: 80px;"><span class="ret-label">${cat.metricLabel}</span><span class="ret-value" style="font-weight:700;">${
+      cat.metricVal(fund)
+    }</span></div>
         ${retBadge('Ann. Ret', fund.ret_annualised)}
-        <div class="ret-badge neutral" style="flex: 1; min-width: 80px;"><span class="ret-label">Beta (&beta;)</span><span class="ret-value">${fund.beta != null ? fund.beta.toFixed(2) : '—'}</span></div>
+        <div class="ret-badge neutral" style="flex: 1; min-width: 80px;"><span class="ret-label">Beta (&beta;)</span><span class="ret-value">${
+      fund.beta != null ? fund.beta.toFixed(2) : '—'
+    }</span></div>
       </div>
       
       <div class="top-performer-footer">
-        <div class="top-performer-nav">Max DD: ${fund.max_drawdown != null ? fund.max_drawdown.toFixed(1) : '—'}%</div>
-        <a href="nav_trends.html?code=${fund.scheme_code || ''}" class="top-performer-link">View Details →</a>
+        <div class="top-performer-nav">Max DD: ${
+      fund.max_drawdown != null ? fund.max_drawdown.toFixed(1) : '—'
+    }%</div>
+        <a href="nav_trends.html?code=${
+      fund.scheme_code || ''
+    }" class="top-performer-link">View Details →</a>
       </div>
     `;
     container.appendChild(card);

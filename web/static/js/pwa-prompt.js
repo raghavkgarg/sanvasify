@@ -1,7 +1,8 @@
 (function () {
   const ua = window.navigator.userAgent.toLowerCase();
   const isIos = /iphone|ipad|ipod/.test(ua) ||
-    (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+    (window.navigator.platform === 'MacIntel' &&
+      window.navigator.maxTouchPoints > 1);
   const isMac = /macintosh|mac os x/.test(ua) && !isIos;
   const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
   const isAndroid = /android/.test(ua);

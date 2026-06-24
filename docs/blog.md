@@ -50,7 +50,7 @@ To maintain simplicity, high performance, and zero-cost scaling:
 
 ### Step 3.2: Connect Repository to Cloudflare Pages
 1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/).
-2. Navigate to **Workers & Pages** -> click **Create Application** -> select the **Pages** tab.
+2. Navigate to **Workers & Pages** -> click **Create Application** -> select the **Pages** tab (make sure not to create a Worker).
 3. Click **Connect to Git** and authorize your GitHub account.
 4. Select the `raghavkgarg/sanvasify` repository.
 5. Configure the **Build Settings**:
@@ -58,8 +58,23 @@ To maintain simplicity, high performance, and zero-cost scaling:
    * **Production branch**: `main`
    * **Framework preset**: `None`
    * **Build command**: *Leave empty*
-   * **Root directory**: `/blog` (This ensures Cloudflare only deploys files inside the `/blog` folder, ignoring the rest of the Go app code)
+   * **Root directory**: *Leave empty or set to `/`*
+   * **Build output directory**: `blog` (This tells Cloudflare to serve files directly from the `/blog` folder in your repository)
 6. Click **Save and Deploy**. Cloudflare will build the first version of your static blog.
+
+> [!TIP]
+> **Resolving "Output directory not found" Error:**
+> If you get `Error: Output directory "blog/blog" not found`, it is because the **Root directory** was set to `blog` and the **Build output directory** was also set to `blog` (which looks for a nested `blog/blog` folder). 
+> Make sure **Root directory** is empty (or `/`) and **Build output directory** is set to `blog`. Alternatively, if you set **Root directory** to `blog`, set **Build output directory** to `.` (or `./`).
+
+> [!WARNING]
+> **Workers vs Pages Differentiation:**
+> If you see a URL containing `/workers/services/...` (like the one you visited), you have created a serverless **Cloudflare Worker** rather than a **Cloudflare Pages** site. Workers do not have a Git-integrated "Root directory" build setting in the UI. 
+> To fix this:
+> 1. Go back to the **Workers & Pages** dashboard overview.
+   2. Click **Create Application**.
+   3. Choose the **Pages** tab at the top of the interface.
+   4. Connect via git to your repository to get the Pages settings (including Root Directory).
 
 ### Step 3.3: Set Up the Custom Subdomain
 1. Once the deployment finishes, go to your new Cloudflare Pages project page.

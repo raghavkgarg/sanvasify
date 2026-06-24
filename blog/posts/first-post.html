@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deploying blog.sanvasify.com to Cloudflare Pages - Sanvasify Blog</title>
+  <meta name="description" content="A guide on how we deployed blog.sanvasify.com using Cloudflare Pages, configuring custom subdomains, and optimizing assets.">
+  
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">SANVASIFY.BLOG</a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="https://sanvasify.com">Portfolio</a>
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle Theme">
+          <!-- Icon will be injected via JS -->
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="post-detail">
+    <article>
+      <header class="post-detail-header">
+        <div class="post-meta" style="margin-bottom: 1rem;">
+          <span>Published on June 24, 2026</span>
+          <span>&bull;</span>
+          <span>3 min read</span>
+        </div>
+        <h1>Deploying blog.sanvasify.com to Cloudflare Pages</h1>
+        <div class="post-banner-img" style="background-image: url('../assets/blog_first_post.png'); background-size: cover; background-position: center; height: 350px; border-radius: 16px; margin-bottom: 2rem;"></div>
+      </header>
+
+      <div class="post-body">
+        <p>Deploying websites in 2026 has never been simpler, more performant, or more cost-effective. Today, we are walking through the architectural setup of <strong>blog.sanvasify.com</strong> hosted entirely on Cloudflare Pages.</p>
+
+        <h2>Why Cloudflare Pages?</h2>
+        <p>For a content-focused website like a blog, static HTML combined with modern CSS provides the ultimate developer and user experience. Cloudflare Pages offers:</p>
+        <ul>
+          <li><strong>Global Edge Network:</strong> Your blog is cached and delivered from edge servers closer to your users, guaranteeing sub-second load times.</li>
+          <li><strong>Zero Cost Tier:</strong> Perfect for personal portfolios and independent writing.</li>
+          <li><strong>Git Integration:</strong> Pushing changes to the <code>main</code> branch automatically triggers preview builds and production deployments.</li>
+        </ul>
+
+        <blockquote>
+          "Simplicity is the ultimate sophistication. When you don't have to manage servers or complex build configurations, you can focus purely on creating content."
+        </blockquote>
+
+        <h2>The Build Configuration Gotcha</h2>
+        <p>During deployment, we encountered a classic directory nesting issue: <code>Error: Output directory "blog/blog" not found</code>. This occurs when Cloudflare resolves the output directory relative to the configured root folder.</p>
+        <p>To avoid this, we simplified our configuration to keep the repository root <code>/</code> as the build environment root, and pointed the <strong>Build output directory</strong> directly to <code>blog</code>. This structure keeps our Go application backend decoupled from the static blog content beautifully.</p>
+
+        <h2>Next Steps</h2>
+        <p>Over the coming weeks, we will expand this blog to document technical deep dives into Go, DuckDB analytics, and data fetching pipelines for mutual fund schemes in India.</p>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Sanvasify. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../js/main.js"></script>
+</body>
+</html>

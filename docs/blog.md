@@ -109,3 +109,28 @@ To ensure a premium user experience and high search visibility, we will implemen
   /js/*
     Cache-Control: public, max-age=31536000, immutable
   ```
+
+## 5. Prompt for Integrating a New Blog Post
+
+Copy and use this prompt whenever you want to add a new article to the blog.
+
+***
+
+### copy-paste prompt:
+
+> **New Blog Post Integration:**
+>
+> I have written a new blog post and saved the files here:
+> - **Content Text File:** `@[/Users/raghavgarg/NotOnCloud/Blog 2/Blog2.txt]` (update path/name as needed)
+> - **Banner Image:** `@[/Users/raghavgarg/NotOnCloud/Blog 2/Image2.png]` (update path/name as needed)
+>
+> **Instructions:**
+> 1. Copy the PNG image to `blog/assets/` under a clean name.
+> 2. Read the text file and create a new HTML post file under `blog/posts/` (e.g., `posts/title-slug.html`) using the established layout and fonts (Merriweather & Inter).
+> 3. Implement full **SEO & performance best practices** on the new page:
+>    - Add a canonical URL `<link rel="canonical" href="https://blog.sanvasify.com/posts/title-slug.html">`.
+>    - Add Open Graph (`og:*`) and Twitter Card meta tags matching the title, description, and banner image.
+>    - Inject JSON-LD structured data (`@type: BlogPosting`) with publish date, author, and description inside the `<head>` element.
+> 4. Add the new post card to the **top** of the grid list in `blog/index.html` (making sure it displays the correct banner image, title, date, excerpt, and categories).
+> 5. Assign appropriate tags: `[Specify your tags here, e.g., Economy, SIF]` to the post card.
+> 6. Update the [blog/sitemap.xml](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/sitemap.xml) to include the new post URL.

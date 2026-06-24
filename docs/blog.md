@@ -125,12 +125,36 @@ Copy and use this prompt whenever you want to add a new article to the blog.
 > - **Banner Image:** `@[/Users/raghavgarg/NotOnCloud/Blog 2/Image2.png]` (update path/name as needed)
 >
 > **Instructions:**
-> 1. Copy the PNG image to `blog/assets/` under a clean name.
-> 2. Read the text file and create a new HTML post file under `blog/posts/` (e.g., `posts/title-slug.html`) using the established layout and fonts (Merriweather & Inter).
-> 3. Implement full **SEO & performance best practices** on the new page:
->    - Add a canonical URL `<link rel="canonical" href="https://blog.sanvasify.com/posts/title-slug.html">`.
->    - Add Open Graph (`og:*`) and Twitter Card meta tags matching the title, description, and banner image.
->    - Inject JSON-LD structured data (`@type: BlogPosting`) with publish date, author, and description inside the `<head>` element.
-> 4. Add the new post card to the **top** of the grid list in `blog/index.html` (making sure it displays the correct banner image, title, date, excerpt, and categories).
-> 5. Assign appropriate tags: `[Specify your tags here, e.g., Economy, SIF]` to the post card.
-> 6. Update the [blog/sitemap.xml](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/sitemap.xml) to include the new post URL.
+> 1. **Asset Management:**
+>    - Copy the banner PNG image to `blog/assets/` under a clean slug-based filename (e.g., `sif-market-trends.png`).
+>    - Ensure the image is optimized/resized if necessary.
+> 2. **Create Post File:**
+>    - Create a new HTML file under `blog/posts/` (e.g., `blog/posts/sif-market-trends.html` which is served at `/posts/sif-market-trends` by Cloudflare) using the exact template of the first blog post [demystifying-sifs.html](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/posts/demystifying-sifs.html).
+>    - **Path Alignment:** Ensure all stylesheet (`../css/style.css?v=1.0.0`), script (`../js/main.js?v=1.0.0`), asset (`../assets/...`), and home links (`../index.html`) use the correct relative parent directory path (`../`).
+> 3. **Calculate Read Time:**
+>    - Estimate the read time based on word count (approx. 200–250 words per minute) and specify it in the `.post-meta` header (e.g., `5 min read`).
+> 4. **SEO & Metadata Optimization:**
+>    - Title tag: `[Post Title] - Sanvasify Blog`.
+>    - Description tag: Compelling summary of the post (max 160 characters).
+>    - Favicon: `<link rel="icon" href="../assets/Sanvasify.png" type="image/png">`.
+>    - Canonical URL: `<link rel="canonical" href="https://blog.sanvasify.com/posts/your-post-slug">`.
+>    - Open Graph (`og:*`) & Twitter Card tags: Must match the post title, description, and absolute image URL (`https://blog.sanvasify.com/assets/your-image.png`).
+>    - JSON-LD Structured Data: Update the `@type: BlogPosting` script block inside `<head>` with the correct `headline`, `description`, `image` URL, `datePublished` (YYYY-MM-DD), `dateModified`, and canonical page ID (using clean URL).
+> 5. **Update Homepage Grid:**
+>    - Insert a new `<article class="post-item">` at the **top** of the grid list in [blog/index.html](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/index.html).
+>    - **Important:** Link to the clean URL (e.g., `posts/your-post-slug` instead of `posts/your-post-slug.html`).
+>    - **Important:** Ensure the image source in [blog/index.html](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/index.html) points to `assets/your-image.png` (WITHOUT the `../` prefix, as the homepage is at the root).
+>    - Assign appropriate categories/tags using `<span class="tag">` elements (e.g., `SIF`, `Economy`, `Capital Markets`).
+> 6. **Update Sitemap:**
+>    - Append a new `<url>` block to [blog/sitemap.xml](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/sitemap.xml) with:
+>      - `<loc>https://blog.sanvasify.com/posts/your-post-slug</loc>`
+>      - `<lastmod>YYYY-MM-DD</lastmod>`
+>      - `<changefreq>monthly</changefreq>`
+>      - `<priority>0.8</priority>`
+> 7. **Navigation & Footer Integrity:**
+>    - Double check that the header navigation links point to the main website (`https://sanvasify.com`) and the local archive home (`../index.html`).
+>    - Ensure the footer contains the exact class names and structure:
+>      - Logo: `<div class="logo">SANVASIFY<span class="logo-highlight">.BLOG</span></div>`
+>      - Footer Links: `Sanvasify` (`https://sanvasify.com`), `Archive` (`../index.html`), and `Contact` (`mailto:hello@sanvasify.com`).
+>      - Copyright notice: `<div class="copyright">&copy; 2026 Sanvasify. Powered by Cloudflare Pages.</div>`
+>    - Ensure the theme toggle button works correctly (`#theme-toggle`).

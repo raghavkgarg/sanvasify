@@ -159,54 +159,39 @@ Copy and use this prompt whenever you want to add a new article to the blog.
 >      - Copyright notice: `<div class="copyright">&copy; 2026 Sanvasify. Powered by Cloudflare Pages.</div>`
 >    - Ensure the theme toggle button works correctly (`#theme-toggle`).
 
+## 6. Template for Generating Blog Banner Images
 
+When using AI generators (like DALL-E, Midjourney, Imagen, or Stable Diffusion) to create blog header banner images, use the following template to maintain a high-quality, professional, and consistent aesthetic.
 
+### Generic AI Image Generation Prompt Template
 
+```text
+Create a professional infographics/illustration image with the following specifications:
 
-Prompt for AI Image Generation (Use This Prompt)
+Title/Concept: "[INSERT CORE THEME OR TITLE]"
 
-Create a professional infographics image with the following specifications:
+Visual Style: Subtle, serious, and professional (avoid flashy, cartoonish, or overly saturated elements). The aesthetic should match the tone of an elegant technology, finance, and economy analysis blog.
 
-Title: “The New Resource War: India's Bold Quest to Break China's Rare Earth Monopoly”
-
-Visual Style: Subtle, serious, and professional (avoid flashy or cartoonish elements). The aesthetic should match the tone of a technology and economy analysis.
-
-Resolution & Aspect Ratio: 16:9 (Landscape) , 1200 × 675 px (Recommended Baseline)
-
-Composition: Clean layout with two distinct visual halves or columns representing India and China, connected by a central element symbolizing the rare earth supply chain.
+Composition: [Choose one: e.g., A clean layout with two distinct visual halves representing different forces, or a centered focal point illustrating the concept, or a conceptual data visualization.]
 
 Color Palette:
-
-India: Use deep maroons, saffron-orange accents, and off-white/cream backgrounds.
-
-China: Use deep imperial reds, gold accents, and dark grey/slate backgrounds.
+- [Primary Entity/Theme]: Use [e.g., deep blues/greens, slate gray]
+- [Secondary Entity/Theme]: Use [e.g., warm gold accents, off-white background]
 
 Key Elements to Visualize:
+- [Key concept 1]: E.g., Minimalist map outlines, server stacks, or flowcharts.
+- [Key concept 2]: E.g., Conceptual statistics/graphs represented visually rather than as plain numbers.
+- [Symbolism]: E.g., Arrow or bridge representing transition, puzzle pieces representing integration.
 
-Map Silhouettes: Use minimalist outlines of India and China.
+Aesthetic Guidelines:
+- Avoid text-heavy layouts. Rely on clean iconography, subtle charts, and sleek vector-style illustrations to convey technical data.
+- Include a subtle background texture suggesting a high-tech blueprint, grid lines, or a fine mineral grain.
+```
 
-Statistics (Visualized, not just text):
+### Image Optimization Rules
 
-India: Show a small bar for production (1%) but a large bar for potential or reserves (6%).
-
-China: Show a massive bar for production (69%) and an even larger bar for processing dominance (92%).
-
-Strategic Value: Visual icons for key applications—EV motors, wind turbines, defense missiles, smartphones.
-
-Symbolism:
-
-Represent the “dependency” with a chain or pipeline connecting India to China.
-
-Represent India's “quest” with a bold arrow or a connecting bridge moving towards self-reliance.
-
-Add a subtle background texture suggesting a high-tech blueprint or mineral grain.
-
-Avoid text-heavy layouts. Use icons, arrows, and subtle graphs to convey the data.
-
-Ensure the title text is prominent and readable at the top.
-
-Resolution & Aspect Ratio:
-
-16:9 (Landscape)
-
-1200 × 675 px (Recommended Baseline)
+Before uploading any generated image to the repository (`blog/assets/`):
+1. **Convert to WebP format**: Do not upload PNG or JPEG formats directly, as they are typically several megabytes in size. Convert the generated image to WebP.
+2. **Target File Size**: The final `.webp` image **must be under 1 MB** (ideally between 100 KB and 400 KB).
+3. **Dimensions**: Maintain a `16:9` landscape aspect ratio with a recommended baseline resolution of `1200 × 675 px` (or similar high-definition ratios such as `1920 × 1080 px` optimized for WebP compression).
+4. **Filename Convention**: Save the file with a clean, lowercase, slug-based name using underscores (e.g., `india_s_rare_earth_autonomy_quest.webp`). Do not use spaces in filenames.

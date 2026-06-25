@@ -121,8 +121,8 @@ Copy and use this prompt whenever you want to add a new article to the blog.
 > **New Blog Post Integration:**
 >
 > I have written a new blog post and saved the files here:
-> - **Content Text File:** `@[/Users/raghavgarg/NotOnCloud/Blog 2/Blog2.txt]` (update path/name as needed)
-> - **Banner Image:** `@[/Users/raghavgarg/NotOnCloud/Blog 2/Image2.png]` (update path/name as needed)
+> - **Content Text File:** `@[/Users/raghavgarg/NotOnCloud/Blog 2/Blog2.txt]` 
+> - **Banner Image:** `@[/Users/raghavgarg/NotOnCloud/Blog 2/Image2.png]`
 >
 > **Instructions:**
 > 1. **Asset Management:**
@@ -158,3 +158,55 @@ Copy and use this prompt whenever you want to add a new article to the blog.
 >      - Footer Links: `Sanvasify` (`https://sanvasify.com`), `Archive` (`../index.html`), and `Contact` (`mailto:hello@sanvasify.com`).
 >      - Copyright notice: `<div class="copyright">&copy; 2026 Sanvasify. Powered by Cloudflare Pages.</div>`
 >    - Ensure the theme toggle button works correctly (`#theme-toggle`).
+
+
+
+
+
+Prompt for AI Image Generation (Use This Prompt)
+
+Create a professional infographics image with the following specifications:
+
+Title: “The New Resource War: India's Bold Quest to Break China's Rare Earth Monopoly”
+
+Visual Style: Subtle, serious, and professional (avoid flashy or cartoonish elements). The aesthetic should match the tone of a technology and economy analysis.
+
+Resolution & Aspect Ratio: 16:9 (Landscape) , 1200 × 675 px (Recommended Baseline)
+
+Composition: Clean layout with two distinct visual halves or columns representing India and China, connected by a central element symbolizing the rare earth supply chain.
+
+Color Palette:
+
+India: Use deep maroons, saffron-orange accents, and off-white/cream backgrounds.
+
+China: Use deep imperial reds, gold accents, and dark grey/slate backgrounds.
+
+Key Elements to Visualize:
+
+Map Silhouettes: Use minimalist outlines of India and China.
+
+Statistics (Visualized, not just text):
+
+India: Show a small bar for production (1%) but a large bar for potential or reserves (6%).
+
+China: Show a massive bar for production (69%) and an even larger bar for processing dominance (92%).
+
+Strategic Value: Visual icons for key applications—EV motors, wind turbines, defense missiles, smartphones.
+
+Symbolism:
+
+Represent the “dependency” with a chain or pipeline connecting India to China.
+
+Represent India's “quest” with a bold arrow or a connecting bridge moving towards self-reliance.
+
+Add a subtle background texture suggesting a high-tech blueprint or mineral grain.
+
+Avoid text-heavy layouts. Use icons, arrows, and subtle graphs to convey the data.
+
+Ensure the title text is prominent and readable at the top.
+
+Resolution & Aspect Ratio:
+
+16:9 (Landscape)
+
+1200 × 675 px (Recommended Baseline)

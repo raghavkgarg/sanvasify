@@ -23,6 +23,11 @@ scriptsv2/*.sh
 sync_to_icloud.sh
 sync_cloudflare.sh
 
+# Docs (private)
+docs/blog.md
+docs/blog_content.md
+docs/infographics
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -48,3 +53,4 @@ config/Config.local.toml
 
 # Deno
 node_modules/
+

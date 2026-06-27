@@ -1,7 +1,7 @@
 ---
 title: "Demystifying Specialized Investment Funds (SIFs): The New Frontier for Indian Investors"
 description: "Discover SEBI's new SIF category, bridging mutual funds and PMS. Learn how unhedged shorting, dynamic derivatives, and tax-efficiency can benefit HNI portfolios."
-date: 2026-06-24
+date: 2026-06-13
 image: "images/demystifying-sifs.png"
 tags: ["SIF", "Economy"]
 readTime: "4 min read"
@@ -22,11 +22,11 @@ Here are the key features that set SIFs apart:
 *   **Tax Efficiency:** Despite offering PMS-like advanced strategies, SIFs retain the highly favorable taxation structure of mutual funds. For equity strategies, long-term capital gains (LTCG) are taxed at 12.5% after a holding period of 24 months, giving them an edge over Category III AIFs which are taxed at higher slab rates.
 *   **Categories:** SIFs operate across Equity, Debt, and Hybrid categories, encompassing strategies like equity long-short, active asset allocator, and sector rotation.
 
-## A Record-Breaking 7-Month Sprint
+## A Record-Breaking 8-Month Sprint
 
-The SIF category has witnessed explosive growth since its inception. By April 2026—just seven months post-launch—total SIF assets under management (AUM) skyrocketed to ₹12,329 crore, a massive leap from the ₹2,010 crore recorded in October 2025.
+The SIF category has witnessed explosive growth since its inception. By May 2026—just Eight months post-launch—total SIF assets under management (AUM) skyrocketed to ₹13,820 crore, a massive leap from the ₹2,010 crore recorded in October 2025.
 
-Interestingly, Hybrid funds have emerged as the absolute favorite among SIF investors, commanding ₹9,155 crore (roughly 74% of the total SIF market). Investor participation is also scaling steadily, with the total number of SIF folios reaching 50,096 by April 2026, boasting an average folio size of ₹24.6 lakh.
+Interestingly, Hybrid funds have emerged as the absolute favorite among SIF investors, commanding ₹9,155 crore (roughly 74% of the total SIF market). Investor participation is also scaling steadily, with the total number of SIF folios reaching 56,749 by May 2026, boasting an average folio size of ₹24.6 lakh.
 
 > "As the Indian market continues to mature, the rapid adoption of Specialised Investment Funds proves that investors are increasingly hungry for innovative, alpha-generating strategies wrapped in a regulated, tax-efficient structure."
 
@@ -42,4 +42,4 @@ The leadership within the SIF segment remains concentrated among a few major ass
 
 ## The Final Verdict: Is an SIF Right for You?
 
-While regular SIPs in traditional mutual funds remain the gold standard for long-term retail wealth creation, SIFs are explicitly designed as tactical tools for sophisticated investors. If you comfortably meet the ₹10 lakh minimum, understand the complexities of short-selling and derivatives, and want a product capable of generating positive absolute returns even in sideways or falling markets, an SIF could be an excellent satellite addition to your core portfolio.
+While regular SIPs in traditional mutual funds remain the gold standard for long-term retail wealth creation, SIFs are explicitly designed as tactical tools for sophisticated investors. If you comfortably meet the ₹10 lakh minimum and want a product capable of generating positive absolute returns even in sideways or falling markets, an SIF could be an excellent addition to your portfolio.

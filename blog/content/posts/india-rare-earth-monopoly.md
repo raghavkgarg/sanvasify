@@ -1,7 +1,7 @@
 ---
 title: "The New Resource War: India's Bold Quest to Break China's Rare Earth Monopoly"
 description: "India launches a ₹7,280-crore PLI scheme to build a domestic rare earth magnet ecosystem and break China's monopoly."
-date: 2026-06-25
+date: 2026-06-20
 image: "images/india-rare-earth-monopoly.png"
 tags: ["Economy", "Capital Markets"]
 readTime: "2 min read"

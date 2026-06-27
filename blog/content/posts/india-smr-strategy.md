@@ -3,7 +3,7 @@ title: "Powering the Future: Inside India’s Ambitious Strategy for Small Modul
 description: "Discover how Small Modular Reactors (SMRs) are becoming the cornerstone of India's clean energy strategy, backed by a ₹20,000-crore Union Budget allocation."
 date: 2026-06-27
 image: "images/india-smr-strategy.png"
-tags: ["Economy", "Analytics"]
+tags: ["Economy","Policy"]
 ---
 
 India is standing at the crossroads of a monumental energy transition. With electricity demand projected to double by 2050 and a firm national commitment to achieve net-zero carbon emissions by 2070, the country must look beyond traditional renewable energy to stabilize its grid. Enter Small Modular Reactors (SMRs)—a transformative nuclear technology that is rapidly becoming the cornerstone of India’s clean energy strategy. Under recent Union Budgets, India launched a dedicated Nuclear Energy Mission, allocating a massive ₹20,000 crore specifically for the research, development, and deployment of these advanced reactors.
@@ -18,7 +18,8 @@ Crucially, SMRs offer vital grid flexibility to complement variable renewable en
 
 Historically, India’s nuclear sector has been strictly state-controlled, which inherently slowed its expansion due to public funding constraints. However, the landscape dramatically changed with the passing of the SHANTI Act in December 2025, which provides a unified legal framework allowing private companies and joint ventures to build, own, and operate nuclear plants. This act importantly revised the nuclear liability regime, making the sector vastly more attractive to domestic and foreign investors.
 
-The private sector is already seizing the opportunity. The Adani Group recently unveiled ambitious plans to build a staggering 10 GW of nuclear power capacity by 2035 through its new venture, Adani Atomic Energy. Other major conglomerates like Tata Power, Reliance Industries, and JSW Group are also exploring investments. Adani is even reportedly in advanced talks to construct eight indigenous BSMR-200 SMR units in Uttar Pradesh.
+The private sector is already seizing the opportunity. 
+> "The Adani Group recently unveiled ambitious plans to build a staggering 10 GW of nuclear power capacity by 2035 through its new venture, Adani Atomic Energy. Other major conglomerates like Tata Power, Reliance Industries, and JSW Group are also exploring investments. Adani is even reportedly in advanced talks to construct eight indigenous BSMR-200 SMR units in Uttar Pradesh."
 
 ## Indigenous Innovation and Global Partnerships
 

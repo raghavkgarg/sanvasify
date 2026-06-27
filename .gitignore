@@ -54,3 +54,7 @@ config/Config.local.toml
 # Deno
 node_modules/
 
+# Hugo Local Build Artifacts
+blog/public/
+blog/resources/
+blog/.hugo_build.lock

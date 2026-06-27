@@ -1,114 +1,112 @@
-# Sanvasify Blog Deployment Plan
+# Sanvasify Blog Deployment Plan (Hugo-Powered)
 
-This document outlines the final plan to build, structure, and deploy the blog at [blog.sanvasify.com](https://blog.sanvasify.com) using **Cloudflare Pages**.
+This document outlines the structure, local development workflow, and deployment plan for the blog at [blog.sanvasify.com](https://blog.sanvasify.com) using **Hugo** and **Cloudflare Pages**.
 
 ---
 
 ## 1. Project Structure
 
-To keep the blog codebase clean and separated from the main Go application, we will organize the blog files in a dedicated `/blog` directory at the root of the repository.
+To keep the blog codebase clean, dynamic, and separated from the main Go application, the blog is managed as a self-contained Hugo project in the `/blog` directory at the root of the repository. Unnecessary default folders like `themes/`, `data/`, and `i18n/` have been removed to keep the setup minimal.
 
 ```
 sanvasify/ (repository root)
-├── blog/                      # Dedicated blog folder (Cloudflare Pages Root)
-│   ├── index.html            # Blog homepage (lists articles)
-│   ├── posts/                # Individual blog posts
-│   │   ├── first-post.html
-│   │   └── index.html        # Redirect or list for posts directory
-│   ├── css/                  # Modern, premium styling
-│   │   └── style.css
-│   ├── js/                   # Clientside interactivity
-│   │   └── main.js
-│   ├── assets/               # Images, fonts, and media
-│   │   └── logo.png
-│   ├── _headers              # Cloudflare custom HTTP headers
-│   └── _redirects            # Cloudflare redirects mapping
+├── blog/                      # Dedicated blog folder (Hugo Project root)
+│   ├── hugo.toml             # Hugo configuration file (site-wide settings)
+│   ├── assets/               # SOURCE assets for HUGO PROCESSING (e.g., resizing, WebP conversion)
+│   │   └── images/
+│   │       └── india-smr-strategy.png
+│   ├── content/              # SOURCE content files (written in Markdown)
+│   │   └── posts/
+│   │       ├── demystifying-sifs.md
+│   │       └── india-rare-earth-monopoly.md
+│   ├── layouts/              # SOURCE HTML templates (defines page structures and designs)
+│   │   ├── index.html        # Homepage layout
+│   │   └── _default/
+│   │       ├── list.html     # Fallback list layout
+│   │       └── single.html   # Post details layout
+│   ├── static/               # SOURCE static assets (copied exactly as-is to the build output)
+│   │   ├── css/              # Source style.css (edit this to change styling)
+│   │   ├── js/               # Source main.js (edit this to change interactivity)
+│   │   ├── assets/           # Static images (served raw, no processing)
+│   │   ├── _headers          # Cloudflare headers config
+│   │   ├── _redirects         # Cloudflare redirects config
+│   │   └── robots.txt
+│   ├── public/               # DYNAMIC BUILD OUTPUT (auto-generated, IGNORED by Git)
+│   │                         # This is the compiled website containing all HTML, CSS, and JS.
+│   └── resources/            # DYNAMIC BUILD CACHE (auto-generated, IGNORED by Git)
+│                             # Used by Hugo to cache processed assets for ultra-fast builds.
 ├── cmd/                      # (Existing Go Backend)
 ├── web/                      # (Existing Main Frontend)
 └── docs/                     # Documentation
 ```
 
+### Understanding Hugo Folders: Source vs. Output
+It is critical to distinguish between directories you edit (Source) and directories Hugo manages automatically (Output):
+
+* **Source Folders (Edit these & Commit to Git)**:
+  * **`/static`**: Contains assets copied verbatim to `/public` on build. Edit your active stylesheets (`static/css/style.css`) and script files here.
+  * **`/assets`**: Raw images/resources that Hugo's pipelines process dynamically (e.g. resizing and converting PNG to WebP).
+  * **`/content`**: Markdown files for your articles.
+  * **`/layouts`**: HTML templates.
+* **Auto-Generated Folders (Do NOT edit & Ignored by Git)**:
+  * **`/public`**: The final compiled website directory. Hugo automatically copies compiled files from `/static` and `/assets` here during a build.
+  * **`/resources`**: Temp cache folder for faster compilation speeds.
+
+> [!NOTE]
+> Local generated folders (`blog/public/`, `blog/resources/`, and `blog/.hugo_build.lock`) are ignored by Git in `.gitignore` and are built dynamically on deployment.
+
 ---
 
 ## 2. Technical Stack
 
-To maintain simplicity, high performance, and zero-cost scaling:
+* **Static Site Generator**: [Hugo](https://gohugo.io/) (Extended Version)
 * **Frontend**: HTML5, Vanilla CSS3 (Custom properties, grid/flexbox layout, fluid typography, dark/light mode toggle), and modern ES Modules JavaScript.
-* **Build System**: None (Direct static hosting, no compile step needed).
-* **Hosting**: Cloudflare Pages (integrated with the GitHub repository).
+* **Hosting**: Cloudflare Pages (integrated with the GitHub repository, building on git pushes).
 * **SSL/TLS & CDN**: Automatically managed by Cloudflare.
 
 ---
 
-## 3. Step-by-Step Deployment Guide
+## 3. Step-by-Step Deployment & Configuration Guide
 
-### Step 3.1: Prepare the Blog Directory Local Files
-1. Create the `blog/` directory structure in the root of the project.
-2. Initialize a base `index.html` with modern semantic HTML and responsive viewport settings.
-3. Add a premium `css/style.css` defining the design system (e.g., CSS variables, Inter/System font stack, elegant spacing, subtle hover states).
-4. Save custom configuration files like `_headers` to define cache control policies and security headers (e.g., `X-Frame-Options`, `Content-Security-Policy`).
+### Step 3.1: Install Hugo Locally
+On macOS:
+```bash
+brew install hugo
+```
 
-### Step 3.2: Connect Repository to Cloudflare Pages
+### Step 3.2: Configure Cloudflare Pages
 1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/).
-2. Navigate to **Workers & Pages** -> click **Create Application** -> select the **Pages** tab (make sure not to create a Worker).
-3. Click **Connect to Git** and authorize your GitHub account.
-4. Select the `raghavkgarg/sanvasify` repository.
-5. Configure the **Build Settings**:
+2. Navigate to **Workers & Pages** -> click **Create Application** -> select the **Pages** tab.
+3. Select your `raghavkgarg/sanvasify` repository.
+4. Configure the **Build Settings**:
    * **Project Name**: `sanvasify-blog`
    * **Production branch**: `main`
-   * **Framework preset**: `None`
-   * **Build command**: *Leave empty*
-   * **Root directory**: *Leave empty or set to `/`*
-   * **Build output directory**: `blog` (This tells Cloudflare to serve files directly from the `/blog` folder in your repository)
-6. Click **Save and Deploy**. Cloudflare will build the first version of your static blog.
-
-> [!TIP]
-> **Resolving "Output directory not found" Error:**
-> If you get `Error: Output directory "blog/blog" not found`, it is because the **Root directory** was set to `blog` and the **Build output directory** was also set to `blog` (which looks for a nested `blog/blog` folder). 
-> Make sure **Root directory** is empty (or `/`) and **Build output directory** is set to `blog`. Alternatively, if you set **Root directory** to `blog`, set **Build output directory** to `.` (or `./`).
-
-> [!WARNING]
-> **Workers vs Pages Differentiation:**
-> If you see a URL containing `/workers/services/...` (like the one you visited), you have created a serverless **Cloudflare Worker** rather than a **Cloudflare Pages** site. Workers do not have a Git-integrated "Root directory" build setting in the UI. 
-> To fix this:
-> 1. Go back to the **Workers & Pages** dashboard overview.
-   2. Click **Create Application**.
-   3. Choose the **Pages** tab at the top of the interface.
-   4. Connect via git to your repository to get the Pages settings (including Root Directory).
-
-### Step 3.3: Set Up the Custom Subdomain
-1. Once the deployment finishes, go to your new Cloudflare Pages project page.
-2. Navigate to the **Custom Domains** tab.
-3. Click **Set up a custom domain**.
-4. Enter `blog.sanvasify.com` and click **Continue**.
-5. If your parent domain `sanvasify.com` is already configured in your Cloudflare account, Cloudflare will automatically offer to create the DNS CNAME record for you. Click **Activate domain**.
-6. Cloudflare will automatically provision an SSL/TLS certificate for your subdomain. Within a few minutes, the site will be live at `https://blog.sanvasify.com`.
+   * **Framework preset**: `Hugo`
+   * **Build command**: `hugo --gc --minify`
+   * **Root directory**: `blog`
+   * **Build output directory**: `public` (Note: because the Root Directory is set to `blog`, Cloudflare runs inside `blog/` and outputs to `blog/public`, so the build output directory relative to the root is `public`).
+5. Click **Save and Deploy**.
 
 ---
 
-## 4. Performance & SEO Best Practices
+## 4. Local Development Workflow
 
-To ensure a premium user experience and high search visibility, we will implement the following:
+To work on the blog locally, run Hugo's built-in live reload server:
 
-### SEO Essentials
-* **Metadata**: Every HTML file will include descriptive `<title>` tags and `<meta name="description">` tags.
-* **Canonical Tags**: Specify `<link rel="canonical" href="...">` to prevent duplicate content issues.
-* **Open Graph (OG)**: Include OG tags (`og:title`, `og:description`, `og:image`) for preview generation when sharing on social media.
-* **Structured Data**: JSON-LD schema markup on post pages for Google Rich Snippets support.
-* **Sitemap & Robots**: Maintain `/blog/sitemap.xml` and `/blog/robots.txt` mapped correctly.
+```bash
+cd blog
+hugo server
+```
+The site will be available at `http://localhost:1313/`.
 
-### Performance & Cache Optimization
-* **Lazy Loading**: Use `loading="lazy"` on all images.
-* **Modern Formats**: Convert blog images to modern web formats (WebP or AVIF).
-* **Caching Strategy**: Add the following cache directives to `/blog/_headers`:
-  ```http
-  /assets/*
-    Cache-Control: public, max-age=31536000, immutable
-  /css/*
-    Cache-Control: public, max-age=31536000, immutable
-  /js/*
-    Cache-Control: public, max-age=31536000, immutable
-  ```
+To create a new post:
+```bash
+cd blog
+hugo new posts/your-post-slug.md
+```
+This generates a new markdown file with default metadata structure under `blog/content/posts/your-post-slug.md`.
+
+---
 
 ## 5. Prompt for Integrating a New Blog Post
 
@@ -126,72 +124,21 @@ Copy and use this prompt whenever you want to add a new article to the blog.
 >
 > **Instructions:**
 > 1. **Asset Management:**
->    - Copy the banner PNG image to `blog/assets/` under a clean slug-based filename (e.g., `sif-market-trends.png`).
->    - Ensure the image is optimized/resized if necessary.
+>    - Copy the high-res banner image (e.g. PNG, JPEG) directly to `blog/assets/images/` (create the `images` folder inside `assets` if it doesn't exist).
+>    - Name it cleanly (e.g. `sif-market-trends.png`).
 > 2. **Create Post File:**
->    - Create a new HTML file under `blog/posts/` (e.g., `blog/posts/sif-market-trends.html` which is served at `/posts/sif-market-trends` by Cloudflare) using the exact template of the first blog post [demystifying-sifs.html](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/posts/demystifying-sifs.html).
->    - **Path Alignment:** Ensure all stylesheet (`../css/style.css?v=1.0.0`), script (`../js/main.js?v=1.0.0`), asset (`../assets/...`), and home links (`../index.html`) use the correct relative parent directory path (`../`).
-> 3. **Calculate Read Time:**
->    - Estimate the read time based on word count (approx. 200–250 words per minute) and specify it in the `.post-meta` header (e.g., `5 min read`).
-> 4. **SEO & Metadata Optimization:**
->    - Title tag: `[Post Title] - Sanvasify Blog`.
->    - Description tag: Compelling summary of the post (max 160 characters).
->    - Favicon: `<link rel="icon" href="../assets/Sanvasify.png" type="image/png">`.
->    - Canonical URL: `<link rel="canonical" href="https://blog.sanvasify.com/posts/your-post-slug">`.
->    - Open Graph (`og:*`) & Twitter Card tags: Must match the post title, description, and absolute image URL (`https://blog.sanvasify.com/assets/your-image.png`).
->    - JSON-LD Structured Data: Update the `@type: BlogPosting` script block inside `<head>` with the correct `headline`, `description`, `image` URL, `datePublished` (YYYY-MM-DD), `dateModified`, and canonical page ID (using clean URL).
-> 5. **Update Homepage Grid:**
->    - Insert a new `<article class="post-item">` at the **top** of the grid list in [blog/index.html](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/index.html).
->    - **Important:** Link to the clean URL (e.g., `posts/your-post-slug` instead of `posts/your-post-slug.html`).
->    - **Important:** Ensure the image source in [blog/index.html](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/index.html) points to `assets/your-image.png` (WITHOUT the `../` prefix, as the homepage is at the root).
->    - Assign appropriate categories/tags using `<span class="tag">` elements (e.g., `SIF`, `Economy`, `Capital Markets`).
-> 6. **Update Sitemap:**
->    - Append a new `<url>` block to [blog/sitemap.xml](file:///Users/raghavgarg/Projects/myGo/sanvasify/blog/sitemap.xml) with:
->      - `<loc>https://blog.sanvasify.com/posts/your-post-slug</loc>`
->      - `<lastmod>YYYY-MM-DD</lastmod>`
->      - `<changefreq>monthly</changefreq>`
->      - `<priority>0.8</priority>`
-> 7. **Navigation & Footer Integrity:**
->    - Double check that the header navigation links point to the main website (`https://sanvasify.com`) and the local archive home (`../index.html`).
->    - Ensure the footer contains the exact class names and structure:
->      - Logo: `<div class="logo">SANVASIFY<span class="logo-highlight">.BLOG</span></div>`
->      - Footer Links: `Sanvasify` (`https://sanvasify.com`), `Archive` (`../index.html`), and `Contact` (`mailto:hello@sanvasify.com`).
->      - Copyright notice: `<div class="copyright">&copy; 2026 Sanvasify. Powered by Cloudflare Pages.</div>`
->    - Ensure the theme toggle button works correctly (`#theme-toggle`).
+>    - Create a new Markdown file: `blog/content/posts/sif-market-trends.md`.
+>    - Add the YAML front matter block (point to the image under `images/` folder inside `blog/assets/`):
+>      ```yaml
+>      ---
+>      title: "Your Post Title Here"
+>      description: "Compelling summary of the post (max 160 characters)"
+>      date: YYYY-MM-DD
+>      image: "images/sif-market-trends.png"
+>      tags: ["SIF", "Economy"]
+>      ---
+>      ```
+>    - Copy the text content into the body of the Markdown file.
+> 3. **Verify Locally:**
+>    - Run `hugo` inside the `blog` directory. Hugo's layout templates will automatically process, resize, and convert the image into a lightweight `.webp` format on the fly!
 
-## 6. Template for Generating Blog Banner Images
-
-When using AI generators (like DALL-E, Midjourney, Imagen, or Stable Diffusion) to create blog header banner images, use the following template to maintain a high-quality, professional, and consistent aesthetic.
-
-### Generic AI Image Generation Prompt Template
-
-```text
-Create a professional infographics/illustration image with the following specifications:
-
-Title/Concept: "[INSERT CORE THEME OR TITLE]"
-
-Visual Style: Subtle, serious, and professional (avoid flashy, cartoonish, or overly saturated elements). The aesthetic should match the tone of an elegant technology, finance, and economy analysis blog.
-
-Composition: [Choose one: e.g., A clean layout with two distinct visual halves representing different forces, or a centered focal point illustrating the concept, or a conceptual data visualization.]
-
-Color Palette:
-- [Primary Entity/Theme]: Use [e.g., deep blues/greens, slate gray]
-- [Secondary Entity/Theme]: Use [e.g., warm gold accents, off-white background]
-
-Key Elements to Visualize:
-- [Key concept 1]: E.g., Minimalist map outlines, server stacks, or flowcharts.
-- [Key concept 2]: E.g., Conceptual statistics/graphs represented visually rather than as plain numbers.
-- [Symbolism]: E.g., Arrow or bridge representing transition, puzzle pieces representing integration.
-
-Aesthetic Guidelines:
-- Avoid text-heavy layouts. Rely on clean iconography, subtle charts, and sleek vector-style illustrations to convey technical data.
-- Include a subtle background texture suggesting a high-tech blueprint, grid lines, or a fine mineral grain.
-```
-
-### Image Optimization Rules
-
-Before uploading any generated image to the repository (`blog/assets/`):
-1. **Convert to WebP format**: Do not upload PNG or JPEG formats directly, as they are typically several megabytes in size. Convert the generated image to WebP.
-2. **Target File Size**: The final `.webp` image **must be under 1 MB** (ideally between 100 KB and 400 KB).
-3. **Dimensions**: Maintain a `16:9` landscape aspect ratio with a recommended baseline resolution of `1200 × 675 px` (or similar high-definition ratios such as `1920 × 1080 px` optimized for WebP compression).
-4. **Filename Convention**: Save the file with a clean, lowercase, slug-based name using underscores (e.g., `india_s_rare_earth_autonomy_quest.webp`). Do not use spaces in filenames.

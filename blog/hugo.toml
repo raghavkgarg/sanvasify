@@ -1,0 +1,6 @@
+baseURL = 'https://blog.sanvasify.com/'
+locale = 'en-us'
+title = 'Sanvasify Blog - Specialised Investment Funds & Wealth'
+
+[params]
+  description = 'Insights, updates, and articles about mutual funds, tech stacks, and modern web deployments at Sanvasify.'

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .Title }}</title>
+  <meta name="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <link rel="icon" href="/assets/Sanvasify.png" type="image/png">
+
+  <link rel="canonical" href="{{ .Permalink }}">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:title" content="{{ .Title }}">
+  <meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta property="og:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="{{ .Permalink }}">
+  <meta property="twitter:title" content="{{ .Title }}">
+  <meta property="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta property="twitter:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,700;0,900;1,300&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/style.css?v=1.0.0">
+</head>
+
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">SANVASIFY<span class="logo-highlight">.BLOG</span></a>
+      <div class="nav-links">
+        <a href="https://sanvasify.com" class="nav-link">
+          <span class="nav-link-inner">
+            <span class="nav-link-text">Sanvasify</span>
+            <span class="nav-link-text absolute">Sanvasify</span>
+          </span>
+        </a>
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle Theme">
+          <!-- Icon will be injected via JS -->
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>The Blog</h1>
+    <p>A compilation of writing on navigating Specialised Investment Funds (SIFs), advanced wealth management strategies, and tactical asset allocation.</p>
+  </section>
+
+  <!-- Category Nav Bar -->
+  <div class="category-nav">
+    <a href="#" class="tag">Economy</a>
+    <a href="#" class="tag">Business</a>
+    <a href="#" class="tag">SIF</a>
+    <a href="#" class="tag">Capital Markets</a>
+    <a href="#" class="tag">Analytics</a>
+  </div>
+
+  <main>
+    <div class="posts-grid">
+      {{ range (where .Site.RegularPages "Section" "posts") }}
+      <article class="post-item">
+        <div class="post-item-link">
+          <div class="post-item-title-group">
+            <div class="post-item-date">{{ .Date.Format "January 2, 2006" }}</div>
+            <h2 class="post-item-title">
+              <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </h2>
+            <p class="post-item-excerpt">
+              {{ .Description }}
+            </p>
+            <div class="post-item-tags">
+              {{ range .Params.tags }}
+              <span class="tag">{{ . }}</span>
+              {{ end }}
+            </div>
+          </div>
+          {{ if .Params.image }}
+          <div class="post-item-image-wrapper">
+            <a href="{{ .RelPermalink }}">
+              {{ $img := resources.Get .Params.image }}
+              {{ if $img }}
+                {{ $processed := $img.Resize "600x webp q80" }}
+                <img src="{{ $processed.RelPermalink }}" alt="{{ .Title }}" class="post-item-image" loading="lazy">
+              {{ else }}
+                <img src="/{{ .Params.image }}" alt="{{ .Title }}" class="post-item-image" loading="lazy">
+              {{ end }}
+            </a>
+          </div>
+          {{ end }}
+        </div>
+      </article>
+      {{ end }}
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <div class="logo">SANVASIFY<span class="logo-highlight">.BLOG</span></div>
+      <div class="footer-links">
+        <a href="https://sanvasify.com">Sanvasify</a>
+        <a href="/">Archive</a>
+        <a href="mailto:hello@sanvasify.com">Contact</a>
+      </div>
+      <div class="copyright">&copy; {{ now.Format "2006" }} Sanvasify. Powered by Cloudflare Pages.</div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/main.js?v=1.0.0"></script>
+</body>
+
+</html>

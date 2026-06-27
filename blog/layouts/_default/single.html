@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .Title }} - Sanvasify Blog</title>
+  <meta name="description" content="{{ .Description }}">
+  <link rel="canonical" href="{{ .Permalink }}">
+  <link rel="icon" href="/assets/Sanvasify.png" type="image/png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:title" content="{{ .Title }} - Sanvasify Blog">
+  <meta property="og:description" content="{{ .Description }}">
+  {{ if .Params.image }}
+  <meta property="og:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
+  {{ else }}
+  <meta property="og:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
+  {{ end }}
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="{{ .Permalink }}">
+  <meta property="twitter:title" content="{{ .Title }} - Sanvasify Blog">
+  <meta property="twitter:description" content="{{ .Description }}">
+  {{ if .Params.image }}
+  <meta property="twitter:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
+  {{ else }}
+  <meta property="twitter:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
+  {{ end }}
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,700;0,900;1,300&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/style.css?v=1.0.0">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{ .Title }}",
+    "description": "{{ .Description }}",
+    {{ if .Params.image }}
+    "image": "{{ .Site.BaseURL }}{{ .Params.image }}",
+    {{ else }}
+    "image": "{{ .Site.BaseURL }}assets/Sanvasify.png",
+    {{ end }}
+    "datePublished": "{{ .Date.Format "2006-01-02" }}",
+    "dateModified": "{{ .Date.Format "2006-01-02" }}",
+    "author": {
+      "@type": "Person",
+      "name": "Sanvasify"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Sanvasify Blog",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ .Site.BaseURL }}assets/logo.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "{{ .Permalink }}"
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">SANVASIFY<span class="logo-highlight">.BLOG</span></a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">
+          <span class="nav-link-inner">
+            <span class="nav-link-text">Home</span>
+            <span class="nav-link-text absolute">Home</span>
+          </span>
+        </a>
+        <a href="https://sanvasify.com" class="nav-link">
+          <span class="nav-link-inner">
+            <span class="nav-link-text">Sanvasify</span>
+            <span class="nav-link-text absolute">Sanvasify</span>
+          </span>
+        </a>
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle Theme">
+          <!-- Icon will be injected via JS -->
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="post-detail">
+    <article>
+      <header class="post-detail-header">
+        <div class="post-meta" style="margin-bottom: 1rem;">
+          <span>Published on {{ .Date.Format "January 2, 2006" }}</span>
+          <span>&bull;</span>
+          <span>{{ with .Params.readTime }}{{ . }}{{ else }}{{ .ReadingTime }} min read{{ end }}</span>
+        </div>
+        <h1>{{ .Title }}</h1>
+        {{ if .Params.image }}
+          {{ $img := resources.Get .Params.image }}
+          {{ if $img }}
+            {{ $processed := $img.Resize "1200x webp q80" }}
+            <img src="{{ $processed.RelPermalink }}" alt="{{ .Title }}" class="post-banner-img" loading="eager">
+          {{ else }}
+            <img src="/{{ .Params.image }}" alt="{{ .Title }}" class="post-banner-img" loading="eager">
+          {{ end }}
+        {{ end }}
+      </header>
+
+      <div class="post-body">
+        {{ .Content }}
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <div class="logo">SANVASIFY<span class="logo-highlight">.BLOG</span></div>
+      <div class="footer-links">
+        <a href="https://sanvasify.com">Sanvasify</a>
+        <a href="/">Archive</a>
+        <a href="mailto:hello@sanvasify.com">Contact</a>
+      </div>
+      <div class="copyright">&copy; {{ now.Format "2006" }} Sanvasify. Powered by Cloudflare Pages.</div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/main.js?v=1.0.0"></script>
+</body>
+
+</html>

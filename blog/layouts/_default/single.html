@@ -15,9 +15,15 @@
   <meta property="og:title" content="{{ .Title }} - Sanvasify Blog">
   <meta property="og:description" content="{{ .Description }}">
   {{ if .Params.image }}
-  <meta property="og:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
+    {{ $img := resources.Get .Params.image }}
+    {{ if $img }}
+      {{ $processed := $img.Resize "1200x webp q80" }}
+      <meta property="og:image" content="{{ $processed.Permalink }}">
+    {{ else }}
+      <meta property="og:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
+    {{ end }}
   {{ else }}
-  <meta property="og:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
+    <meta property="og:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
   {{ end }}
 
   <!-- Twitter -->
@@ -26,9 +32,15 @@
   <meta property="twitter:title" content="{{ .Title }} - Sanvasify Blog">
   <meta property="twitter:description" content="{{ .Description }}">
   {{ if .Params.image }}
-  <meta property="twitter:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
+    {{ $img := resources.Get .Params.image }}
+    {{ if $img }}
+      {{ $processed := $img.Resize "1200x webp q80" }}
+      <meta property="twitter:image" content="{{ $processed.Permalink }}">
+    {{ else }}
+      <meta property="twitter:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
+    {{ end }}
   {{ else }}
-  <meta property="twitter:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
+    <meta property="twitter:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
   {{ end }}
 
   <!-- Fonts -->

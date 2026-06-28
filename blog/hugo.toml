@@ -2,5 +2,8 @@ baseURL = 'https://blog.sanvasify.com/'
 locale = 'en-us'
 title = 'Sanvasify Blog - Specialised Investment Funds & Wealth'
 
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
 [params]
-  description = 'Insights, updates, and articles about mutual funds, tech stacks, and modern web deployments at Sanvasify.'
+  description = 'Insights, updates, and articles about macroeconomic trends, public policy shifts, and the geopolitical forces shaping business.'

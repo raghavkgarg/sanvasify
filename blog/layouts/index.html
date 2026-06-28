@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ .Title }}</title>
-  <meta name="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta name="description"
+    content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
   <link rel="icon" href="/assets/Sanvasify.png" type="image/png">
 
   <link rel="canonical" href="{{ .Permalink }}">
@@ -14,20 +15,24 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ .Permalink }}">
   <meta property="og:title" content="{{ .Title }}">
-  <meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta property="og:description"
+    content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
   <meta property="og:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="{{ .Permalink }}">
   <meta property="twitter:title" content="{{ .Title }}">
-  <meta property="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta property="twitter:description"
+    content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
   <meta property="twitter:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,700;0,900;1,300&display=swap"
+    rel="stylesheet">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="/css/style.css?v=1.0.0">
@@ -45,6 +50,12 @@
             <span class="nav-link-text absolute">Sanvasify</span>
           </span>
         </a>
+        <button id="search-toggle" class="theme-btn" aria-label="Search Posts">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
         <button id="theme-toggle" class="theme-btn" aria-label="Toggle Theme">
           <!-- Icon will be injected via JS -->
         </button>
@@ -54,7 +65,8 @@
 
   <section class="hero">
     <h1>The Blog</h1>
-    <p>A compilation of writing on navigating Specialised Investment Funds (SIFs), advanced wealth management strategies, and tactical asset allocation.</p>
+    <p>A compilation of writing on navigating macroeconomic trends, public policy shifts, and the geopolitical forces
+      shaping business.</p>
   </section>
 
   <!-- Category Nav Bar -->
@@ -90,10 +102,10 @@
             <a href="{{ .RelPermalink }}">
               {{ $img := resources.Get .Params.image }}
               {{ if $img }}
-                {{ $processed := $img.Resize "600x webp q80" }}
-                <img src="{{ $processed.RelPermalink }}" alt="{{ .Title }}" class="post-item-image" loading="lazy">
+              {{ $processed := $img.Resize "600x webp q80" }}
+              <img src="{{ $processed.RelPermalink }}" alt="{{ .Title }}" class="post-item-image" loading="lazy">
               {{ else }}
-                <img src="/{{ .Params.image }}" alt="{{ .Title }}" class="post-item-image" loading="lazy">
+              <img src="/{{ .Params.image }}" alt="{{ .Title }}" class="post-item-image" loading="lazy">
               {{ end }}
             </a>
           </div>
@@ -115,6 +127,35 @@
       <div class="copyright">&copy; {{ now.Format "2006" }} Sanvasify. Powered by Cloudflare Pages.</div>
     </div>
   </footer>
+
+  <!-- Search Modal -->
+  <dialog id="search-modal" class="search-modal">
+    <div class="search-modal-box">
+      <header class="search-modal-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="search" id="search-input" placeholder="Search posts..." autocomplete="off">
+        <button id="search-close" class="search-close-btn" aria-label="Close Search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+      <div id="search-results" class="search-results">
+        <div class="search-empty-state">
+          Type to start searching...
+        </div>
+      </div>
+      <footer class="search-modal-footer">
+        <span class="search-shortcut"><span>ESC</span> to close</span>
+        <span class="search-shortcut"><span>&uarr;&darr;</span> to navigate</span>
+        <span class="search-shortcut"><span>Enter</span> to select</span>
+      </footer>
+    </div>
+  </dialog>
 
   <!-- Scripts -->
   <script src="/js/main.js?v=1.0.0"></script>

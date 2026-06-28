@@ -27,20 +27,20 @@
   {{ end }}
 
   <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="{{ .Permalink }}">
-  <meta property="twitter:title" content="{{ .Title }} - Sanvasify Blog">
-  <meta property="twitter:description" content="{{ .Description }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="{{ .Permalink }}">
+  <meta name="twitter:title" content="{{ .Title }} - Sanvasify Blog">
+  <meta name="twitter:description" content="{{ .Description }}">
   {{ if .Params.image }}
     {{ $img := resources.Get .Params.image }}
     {{ if $img }}
       {{ $processed := $img.Resize "1200x webp q80" }}
-      <meta property="twitter:image" content="{{ $processed.Permalink }}">
+      <meta name="twitter:image" content="{{ $processed.Permalink }}">
     {{ else }}
-      <meta property="twitter:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
+      <meta name="twitter:image" content="{{ .Site.BaseURL }}{{ .Params.image }}">
     {{ end }}
   {{ else }}
-    <meta property="twitter:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
+    <meta name="twitter:image" content="{{ .Site.BaseURL }}assets/Sanvasify.png">
   {{ end }}
 
   <!-- Fonts -->

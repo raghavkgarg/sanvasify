@@ -112,7 +112,7 @@ make build-linux-arm64
 Make sure the active production instance config points to the consolidated `sanvas.db` (rather than the legacy `sanvasify.db`):
 ```bash
 # Run the switchover script to target the consolidated database
-./scriptsv2/switch_db.sh sanvas
+./scripts/switch_db.sh sanvas
 ```
 *Note: This script updates `/opt/sanvasify/config/Config.toml` on AWS, handles DB locks, and restarts the systemd services safely.*
 
@@ -127,7 +127,7 @@ Confirm that you get a successful JSON response (e.g., `{"count": 0}` if no visi
 
 ### 4. Schedule the Table-Level Sync Script
 To continuously load new NAV updates locally and sync them to AWS without overwriting server-side visitor logs, ensure the sync job is scheduled:
-* Set up a cron task or daemon on your local machine to regularly execute `scriptsv2/sync_dbv2.sh`.
+* Set up a cron task or daemon on your local machine to regularly execute `scripts/sync_db.sh`.
 * Confirm that local executions export data to `sif_schemes.parquet`, transfer it to AWS, stop the service, perform the `INSERT ... ON CONFLICT` merge into `sanvas.db` on AWS, and restart the service smoothly.
 
 ---

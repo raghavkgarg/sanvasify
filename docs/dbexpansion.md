@@ -10,7 +10,7 @@ Currently, `sanvasify.db` is replaced entirely on the AWS production instance vi
 - Increases network usage as the single table grows.
 - Prevents scaling to multiple tables where some tables are updated locally (e.g., market data) and others are updated on the server (e.g., user sessions, metrics, visitors).
 
-**Goal:** A consolidated database (`sanvas.db`) containing multiple tables (e.g., `sif_schemes` and `visitors`). The `fetcher` and `loader` update only `sif_schemes` locally, and the synchronization process updates only the `sif_schemes` table on AWS via table-level Parquet transfers using [sync_dbv13.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scriptsv2/sync_dbv13.sh), keeping the live `visitors` table untouched.
+**Goal:** A consolidated database (`sanvas.db`) containing multiple tables (e.g., `sif_schemes` and `visitors`). The `fetcher` and `loader` update only `sif_schemes` locally, and the synchronization process updates only the `sif_schemes` table on AWS via table-level Parquet transfers using [sync_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/sync_db.sh), keeping the live `visitors` table untouched.
 
 ---
 
@@ -42,7 +42,7 @@ graph TD
 
 ## 3. Granular Table Synchronization Flow
 
-Instead of replacing the entire database file, we perform a table-level sync using **Parquet exports** via [sync_dbv13.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scriptsv2/sync_dbv13.sh). This ensures the `visitors` table (which is updated live by users on AWS) remains entirely untouched.
+Instead of replacing the entire database file, we perform a table-level sync using **Parquet exports** via [sync_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/sync_db.sh). This ensures the `visitors` table (which is updated live by users on AWS) remains entirely untouched.
 
 ### The Concurrency Challenge (DuckDB File Locking)
 DuckDB operates as an embedded database. It allows multiple concurrent readers **or** a single writer. When the `sanvasify` Go application runs on AWS:
@@ -151,7 +151,7 @@ sequenceDiagram
 #### Step-by-Step Implementation:
 1. **Local Export:** Export the local `sif_schemes` table to `sif_schemes.parquet`.
 2. **Transfer:** SCP the parquet file to `/home/ec2-user/sif_schemes.parquet` on AWS.
-3. **Execution via deployment script ([sync_dbv13.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scriptsv2/sync_dbv13.sh)):**
+3. **Execution via deployment script ([sync_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/sync_db.sh)):**
    ```bash
    # 1. Stop service to release lock
    sudo systemctl stop sanvasify
@@ -238,14 +238,14 @@ To guarantee that production operations are not disrupted, the transition to the
     2. SCP it to AWS.
     3. Briefly stop the server, merge the Parquet data into `sif_schemes` inside `sanvas.db` on AWS, and restart the server.
   - Throughout this phase, the active Go web server on AWS still runs and serves queries off the live legacy `sanvasify.db`.
-- **Status:** **Completed.** The synchronization pipeline has been implemented in [sync_dbv2.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scriptsv2/sync_dbv2.sh) and tested successfully once. Both databases are fully available on AWS. The sync script is not yet scheduled.
+- **Status:** **Completed.** The synchronization pipeline has been implemented in [sync_dbv2.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/Archive/sync_dbv2.sh) (now replaced by the consolidated [sync_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/sync_db.sh)) and tested successfully once. Both databases are fully available on AWS. The sync script is not yet scheduled.
 
 ### Phase 3: Switchover to `sanvas.db` and Keep `sanvasify.db` as Fallback
 - **Actions:**
   - Migrate any production visitor data collected in the legacy `sanvasify.db`'s `visitors` table into the unified `sanvas.db` on AWS.
   - Reconfigure the Go application to point entirely to `sanvas.db` for all database operations (both schemes and visitor tracking).
   - Retain the old `sanvasify.db` on the AWS instance purely as a fallback/backup database.
-- **Status:** **Configured & Tested.** The switchover script [switch_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scriptsv2/switch_db.sh) has been created and tested to allow seamless toggling between the databases on AWS.
+- **Status:** **Configured & Tested.** The switchover script [switch_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/switch_db.sh) has been created and tested to allow seamless toggling between the databases on AWS.
 
 ---
 
@@ -256,13 +256,13 @@ To guarantee that production operations are not disrupted, the transition to the
 - **Legacy Sync Update ([scripts/sync_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/sync_db.sh)):** Updated to run local loading steps on both database files before syncing the legacy database to AWS.
 
 ### Modern Database Management Scripts
-- **Database Sync Script ([scriptsv2/sync_dbv2.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scriptsv2/sync_dbv2.sh)):**
+- **Database Sync Script ([scripts/sync_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/sync_db.sh)):**
   - Performs local database prep on both files.
   - Exports local `sif_schemes` to a compressed Parquet file using DuckDB.
   - Transfers the Parquet file to AWS staging.
   - Suspends AWS services, takes a backup of `sanvas.db` to `sanvas.db.bak`, merges table data atomically using DuckDB CLI, and restarts services.
   - *Status:* Verified successfully with a one-time test run. Not yet scheduled on a cron/timer.
-- **Database Switch Script ([scriptsv2/switch_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scriptsv2/switch_db.sh)):**
+- **Database Switch Script ([scripts/switch_db.sh](file:///Users/raghavgarg/Projects/myGo/sanvasify/scripts/switch_db.sh)):**
   - Connects to AWS to dynamically update the active `db_path` inside the web application configuration (`/opt/sanvasify/config/Config.toml`).
   - Clears stale WAL files and restarts service daemons to ensure a clean switchover.
   - Supports switching targets between `sanvas` and `sanvasify`.

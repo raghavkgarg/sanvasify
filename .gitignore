@@ -19,9 +19,8 @@ dist/
 *.err
 
 # Scripts (private)
-scriptsv2/*.sh
-sync_to_icloud.sh
-sync_cloudflare.sh
+scripts/Archive/sync_to_icloud.sh
+scripts/Archive/sync_cloudflare.sh
 
 # Docs (private)
 docs/blog.md
